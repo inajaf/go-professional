@@ -1,0 +1,698 @@
+/* =====================================================================
+   APP — routing, persistence, rendering, animation wiring
+   Pure vanilla JS. Runs over file:// (no modules, no fetch).
+   ===================================================================== */
+(function () {
+  "use strict";
+  const { COURSE_META, PARTS, MODULES, VERIFICATION, ASSIGNMENTS, GLOSSARY } = window.COURSE;
+  const LESSONS = window.COURSE.LESSONS || {};
+  const moduleById = Object.fromEntries(MODULES.map((m) => [m.id, m]));
+  const partById = Object.fromEntries(PARTS.map((p) => [p.id, p]));
+
+  /* ------------------------------------------------------- persistence */
+  const LS = "gocourse:v1";
+  const defaults = { checks: {}, notes: {}, theme: "dark", last: null, started: {}, answers: {}, solved: {} };
+  let state = load();
+  function load() {
+    try {
+      return Object.assign({}, defaults, JSON.parse(localStorage.getItem(LS) || "{}"));
+    } catch { return Object.assign({}, defaults); }
+  }
+  let saveTimer;
+  function save() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => localStorage.setItem(LS, JSON.stringify(state)), 120);
+  }
+
+  function checksFor(m) {
+    if (!state.checks[m.id]) state.checks[m.id] = m.checklist.map(() => false);
+    return state.checks[m.id];
+  }
+  const moduleDone = (m) => checksFor(m).every(Boolean);
+  const moduleProgress = (m) => {
+    const c = checksFor(m);
+    return c.filter(Boolean).length / c.length;
+  };
+  const overallDone = () => MODULES.filter(moduleDone).length;
+
+  /* ------------------------------------------------------------ helpers */
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+  const esc = (s) =>
+    s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  function copy(txt, btn) {
+    const done = () => { if (btn) { const o = btn.textContent; btn.textContent = "copied ✓"; btn.classList.add("ok"); setTimeout(() => { btn.textContent = o; btn.classList.remove("ok"); }, 1300); } };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(done).catch(() => fallback(txt, done));
+    } else fallback(txt, done);
+  }
+  function fallback(txt, cb) {
+    const ta = document.createElement("textarea");
+    ta.value = txt; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); cb(); } catch {}
+    document.body.removeChild(ta);
+  }
+
+  /* ----------------------------------------------- syntax highlighting */
+  const GO_KW = new Set("func package import var const type struct interface map chan go defer return if else for range switch case default break continue select fallthrough goto".split(" "));
+  const GO_BUILTIN = new Set("nil true false make new len cap append copy delete panic recover error string int int8 int16 int32 int64 uint uint8 uint16 uint32 uint64 byte rune bool float32 float64 any comparable".split(" "));
+  const SQL_KW = new Set("SELECT INSERT UPDATE DELETE FROM WHERE SET VALUES RETURNING AND OR NOT NULL INTO ON AS ORDER BY GROUP LIMIT JOIN LEFT INNER FOR UPDATE BEGIN COMMIT".split(" "));
+  function highlight(codeRaw, lang) {
+    const sql = lang === "sql";
+    const lineComment = sql ? "--" : "//";
+    // token regex: comments | strings | numbers | identifiers | ws/other
+    const re = new RegExp(
+      `(${sql ? "--" : "//|#"}[^\\n]*)` +              // 1 comment
+      "|(\"(?:[^\"\\\\]|\\\\.)*\"|`[^`]*`|'(?:[^'\\\\]|\\\\.)*')" + // 2 string
+      "|(\\b\\d[\\d_]*(?:\\.\\d+)?\\b)" +              // 3 number
+      "|([A-Za-z_\\$][A-Za-z0-9_\\$]*)" +             // 4 ident
+      "|([\\s\\S])",                                   // 5 other
+      "g"
+    );
+    let out = "", m;
+    while ((m = re.exec(codeRaw))) {
+      if (m[1]) out += `<span class="t-com">${esc(m[1])}</span>`;
+      else if (m[2]) out += `<span class="t-str">${esc(m[2])}</span>`;
+      else if (m[3]) out += `<span class="t-num">${esc(m[3])}</span>`;
+      else if (m[4]) {
+        const w = m[4];
+        const kw = sql ? SQL_KW.has(w.toUpperCase()) : GO_KW.has(w);
+        const bi = !sql && GO_BUILTIN.has(w);
+        // function call lookahead
+        const next = codeRaw[re.lastIndex];
+        const isCall = next === "(";
+        if (kw) out += `<span class="t-kw">${esc(w)}</span>`;
+        else if (bi) out += `<span class="t-bi">${esc(w)}</span>`;
+        else if (isCall) out += `<span class="t-fn">${esc(w)}</span>`;
+        else out += esc(w);
+      } else out += esc(m[5]);
+    }
+    return out;
+  }
+  function codeBlock(code, lang) {
+    const label = lang === "sql" ? "sql" : "go";
+    return `<div class="code">
+      <div class="code-head"><span class="code-lang">${label}</span>
+      <button class="copy-btn" data-copy="${esc(code)}">copy</button></div>
+      <pre><code>${highlight(code, lang)}</code></pre></div>`;
+  }
+
+  /* ----------------------------------------------------------- icons */
+  const ICONS = {
+    route: "M4 7h10M14 7l-3-3M14 7l-3 3M20 17H10M10 17l3-3M10 17l3 3",
+    layers: "M12 3l9 5-9 5-9-5 9-5zM3 13l9 5 9-5M3 17l9 5 9-5",
+    recycle: "M7 4l-3 5h4M5 9l2 4M17 4l3 5h-4M19 9l-2 4M9 20l-2-4h8l-2 4",
+    flask: "M9 3h6M10 3v6l-5 9a2 2 0 002 3h10a2 2 0 002-3l-5-9V3M7 15h10",
+    database: "M12 3c4 0 8 1 8 3s-4 3-8 3-8-1-8-3 4-3 8-3zM4 6v12c0 2 4 3 8 3s8-1 8-3V6M4 12c0 2 4 3 8 3s8-1 8-3",
+    shield: "M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3zM9 12l2 2 4-4",
+    activity: "M3 12h4l3 8 4-16 3 8h4",
+    cpu: "M6 6h12v12H6zM9 9h6v6H9M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3",
+    ship: "M3 14l9-4 9 4-2 6H5l-2-6zM12 10V4M8 7h8M12 20v-4",
+    share: "M2 12a3 3 0 106 0 3 3 0 10-6 0M16 5a3 3 0 106 0 3 3 0 10-6 0M16 19a3 3 0 106 0 3 3 0 10-6 0M7.5 10.8 16.4 6.4M7.5 13.2 16.4 17.6",
+    git: "M6 3a3 3 0 106 0 3 3 0 10-6 0M6 21a3 3 0 106 0 3 3 0 10-6 0M9 6v9M18 9a3 3 0 106 0 3 3 0 10-6 0M21 12c0 4-3 6-12 6",
+  };
+  const ico = (name, size = 18) =>
+    `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${(ICONS[name] || "")
+      .split("M").filter(Boolean).map((d) => `<path d="M${d}"/>`).join("")}</svg>`;
+
+  function ring(pct, size = 132, stroke = 10) {
+    const r = (size - stroke) / 2, C = 2 * Math.PI * r, off = C * (1 - pct);
+    return `<svg class="ring" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}">
+      <circle cx="${size / 2}" cy="${size / 2}" r="${r}" stroke="var(--anim-line)" stroke-width="${stroke}" fill="none"/>
+      <circle cx="${size / 2}" cy="${size / 2}" r="${r}" stroke="url(#rg)" stroke-width="${stroke}" fill="none"
+        stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"
+        transform="rotate(-90 ${size / 2} ${size / 2})"/>
+      <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="var(--go)"/><stop offset="1" stop-color="var(--purple)"/></linearGradient></defs>
+    </svg>`;
+  }
+
+  /* ------------------------------------------------------- sidebar */
+  function renderSidebar() {
+    const filter = ($("#nav-filter") && $("#nav-filter").value || "").toLowerCase();
+    const cur = currentRoute();
+    let html = `<a class="nav-home ${cur === "home" ? "active" : ""}" href="#/home">
+      <span class="nav-home-ic">${ico("ship", 16)}</span> Course Home</a>`;
+    PARTS.forEach((p) => {
+      const mods = p.modules.map((id) => moduleById[id]);
+      const visible = mods.filter((m) => !filter || (m.title + m.short + m.summary).toLowerCase().includes(filter));
+      if (!visible.length) return;
+      const doneCount = mods.filter(moduleDone).length;
+      html += `<div class="nav-part">
+        <div class="nav-part-head"><span>${p.label} · ${p.title}</span><span class="nav-part-count">${doneCount}/${mods.length}</span></div>`;
+      visible.forEach((m) => {
+        const done = moduleDone(m), pr = moduleProgress(m);
+        html += `<a class="nav-item ${cur === m.id ? "active" : ""} ${done ? "done" : ""}" href="#/${m.id}">
+          <span class="nav-num">${done ? "✓" : m.code}</span>
+          <span class="nav-text"><span class="nav-title">${m.short}</span>
+          <span class="nav-bar"><span style="width:${pr * 100}%"></span></span></span>
+        </a>`;
+      });
+      html += "</div>";
+    });
+    $("#nav-list").innerHTML = html;
+  }
+
+  /* ---------------------------------------------------------- home */
+  function renderHome() {
+    const done = overallDone(), pct = done / MODULES.length;
+    const cont = state.last && moduleById[state.last] ? state.last : MODULES[0].id;
+    const contM = moduleById[cont];
+    const animationCount = new Set(MODULES.map((m) => m.animation.id)).size;
+    let cards = "";
+    PARTS.forEach((p) => {
+      cards += `<div class="part-block">
+        <div class="part-head"><div><span class="part-label">${p.label}</span>
+        <h3>${p.title}</h3></div><span class="part-level">${p.level}</span></div>
+        <div class="card-grid">`;
+      p.modules.forEach((id) => {
+        const m = moduleById[id], pr = moduleProgress(m), d = moduleDone(m);
+        cards += `<a class="mod-card ${d ? "done" : ""}" href="#/${m.id}">
+          <div class="mod-card-top"><span class="mod-ic">${ico(m.icon)}</span>
+            <span class="mod-card-num">${m.code}</span>
+            ${d ? '<span class="mod-check">✓</span>' : ""}</div>
+          <h4>${m.title}</h4>
+          <p>${m.summary}</p>
+          <div class="mod-card-foot">
+            <span class="chip">${m.level}</span><span class="chip ghost">${m.duration}</span>
+            <span class="mod-anim-tag">🎬 ${m.animation.title}</span>
+          </div>
+          <div class="mod-card-bar"><span style="width:${pr * 100}%"></span></div>
+        </a>`;
+      });
+      cards += "</div></div>";
+    });
+
+    const verRows = VERIFICATION.map(
+      (r) => `<tr><td>${esc(r[0])}</td><td>${highlightInline(r[1])}</td></tr>`
+    ).join("");
+
+    $("#main").innerHTML = `
+      <section class="hero">
+        <div class="hero-text">
+          <div class="hero-badges"><span class="chip glow">Go 1.24 · 1.25 · 1.26</span><span class="chip ghost">2026–2030 Horizon</span></div>
+          <h1>${COURSE_META.title}</h1>
+          <p class="hero-sub">${COURSE_META.subtitle}</p>
+          <p class="hero-tag">${COURSE_META.tagline}</p>
+          <div class="hero-cta">
+            <a class="btn primary" href="#/${cont}">${done ? "Continue" : "Start"} · ${contM.short} →</a>
+            <a class="btn ghost" href="#/${MODULES[0].id}">View first module</a>
+          </div>
+        </div>
+        <div class="hero-ring">
+          <div class="ring-wrap">${ring(pct)}
+            <div class="ring-center"><span class="ring-pct">${Math.round(pct * 100)}%</span><span class="ring-lbl">${done}/${MODULES.length} modules</span></div>
+          </div>
+          <div class="hero-stats">
+            <div><b>${MODULES.length}</b><span>modules</span></div>
+            <div><b>${PARTS.length}</b><span>tracks</span></div>
+            <div><b>${animationCount}</b><span>animations</span></div>
+          </div>
+        </div>
+      </section>
+      <div class="capstone-banner">
+        <span class="cap-ico">🏦</span>
+        <div><b>Capstone project</b> — every module builds one system: a
+        <b>${COURSE_META.capstone}</b>. Zero-dependency, high-throughput, post-quantum secure.</div>
+      </div>
+      ${cards}
+      <section class="verify">
+        <h3>Production Verification Checklist</h3>
+        <table class="verify-table"><tbody>${verRows}</tbody></table>
+      </section>
+      <footer class="foot">Local course · progress saved in your browser (localStorage) · no server, no tracking.</footer>
+    `;
+    $("#main").scrollTop = 0;
+  }
+  function highlightInline(s) {
+    return esc(s).replace(/`([^`]+)`/g, '<code class="inl">$1</code>');
+  }
+
+  /* ----------------------------------------------------- assignments */
+  const ASSIGN_LABELS = { mcq: "Multiple choice", blank: "Fill in the blank", predict: "Predict the output", code: "Write code" };
+  const normAns = (s) => String(s == null ? "" : s).trim().replace(/\s+/g, " ").toLowerCase();
+  function solvedFor(mid) { if (!state.solved[mid]) state.solved[mid] = {}; return state.solved[mid]; }
+  function answersFor(mid) { if (!state.answers[mid]) state.answers[mid] = {}; return state.answers[mid]; }
+
+  // grade one assignment -> { ok, details? }  (details for code tasks)
+  function gradeAssignment(a, val) {
+    if (a.type === "mcq") return { ok: String(val) !== "" && Number(val) === a.answer };
+    if (a.type === "blank" || a.type === "predict") {
+      const got = normAns(val);
+      return { ok: got !== "" && (a.accept || []).some((acc) => normAns(acc) === got) };
+    }
+    if (a.type === "code") {
+      const code = String(val || "");
+      const details = (a.checks || []).map((c) => {
+        let ok = true;
+        if (c.has != null) ok = code.includes(c.has);
+        else if (c.not != null) ok = !code.includes(c.not);
+        else if (c.re != null) { try { ok = new RegExp(c.re).test(code); } catch { ok = false; } }
+        return { ok, msg: c.msg };
+      });
+      return { ok: details.every((d) => d.ok), details };
+    }
+    return { ok: false };
+  }
+
+  function renderAssignments(m) {
+    const list = (ASSIGNMENTS && ASSIGNMENTS[m.id]) || [];
+    if (!list.length) return "";
+    const saved = answersFor(m.id), solved = solvedFor(m.id);
+    const solvedCount = list.reduce((n, _, i) => n + (solved[i] ? 1 : 0), 0);
+    const cards = list.map((a, i) => {
+      const v = saved[i];
+      let input = "";
+      if (a.type === "mcq") {
+        input = `<div class="opts">${a.options.map((o, oi) =>
+          `<label class="opt"><input type="radio" name="q-${m.id}-${i}" value="${oi}" ${String(v) === String(oi) ? "checked" : ""}><span>${esc(o)}</span></label>`).join("")}</div>`;
+      } else if (a.type === "code") {
+        input = `<textarea class="assign-code" data-i="${i}" spellcheck="false" placeholder="// write your Go here">${esc(v != null ? v : (a.starter || ""))}</textarea>`;
+      } else {
+        input = `<input class="assign-input" type="text" data-i="${i}" autocomplete="off" spellcheck="false" placeholder="your answer…" value="${esc(v != null ? v : "")}">`;
+      }
+      return `<div class="assign ${solved[i] ? "is-solved" : ""}" data-i="${i}">
+        <div class="assign-head">
+          <span class="assign-n">${i + 1}</span>
+          <span class="assign-kind">${ASSIGN_LABELS[a.type] || ""}</span>
+          <span class="assign-state">${solved[i] ? "✓ solved" : ""}</span>
+        </div>
+        <p class="assign-q">${esc(a.prompt)}</p>
+        ${a.code ? codeBlock(a.code, a.lang || "go") : ""}
+        ${input}
+        <div class="assign-foot">
+          <button class="btn primary small assign-check" data-i="${i}">Check answer</button>
+          <button class="btn ghost small assign-reveal" data-i="${i}">Explanation</button>
+        </div>
+        <div class="assign-out" data-i="${i}"></div>
+        <div class="assign-exp" data-i="${i}" hidden>${esc(a.explain || "")}</div>
+      </div>`;
+    }).join("");
+    return `<section class="block">
+      <h2 class="block-h">Assignments
+        <span class="assign-score" id="assign-score">${solvedCount}/${list.length} solved</span></h2>
+      <p class="assign-intro">Answer below — checked instantly in your browser. Multiple-choice and fill-in-the-blank are graded exactly; “write code” tasks are checked structurally (rule by rule), not compiled.</p>
+      <div class="assigns">${cards}</div>
+    </section>`;
+  }
+
+  function wireAssignments(m) {
+    const list = (ASSIGNMENTS && ASSIGNMENTS[m.id]) || [];
+    if (!list.length) return;
+    const saved = answersFor(m.id), solved = solvedFor(m.id);
+    const readVal = (i) => {
+      const a = list[i];
+      if (a.type === "mcq") { const sel = $(`input[name="q-${m.id}-${i}"]:checked`); return sel ? sel.value : ""; }
+      if (a.type === "code") { const ta = $(`.assign-code[data-i="${i}"]`); return ta ? ta.value : ""; }
+      const inp = $(`.assign-input[data-i="${i}"]`); return inp ? inp.value : "";
+    };
+    const persist = (i, val) => { saved[i] = val; save(); };
+
+    // remember inputs as the user types/picks
+    $$(".assign-input").forEach((inp) => inp.addEventListener("input", () => persist(+inp.dataset.i, inp.value)));
+    $$(".assign-code").forEach((ta) => ta.addEventListener("input", () => persist(+ta.dataset.i, ta.value)));
+    $$('.opts input[type="radio"]').forEach((r) => r.addEventListener("change", () => {
+      const i = +r.name.split("-").pop(); persist(i, r.value);
+    }));
+
+    $$(".assign-reveal").forEach((b) => b.addEventListener("click", () => {
+      const exp = $(`.assign-exp[data-i="${b.dataset.i}"]`);
+      if (exp) { exp.hidden = !exp.hidden; b.textContent = exp.hidden ? "Explanation" : "Hide explanation"; }
+    }));
+
+    $$(".assign-check").forEach((b) => b.addEventListener("click", () => {
+      const i = +b.dataset.i, a = list[i], val = readVal(i);
+      persist(i, val);
+      const res = gradeAssignment(a, val);
+      const out = $(`.assign-out[data-i="${i}"]`);
+      const card = $(`.assign[data-i="${i}"]`);
+      if (a.type === "code" && res.details) {
+        out.innerHTML = res.details.map((d) =>
+          `<div class="chk ${d.ok ? "ok" : "no"}">${d.ok ? "✓" : "✗"} ${esc(d.msg)}</div>`).join("") +
+          `<div class="assign-verdict ${res.ok ? "ok" : "no"}">${res.ok ? "✓ All checks pass — nice." : "Not all checks pass yet — fix the ✗ items above."}</div>`;
+      } else {
+        out.innerHTML = `<div class="assign-verdict ${res.ok ? "ok" : "no"}">${res.ok ? "✓ Correct!" : "✗ Not quite — try again, then hit Explanation."}</div>`;
+      }
+      if (res.ok) {
+        solved[i] = true; card.classList.add("is-solved");
+        const st = card.querySelector(".assign-state"); if (st) st.textContent = "✓ solved";
+        const exp = $(`.assign-exp[data-i="${i}"]`); if (exp) exp.hidden = false;
+        const rb = card.querySelector(".assign-reveal"); if (rb) rb.textContent = "Hide explanation";
+      } else { delete solved[i]; card.classList.remove("is-solved"); }
+      save();
+      const score = $("#assign-score");
+      if (score) score.textContent = list.reduce((n, _, k) => n + (solved[k] ? 1 : 0), 0) + "/" + list.length + " solved";
+    }));
+  }
+
+  /* -------------------------------------------------------- module */
+  let activeAnim = null;
+  function renderModule(m) {
+    state.last = m.id;
+    state.started[m.id] = true;
+    save();
+    const idx = MODULES.indexOf(m);
+    const prev = MODULES[idx - 1], next = MODULES[idx + 1];
+    const part = partById[m.part];
+    const checks = checksFor(m);
+
+    const concepts = m.concepts.map((c, i) => `
+      <div class="concept" data-c="${i}">
+        <button class="concept-head" data-toggle="${i}">
+          <span class="concept-n">${String(i + 1).padStart(2, "0")}</span>
+          <span class="concept-t">${c.title}</span>
+          <span class="concept-chev">▾</span>
+        </button>
+        <div class="concept-body"><div class="concept-inner">
+          <p>${c.body}</p>
+          ${c.code ? codeBlock(c.code, c.lang) : ""}
+        </div></div>
+      </div>`).join("");
+
+    const checklist = m.checklist.map((c, i) => `
+      <li class="check ${checks[i] ? "on" : ""}" data-check="${i}">
+        <span class="check-box">${checks[i] ? "✓" : ""}</span><span>${esc(c)}</span></li>`).join("");
+
+    const plainHtml = m.plain
+      ? `<section class="plain"><span class="plain-ic">💡</span>
+           <div><span class="plain-k">In plain terms</span><p>${esc(m.plain)}</p></div></section>`
+      : "";
+    const rightCard = m.capstone
+      ? `<section class="card cap-card">
+           <h3><span class="dot-cap"></span>${m.capstone.title}</h3>
+           <p>${esc(m.capstone.body)}</p>
+           <div class="cap-tag">Ledger build · ${m.code}</div>
+         </section>`
+      : `<section class="card practice-card">
+           <h3><span class="dot-practice"></span>${(m.practice && m.practice.title) || "Try it yourself"}</h3>
+           <p>${esc((m.practice && m.practice.body) || "")}</p>
+           <ol class="practice-steps">${((m.practice && m.practice.steps) || []).map((s) => `<li>${esc(s)}</li>`).join("")}</ol>
+         </section>`;
+    const pitfallsHtml = (m.pitfalls || []).map((p) => `<li>${esc(p)}</li>`).join("");
+    const takeawaysHtml = (m.takeaways || []).map((p) => `<li>${esc(p)}</li>`).join("");
+    const lesson = LESSONS[m.id] || [];
+    const lessonHtml = lesson.length
+      ? `<section class="block lesson">
+           <h2 class="block-h">Deep dive — the bigger picture
+             <span class="lesson-meta">${lesson.length} sections · ~${Math.max(6, Math.round(lesson.length * 2.5))} min read</span></h2>
+           <div class="lesson-body">${lesson.map((s, i) => `
+             <div class="lesson-sec">
+               <h4><span class="ls-n">${i + 1}</span>${esc(s.h)}</h4>
+               ${String(s.p).split(/\n\n+/).map((para) => `<p>${highlightInline(para)}</p>`).join("")}
+               ${s.code ? codeBlock(s.code, s.lang || "go") : ""}
+             </div>`).join("")}</div>
+         </section>`
+      : "";
+
+    const terms = (GLOSSARY && GLOSSARY[m.id]) || [];
+    const glossaryHtml = terms.length
+      ? `<section class="block">
+           <h2 class="block-h">Key terms</h2>
+           <div class="glossary">${terms.map((t) =>
+             `<div class="gterm"><span class="gt">${esc(t[0])}</span><span class="gd">${esc(t[1])}</span></div>`).join("")}</div>
+         </section>`
+      : "";
+
+    $("#main").innerHTML = `
+      <article class="module">
+        <div class="mod-breadcrumb">
+          <a href="#/home">Home</a> <span>/</span>
+          <span>${part.label} · ${part.title}</span> <span>/</span>
+          <span class="bc-cur">${m.code} · Module ${m.num}</span>
+        </div>
+        <header class="mod-header">
+          <div class="mod-h-ic">${ico(m.icon, 26)}</div>
+          <div>
+            <div class="mod-h-meta"><span class="chip">${m.level}</span><span class="chip ghost">${m.duration}</span>
+              ${moduleDone(m) ? '<span class="chip done-chip">✓ complete</span>' : ""}</div>
+            <h1>${m.title}</h1>
+            <p>${m.summary}</p>
+          </div>
+        </header>
+
+        ${plainHtml}
+
+        <section class="viz card">
+          <div class="viz-head">
+            <div><span class="viz-tag">🎬 Interactive Visualization · step-by-step</span>
+              <h2>${m.animation.title}</h2></div>
+          </div>
+          <p class="viz-blurb">${m.animation.blurb}</p>
+          <div class="viz-stage">
+            <canvas id="viz-canvas"></canvas>
+          </div>
+          <div class="viz-steps" id="viz-steps"></div>
+          <div class="viz-caption" id="viz-caption">—</div>
+          <div class="viz-controls">
+            <button class="vc-btn" id="vc-reset" title="Reset to start">⟲</button>
+            <button class="vc-btn" id="vc-step-b" title="Nudge back">⟨</button>
+            <button class="vc-btn play" id="vc-play" title="Play / pause (space)">▶</button>
+            <button class="vc-btn" id="vc-step-f" title="Nudge forward">⟩</button>
+            <input type="range" id="vc-scrub" min="0" max="1000" value="0" aria-label="scrub" />
+            <button class="vc-btn speed" id="vc-speed" title="Playback speed">0.75×</button>
+          </div>
+        </section>
+
+        ${lessonHtml}
+
+        <section class="block">
+          <h2 class="block-h">Core Engineering Concepts</h2>
+          <div class="concepts">${concepts}</div>
+        </section>
+
+        ${renderAssignments(m)}
+
+        <div class="two-col">
+          <section class="card ai-card">
+            <h3><span class="dot-ai"></span>${m.ai.title}</h3>
+            <p>${m.ai.body}</p>
+            <div class="prompt">
+              <div class="prompt-head"><span class="prompt-k">📋 Ready-made prompt — paste into Claude or Cursor</span>
+                <button class="copy-btn small" data-copy="${esc(m.ai.prompt)}">Copy prompt</button></div>
+              <p class="prompt-body">${esc(m.ai.prompt)}</p>
+            </div>
+            <p class="prompt-note">Copy this and paste it into an AI assistant (Claude, Cursor, …) to run the AI-assisted workflow for this topic on <em>your own</em> code.</p>
+          </section>
+          ${rightCard}
+        </div>
+
+        <section class="two-col">
+          <div class="card pitfalls-card">
+            <h3><span class="ic-pill warn">⚠</span> Common pitfalls</h3>
+            <ul class="pitfalls">${pitfallsHtml}</ul>
+          </div>
+          <div class="card takeaways-card">
+            <h3><span class="ic-pill key">🔑</span> Key takeaways</h3>
+            <ul class="takeaways">${takeawaysHtml}</ul>
+          </div>
+        </section>
+
+        ${glossaryHtml}
+
+        <section class="two-col">
+          <div class="card">
+            <h3>Mastery checklist</h3>
+            <ul class="checklist">${checklist}</ul>
+            <button class="btn ghost small" id="toggle-all">${moduleDone(m) ? "Reset module" : "Mark all complete"}</button>
+          </div>
+          <div class="card">
+            <h3>Your notes</h3>
+            <textarea id="notes" class="notes" placeholder="Jot insights, gotchas, links… (saved locally)">${esc(state.notes[m.id] || "")}</textarea>
+            <span class="notes-status" id="notes-status"></span>
+          </div>
+        </section>
+
+        <nav class="mod-nav">
+          ${prev ? `<a class="btn ghost" href="#/${prev.id}">← ${prev.short}</a>` : '<span></span>'}
+          <a class="btn ghost" href="#/home">All modules</a>
+          ${next ? `<a class="btn primary" href="#/${next.id}">${next.short} →</a>` : '<a class="btn primary" href="#/home">Finish ✓</a>'}
+        </nav>
+      </article>`;
+    $("#main").scrollTop = 0;
+
+    wireModule(m);
+    wireAssignments(m);
+    setupAnim(m);
+  }
+
+  function wireModule(m) {
+    // concept accordions
+    $$(".concept-head").forEach((b, i) => {
+      if (i === 0) b.parentElement.classList.add("open");
+      b.addEventListener("click", () => b.parentElement.classList.toggle("open"));
+    });
+    // checklist
+    $$(".check").forEach((li) => {
+      li.addEventListener("click", () => {
+        const i = +li.dataset.check, c = checksFor(m);
+        c[i] = !c[i]; save();
+        renderModule(m); renderSidebar();
+      });
+    });
+    $("#toggle-all").addEventListener("click", () => {
+      const c = checksFor(m), all = c.every(Boolean);
+      state.checks[m.id] = c.map(() => !all); save();
+      renderModule(m); renderSidebar();
+    });
+    // notes autosave
+    const ta = $("#notes"), st = $("#notes-status");
+    ta.addEventListener("input", () => {
+      state.notes[m.id] = ta.value; save();
+      st.textContent = "saved ✓"; clearTimeout(ta._t);
+      ta._t = setTimeout(() => (st.textContent = ""), 1000);
+    });
+    // copy buttons
+    $$("[data-copy]").forEach((b) =>
+      b.addEventListener("click", () => copy(b.dataset.copy, b)));
+  }
+
+  /* ---------------------------------------------------- animation */
+  const SPEEDS = [0.5, 0.75, 1, 1.5];
+  function setupAnim(m) {
+    if (activeAnim) activeAnim.destroy();
+    const canvas = $("#viz-canvas");
+    const factory = window.ANIMATIONS[m.animation.id];
+    if (!canvas || !factory) return;
+    const anim = factory(canvas);
+    activeAnim = anim; window.__activeAnim = anim;
+    const playBtn = $("#vc-play"), scrub = $("#vc-scrub"), cap = $("#viz-caption"),
+      stepsEl = $("#viz-steps"), speedBtn = $("#vc-speed");
+    const phases = anim.getPhases();
+
+    // build the step indicator: a clickable dot per phase + current step label
+    stepsEl.innerHTML =
+      `<div class="steps-dots">${phases.map((p, i) =>
+        `<button class="step-dot" data-i="${i}" title="${esc(p.title)}"><b>${i + 1}</b><span>${esc(p.title)}</span></button>`).join("")}</div>
+       <div class="steps-now"><span class="steps-badge" id="steps-badge">Step 1 / ${phases.length}</span>
+       <span class="steps-title" id="steps-title">${esc(phases[0].title)}</span></div>`;
+    const dots = $$(".step-dot", stepsEl);
+    const sBadge = $("#steps-badge"), sTitle = $("#steps-title");
+
+    let dragging = false, speedI = 1; // default 0.75×
+    anim.setSpeed(SPEEDS[speedI]);
+    speedBtn.textContent = SPEEDS[speedI] + "×";
+
+    anim.onFrame((p, ph) => {
+      if (!dragging) scrub.value = Math.round(p * 1000);
+      if (ph) {
+        cap.textContent = ph.desc;
+        sBadge.textContent = "Step " + (ph.index + 1) + " / " + ph.total;
+        sTitle.textContent = ph.title;
+        dots.forEach((d, i) => {
+          d.classList.toggle("active", i === ph.index);
+          d.classList.toggle("done", i < ph.index);
+        });
+      }
+      refresh();
+    });
+    function refresh() {
+      playBtn.textContent = anim.isPlaying() ? "❚❚" : "▶";
+      playBtn.classList.toggle("playing", anim.isPlaying());
+    }
+    playBtn.addEventListener("click", () => { anim.toggle(); refresh(); });
+    $("#vc-reset").addEventListener("click", () => { anim.reset(); refresh(); });
+    $("#vc-step-f").addEventListener("click", () => { anim.step(0.4); refresh(); });
+    $("#vc-step-b").addEventListener("click", () => { anim.step(-0.4); refresh(); });
+    scrub.addEventListener("input", () => { dragging = true; anim.seek(+scrub.value / 1000); refresh(); });
+    scrub.addEventListener("change", () => { dragging = false; });
+    dots.forEach((d) => d.addEventListener("click", () => { anim.seekPhase(+d.dataset.i); refresh(); }));
+    speedBtn.addEventListener("click", () => {
+      speedI = (speedI + 1) % SPEEDS.length;
+      anim.setSpeed(SPEEDS[speedI]);
+      speedBtn.textContent = SPEEDS[speedI] + "×";
+    });
+    // autoplay on first view of the module for that wow factor
+    setTimeout(() => { anim.resize(); anim.play(); refresh(); }, 120);
+  }
+
+  /* ------------------------------------------------------- routing */
+  function currentRoute() {
+    const h = location.hash.replace(/^#\/?/, "") || "home";
+    return h;
+  }
+  function route() {
+    const r = currentRoute();
+    if (activeAnim) { activeAnim.destroy(); activeAnim = null; window.__activeAnim = null; }
+    if (r === "home" || !moduleById[r]) {
+      if (r !== "home" && !moduleById[r]) location.hash = "#/home";
+      renderHome();
+    } else {
+      renderModule(moduleById[r]);
+    }
+    renderSidebar();
+    // close mobile nav
+    document.body.classList.remove("nav-open");
+  }
+  window.addEventListener("hashchange", route);
+
+  /* --------------------------------------------------- theme + chrome */
+  function applyTheme() {
+    document.documentElement.dataset.theme = state.theme;
+    const tb = $("#theme-btn");
+    if (tb) tb.textContent = state.theme === "dark" ? "☾" : "☀";
+  }
+
+  /* -------------------------------------------------- keyboard nav */
+  window.addEventListener("keydown", (e) => {
+    if (e.target.matches("input, textarea")) return;
+    const r = currentRoute(), m = moduleById[r];
+    if (e.key === "ArrowRight" && m) {
+      const n = MODULES[MODULES.indexOf(m) + 1]; if (n) location.hash = "#/" + n.id;
+    } else if (e.key === "ArrowLeft" && m) {
+      const p = MODULES[MODULES.indexOf(m) - 1]; if (p) location.hash = "#/" + p.id;
+    } else if (e.key === " " && activeAnim) {
+      e.preventDefault(); activeAnim.toggle();
+    }
+  });
+
+  /* ------------------------------------------------------------ boot */
+  function boot() {
+    document.getElementById("app").innerHTML = `
+      <header class="topbar">
+        <button class="nav-toggle" id="nav-toggle" aria-label="menu">☰</button>
+        <a class="brand" href="#/home">
+          <span class="brand-mark">go</span>
+          <span class="brand-text"><b>Hardcore Go</b><small>Distributed Systems Engineering</small></span>
+        </a>
+        <div class="topbar-right">
+          <div class="top-progress" id="top-progress"></div>
+          <button class="icon-btn" id="theme-btn" title="Toggle theme">☾</button>
+        </div>
+      </header>
+      <div class="layout">
+        <aside class="sidebar" id="sidebar">
+          <div class="nav-search"><input id="nav-filter" placeholder="Filter modules…" /></div>
+          <nav id="nav-list"></nav>
+          <div class="sidebar-foot" id="sidebar-foot"></div>
+        </aside>
+        <main id="main"></main>
+      </div>
+      <div class="nav-scrim" id="nav-scrim"></div>`;
+
+    applyTheme();
+    $("#theme-btn").addEventListener("click", () => {
+      state.theme = state.theme === "dark" ? "light" : "dark"; save(); applyTheme();
+      if (activeAnim) activeAnim.render();
+    });
+    $("#nav-toggle").addEventListener("click", () => document.body.classList.toggle("nav-open"));
+    $("#nav-scrim").addEventListener("click", () => document.body.classList.remove("nav-open"));
+    $("#nav-filter").addEventListener("input", renderSidebar);
+    updateTopProgress();
+    route();
+    // keep top progress + sidebar foot fresh
+    setInterval(() => { updateTopProgress(); }, 1500);
+  }
+  function updateTopProgress() {
+    const done = overallDone(), pct = Math.round((done / MODULES.length) * 100);
+    const tp = $("#top-progress");
+    if (tp) tp.innerHTML = `<span class="tp-bar"><span style="width:${pct}%"></span></span><span class="tp-num">${pct}%</span>`;
+    const sf = $("#sidebar-foot");
+    if (sf) sf.innerHTML = `<div class="sf-ring">${ring(done / MODULES.length, 54, 5)}</div>
+      <div><b>${done}/${MODULES.length}</b><span>modules complete</span></div>`;
+  }
+
+  if (document.readyState === "loading")
+    document.addEventListener("DOMContentLoaded", boot);
+  else boot();
+})();
