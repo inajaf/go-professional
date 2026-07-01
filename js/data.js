@@ -10,7 +10,7 @@ const COURSE_META = {
   title: "Hardcore Go & Distributed Systems Engineering",
   subtitle: "Beginner Foundations → Senior / Staff / Principal",
   tagline:
-    "Start by writing idiomatic Go — goroutines, channels, errors, tests — then go under the runtime and the hardware, and build a zero-dependency, post-quantum-secure Distributed Financial Ledger on Go 1.24–1.26.",
+    "Start by writing idiomatic Go - goroutines, channels, errors, tests - then go under the runtime and the hardware, and build a zero-dependency, post-quantum-secure Distributed Financial Ledger on Go 1.24–1.26.",
   target: "go 1.26 (strictly enforced via CI)",
   capstone: "Distributed Financial Ledger",
 };
@@ -52,7 +52,7 @@ const PARTS = [
   {
     id: "part-4",
     label: "Part 5",
-    title: "Under the Hood — Hardware Sympathy",
+    title: "Under the Hood - Hardware Sympathy",
     level: "Staff · Deep Architecture",
     modules: ["m10", "m11", "m12", "m8"],
   },
@@ -80,18 +80,18 @@ const MODULES = [
     summary:
       "Demystify automatic memory management: the concurrent tri-color mark-and-sweep collector, what GOGC and GOMEMLIMIT actually do, and how to cut GC pressure.",
     plain:
-      "Think of the garbage collector (GC) as an automatic janitor for memory. In a language like C you must manually free() everything you allocate. In Go you simply stop using a value and the GC reclaims it for you — while your program keeps running. It does this by repeatedly asking one question: 'starting from what is definitely live right now (global variables and the goroutine stacks), which objects can I still reach by following pointers?' Anything it can no longer reach is garbage, and its memory is given back.",
+      "Think of the garbage collector (GC) as an automatic janitor for memory. In a language like C you must manually free() everything you allocate. In Go you simply stop using a value and the GC reclaims it for you - while your program keeps running. It does this by repeatedly asking one question: 'starting from what is definitely live right now (global variables and the goroutine stacks), which objects can I still reach by following pointers?' Anything it can no longer reach is garbage, and its memory is given back.",
     animation: {
       id: "gc-mark-sweep",
       title: "Tri-Color Mark & Sweep",
       blurb:
-        "Watch the collector start at the roots, paint reachable objects grey then black, and sweep away everything left white — all while the program keeps running.",
+        "Watch the collector start at the roots, paint reachable objects grey then black, and sweep away everything left white - all while the program keeps running.",
     },
     concepts: [
       {
         title: "Tri-color mark & sweep, in pictures",
         body:
-          "The GC mentally colours every object white (not yet seen), grey (reachable, but its pointers aren't scanned yet) or black (reachable and fully scanned). It greys the roots, then keeps scanning greys to black — greying their children as it goes. When no grey objects remain, anything still white is unreachable and gets swept (freed).",
+          "The GC mentally colours every object white (not yet seen), grey (reachable, but its pointers aren't scanned yet) or black (reachable and fully scanned). It greys the roots, then keeps scanning greys to black - greying their children as it goes. When no grey objects remain, anything still white is unreachable and gets swept (freed).",
         code: `// Conceptually, every GC cycle is:
 //   1. white = all objects
 //   2. grey  = roots (globals + goroutine stacks)
@@ -100,7 +100,7 @@ const MODULES = [
 //        grey any white children, mark it black
 //   4. sweep: every object still white is freed
 //
-// You never write this — the runtime does it concurrently.`,
+// You never write this - the runtime does it concurrently.`,
         lang: "go",
       },
       {
@@ -117,7 +117,7 @@ const MODULES = [
         lang: "go",
       },
       {
-        title: "GOGC — the speed/memory dial",
+        title: "GOGC - the speed/memory dial",
         body:
           "GOGC (default 100) controls how much the heap may grow before the next collection. 100 means 'let the live heap double before collecting again'. Raise it to spend more memory for fewer GCs (more throughput); lower it to use less memory at the cost of more CPU.",
         code: `import "runtime/debug"
@@ -125,7 +125,7 @@ const MODULES = [
 // Default: collect when heap doubles.
 //   GOGC=100  (env var) == debug.SetGCPercent(100)
 
-// Fewer, larger collections — trade memory for CPU:
+// Fewer, larger collections - trade memory for CPU:
 debug.SetGCPercent(200)
 
 // Disable entirely (rare; only with GOMEMLIMIT set):
@@ -133,7 +133,7 @@ debug.SetGCPercent(200)
         lang: "go",
       },
       {
-        title: "GOMEMLIMIT — the soft memory cap",
+        title: "GOMEMLIMIT - the soft memory cap",
         body:
           "GOMEMLIMIT (Go 1.19+) tells the runtime a total memory budget. As you approach it the GC runs more aggressively, which prevents the dreaded out-of-memory (OOM) kill in containers. It's a soft limit: the runtime will work hard to stay under it.",
         code: `import "runtime/debug"
@@ -148,7 +148,7 @@ debug.SetMemoryLimit(512 << 20) // == GOMEMLIMIT=512MiB
       {
         title: "Observing & reducing GC work",
         body:
-          "Measure before tuning: GODEBUG=gctrace=1 prints a line per cycle, and runtime.ReadMemStats / the runtime/metrics package expose live numbers for dashboards. The cheapest GC work is the allocation you never make — reuse buffers, prefer values over pointers, and preallocate slices with a capacity.",
+          "Measure before tuning: GODEBUG=gctrace=1 prints a line per cycle, and runtime.ReadMemStats / the runtime/metrics package expose live numbers for dashboards. The cheapest GC work is the allocation you never make - reuse buffers, prefer values over pointers, and preallocate slices with a capacity.",
         code: `var stats runtime.MemStats
 runtime.ReadMemStats(&stats)
 fmt.Println("heap in use:", stats.HeapInuse, "GCs:", stats.NumGC)
@@ -178,14 +178,14 @@ b.Reset(); defer bufPool.Put(b)`,
       ],
     },
     pitfalls: [
-      "Calling runtime.GC() in production 'to be safe' — it forces extra stop-the-world work and almost always hurts throughput.",
+      "Calling runtime.GC() in production 'to be safe' - it forces extra stop-the-world work and almost always hurts throughput.",
       "Cranking GOGC very low to save memory, then being surprised that CPU is pegged by constant collections.",
       "Ignoring GOMEMLIMIT in containers and getting OOM-killed by the orchestrator instead of letting the GC reclaim memory first.",
     ],
     takeaways: [
-      "The GC is concurrent: pauses are tiny — throughput (CPU spent collecting) is the real cost.",
+      "The GC is concurrent: pauses are tiny - throughput (CPU spent collecting) is the real cost.",
       "GOGC trades memory for CPU; GOMEMLIMIT puts a soft ceiling on total memory.",
-      "The fastest collection is the allocation you avoided — reuse buffers and preallocate.",
+      "The fastest collection is the allocation you avoided - reuse buffers and preallocate.",
     ],
     checklist: [
       "Can explain white/grey/black and why a write barrier is needed.",
@@ -209,12 +209,12 @@ b.Reset(); defer bufPool.Put(b)`,
     summary:
       "Stop guessing where your program is slow. Collect CPU, heap, goroutine and mutex profiles, then read them with go tool pprof and flame graphs.",
     plain:
-      "A profiler is a fitness tracker for your program. Instead of staring at code wondering what's slow, pprof samples the running program many times per second and tells you exactly which functions burn CPU or hold memory. You then optimize the real hotspot instead of a guess — and most of the time the hotspot is somewhere you didn't expect.",
+      "A profiler is a fitness tracker for your program. Instead of staring at code wondering what's slow, pprof samples the running program many times per second and tells you exactly which functions burn CPU or hold memory. You then optimize the real hotspot instead of a guess - and most of the time the hotspot is somewhere you didn't expect.",
     animation: {
       id: "pprof-flame",
       title: "CPU Sampling → Flame Graph",
       blurb:
-        "See the sampler snapshot the running call stack ~100×/second, watch those samples stack up into a flame graph, and spot the widest box — your hotspot.",
+        "See the sampler snapshot the running call stack ~100×/second, watch those samples stack up into a flame graph, and spot the widest box - your hotspot.",
     },
     concepts: [
       {
@@ -233,7 +233,7 @@ b.Reset(); defer bufPool.Put(b)`,
       {
         title: "Collect from a live server (net/http/pprof)",
         body:
-          "The easiest way: import net/http/pprof for its side effect and it registers debug endpoints on the default mux. Then pull a 30-second CPU profile from the running process — no redeploy needed.",
+          "The easiest way: import net/http/pprof for its side effect and it registers debug endpoints on the default mux. Then pull a 30-second CPU profile from the running process - no redeploy needed.",
         code: `import (
     "net/http"
     _ "net/http/pprof" // registers /debug/pprof/* handlers
@@ -278,7 +278,7 @@ defer pprof.StopCPUProfile()`,
       {
         title: "Reading a flame graph",
         body:
-          "Each box is a function; the box directly above sits inside its caller. Width is proportional to time (or allocations) spent — so the widest boxes are the hotspots. Tall-but-narrow stacks are deep call chains that don't actually cost much. Optimize width, not height.",
+          "Each box is a function; the box directly above sits inside its caller. Width is proportional to time (or allocations) spent - so the widest boxes are the hotspots. Tall-but-narrow stacks are deep call chains that don't actually cost much. Optimize width, not height.",
         code: `// main ───────────────────────────────────────── 100%
 //   handleRequest ─────────────────────────────── 100%
 //     parseJSON ───────────────── 50%   <- widest leaf
@@ -294,7 +294,7 @@ defer pprof.StopCPUProfile()`,
       body:
         "Export the text profile (go tool pprof -top) and let an LLM rank suspects and suggest concrete fixes for the top frames.",
       prompt:
-        "Here is the output of `go tool pprof -top cpu.out`: <paste>. Identify the top 3 hotspots, explain in plain English what each function likely does, and suggest specific Go optimizations (allocation reduction, algorithm, caching) for each — with the trade-offs.",
+        "Here is the output of `go tool pprof -top cpu.out`: <paste>. Identify the top 3 hotspots, explain in plain English what each function likely does, and suggest specific Go optimizations (allocation reduction, algorithm, caching) for each - with the trade-offs.",
     },
     practice: {
       title: "Try it yourself",
@@ -307,9 +307,9 @@ defer pprof.StopCPUProfile()`,
       ],
     },
     pitfalls: [
-      "Profiling a binary built with the race detector (-race) or no optimizations — the numbers are skewed. Profile a normal build.",
-      "Chasing a tall, narrow stack in the flame graph — height is call depth, not cost. Optimize the widest boxes.",
-      "Leaving net/http/pprof exposed on a public port — it leaks internals. Bind it to localhost or an admin-only listener.",
+      "Profiling a binary built with the race detector (-race) or no optimizations - the numbers are skewed. Profile a normal build.",
+      "Chasing a tall, narrow stack in the flame graph - height is call depth, not cost. Optimize the widest boxes.",
+      "Leaving net/http/pprof exposed on a public port - it leaks internals. Bind it to localhost or an admin-only listener.",
     ],
     takeaways: [
       "Measure first: profile, find the widest box, optimize that, then re-measure.",
@@ -330,16 +330,16 @@ defer pprof.StopCPUProfile()`,
     code: "F3",
     num: 3,
     part: "part-0",
-    /* Writing Tests — stays 3rd in Part 1 (Writing Idiomatic Go) */
+    /* Writing Tests - stays 3rd in Part 1 (Writing Idiomatic Go) */
     title: "Writing Tests in Go",
     short: "Writing Tests",
     level: "Beginner",
     duration: "2–3 hrs",
     icon: "flask",
     summary:
-      "Go ships testing in the toolchain. Write table-driven tests and subtests, measure coverage, fuzz inputs, and build test doubles with plain interfaces — no framework required.",
+      "Go ships testing in the toolchain. Write table-driven tests and subtests, measure coverage, fuzz inputs, and build test doubles with plain interfaces - no framework required.",
     plain:
-      "Testing in Go has no magic and needs no third-party framework. You put tests in files ending in _test.go right next to your code, write functions that start with Test, and run `go test`. The standard library gives you everything: subtests, benchmarks, fuzzing, and coverage. The most idiomatic style is the 'table-driven test' — a list of cases run through the same logic.",
+      "Testing in Go has no magic and needs no third-party framework. You put tests in files ending in _test.go right next to your code, write functions that start with Test, and run `go test`. The standard library gives you everything: subtests, benchmarks, fuzzing, and coverage. The most idiomatic style is the 'table-driven test' - a list of cases run through the same logic.",
     animation: {
       id: "test-runner",
       title: "Table-Driven Test Runner",
@@ -387,7 +387,7 @@ func TestAdd(t *testing.T) {
       {
         title: "Helpers, parallelism, cleanup",
         body:
-          "t.Helper() makes failures point at the caller, not the helper. t.Parallel() runs cases concurrently for speed. t.Cleanup() registers teardown that runs when the test finishes — cleaner than defer across helpers.",
+          "t.Helper() makes failures point at the caller, not the helper. t.Parallel() runs cases concurrently for speed. t.Cleanup() registers teardown that runs when the test finishes - cleaner than defer across helpers.",
         code: `func mustOpen(t *testing.T, name string) *os.File {
     t.Helper() // report failures at the call site
     f, err := os.Open(name)
@@ -402,7 +402,7 @@ func TestThing(t *testing.T) { t.Parallel(); /* ... */ }`,
       {
         title: "Coverage & fuzzing",
         body:
-          "Coverage shows which lines your tests exercise. Fuzzing (built in since Go 1.18) generates random inputs to find crashes and edge cases you'd never think of — it automatically saves any input that breaks your code.",
+          "Coverage shows which lines your tests exercise. Fuzzing (built in since Go 1.18) generates random inputs to find crashes and edge cases you'd never think of - it automatically saves any input that breaks your code.",
         code: `// Coverage report in the browser:
 //   go test -coverprofile=cov.out ./... && go tool cover -html=cov.out
 
@@ -418,7 +418,7 @@ func FuzzParse(f *testing.F) {
       {
         title: "Test doubles with interfaces (no mock framework)",
         body:
-          "Go's secret weapon: accept an interface, not a concrete type. In tests you pass a tiny fake implementation. No mocking library, no code generation — just a struct that satisfies the interface.",
+          "Go's secret weapon: accept an interface, not a concrete type. In tests you pass a tiny fake implementation. No mocking library, no code generation - just a struct that satisfies the interface.",
         code: `type Clock interface{ Now() time.Time }
 
 type fakeClock struct{ t time.Time }
@@ -434,7 +434,7 @@ func TestExpiry(t *testing.T) {
     ai: {
       title: "Learn faster with an AI tutor",
       body:
-        "Have an LLM generate a thorough table of cases for a tricky function — then review which edge cases you'd have missed.",
+        "Have an LLM generate a thorough table of cases for a tricky function - then review which edge cases you'd have missed.",
       prompt:
         "Write an idiomatic Go table-driven test for this function: <paste func>. Use subtests with descriptive names, cover boundary and error cases, and print got vs want. Don't use any third-party assertion library.",
     },
@@ -449,8 +449,8 @@ func TestExpiry(t *testing.T) {
       ],
     },
     pitfalls: [
-      "Comparing structs that contain times or maps with == or reflect.DeepEqual and getting flaky failures — compare fields or use google/go-cmp's cmp.Diff.",
-      "Calling t.Fatal from inside a spawned goroutine — it only works on the test's own goroutine. Send the error back on a channel and Fatal in the test.",
+      "Comparing structs that contain times or maps with == or reflect.DeepEqual and getting flaky failures - compare fields or use google/go-cmp's cmp.Diff.",
+      "Calling t.Fatal from inside a spawned goroutine - it only works on the test's own goroutine. Send the error back on a channel and Fatal in the test.",
       "Sharing state between t.Parallel() subtests (or, pre-Go 1.22, capturing the loop variable) so cases interfere with each other.",
     ],
     takeaways: [
@@ -480,7 +480,7 @@ func TestExpiry(t *testing.T) {
     summary:
       "Goroutines are cheap concurrent functions; channels are typed pipes that pass data safely between them. Master select, worker pools, fan-in/fan-out, and context cancellation.",
     plain:
-      "A goroutine is a function that runs concurrently — like kicking off a background task, but so cheap you can run thousands or millions. Channels are typed pipes: one goroutine puts a value in, another takes it out, and Go handles the synchronization so you don't need locks for the handoff. The Go mantra: 'Don't communicate by sharing memory; share memory by communicating.'",
+      "A goroutine is a function that runs concurrently - like kicking off a background task, but so cheap you can run thousands or millions. Channels are typed pipes: one goroutine puts a value in, another takes it out, and Go handles the synchronization so you don't need locks for the handoff. The Go mantra: 'Don't communicate by sharing memory; share memory by communicating.'",
     animation: {
       id: "worker-pool",
       title: "Worker Pool: Fan-Out / Fan-In",
@@ -514,7 +514,7 @@ func TestExpiry(t *testing.T) {
       {
         title: "Goroutines: concurrency for almost free",
         body:
-          "Prefix any call with go to run it concurrently. A goroutine starts with a tiny ~2 KB stack that grows as needed, so spawning thousands is normal. But every goroutine needs an owner and a way to stop — a leaked goroutine is a memory leak.",
+          "Prefix any call with go to run it concurrently. A goroutine starts with a tiny ~2 KB stack that grows as needed, so spawning thousands is normal. But every goroutine needs an owner and a way to stop - a leaked goroutine is a memory leak.",
         code: `go doWork()              // runs concurrently, returns immediately
 
 // Wait for a group of goroutines to finish:
@@ -538,7 +538,7 @@ buf := make(chan int, 100) // buffered: decouples rates
 
 go func() {
     for i := 0; i < 3; i++ { ch <- i }
-    close(ch)              // sender closes — exactly once
+    close(ch)              // sender closes - exactly once
 }()
 for v := range ch {        // ranges until the channel is closed
     fmt.Println(v)
@@ -562,7 +562,7 @@ case <-time.After(2 * time.Second):
       {
         title: "The worker-pool pattern (fan-out / fan-in)",
         body:
-          "Fan-out: start N workers that all read from one jobs channel, so work spreads across them. Fan-in: every worker writes to one results channel, merging their output. This bounds concurrency to N — the most common production concurrency shape.",
+          "Fan-out: start N workers that all read from one jobs channel, so work spreads across them. Fan-in: every worker writes to one results channel, merging their output. This bounds concurrency to N - the most common production concurrency shape.",
         code: `jobs := make(chan int, 100)
 results := make(chan int, 100)
 
@@ -580,14 +580,14 @@ close(jobs)`,
       {
         title: "Stopping cleanly with context",
         body:
-          "context.Context is how you tell a tree of goroutines to stop — a timeout, a cancel, or a client disconnect. Pass ctx as the first argument, select on ctx.Done(), and you have a clean shutdown path with no leaks.",
+          "context.Context is how you tell a tree of goroutines to stop - a timeout, a cancel, or a client disconnect. Pass ctx as the first argument, select on ctx.Done(), and you have a clean shutdown path with no leaks.",
         code: `func worker(ctx context.Context, jobs <-chan Job) {
     for {
         select {
         case <-ctx.Done():
-            return            // cancelled — exit promptly
+            return            // cancelled - exit promptly
         case j, ok := <-jobs:
-            if !ok { return } // channel closed — done
+            if !ok { return } // channel closed - done
             handle(j)
         }
     }
@@ -598,7 +598,7 @@ close(jobs)`,
     ai: {
       title: "Learn faster with an AI tutor",
       body:
-        "Ask an LLM to review a concurrent snippet specifically for leaks, deadlocks, and missing cancellation — the three classic bugs.",
+        "Ask an LLM to review a concurrent snippet specifically for leaks, deadlocks, and missing cancellation - the three classic bugs.",
       prompt:
         "Review this Go concurrency code for goroutine leaks, deadlocks, data races, and missing context cancellation: <paste>. For each issue, explain how it manifests and show the minimal fix. Assume Go 1.22+ loop-variable semantics.",
     },
@@ -614,12 +614,12 @@ close(jobs)`,
     },
     pitfalls: [
       "Leaking goroutines: starting one that blocks forever on a channel nobody closes. Always give every goroutine a stop path (close or context).",
-      "Closing a channel from the receiver, or closing it twice — both panic. The sender owns the close, and closes exactly once.",
-      "Reaching for channels to protect a shared counter — a sync.Mutex or atomic is simpler. Channels pass ownership; mutexes guard state.",
+      "Closing a channel from the receiver, or closing it twice - both panic. The sender owns the close, and closes exactly once.",
+      "Reaching for channels to protect a shared counter - a sync.Mutex or atomic is simpler. Channels pass ownership; mutexes guard state.",
     ],
     takeaways: [
       "Unbuffered channels synchronize; buffered channels decouple producer and consumer rates.",
-      "Every goroutine needs an owner and a way to stop — usually a context.",
+      "Every goroutine needs an owner and a way to stop - usually a context.",
       "Use channels to pass data/ownership, mutexes/atomics to guard shared state.",
     ],
     checklist: [
@@ -644,7 +644,7 @@ close(jobs)`,
     summary:
       "Go treats errors as values you handle explicitly. Wrap them with %w, inspect with errors.Is/As, propagate deadlines with context, and lay out a project the idiomatic way.",
     plain:
-      "Go has no exceptions. A function that can fail returns an error value, and you check it right where it happens. To keep the original cause as the error travels up the call stack, you 'wrap' it — building a chain you can later inspect with errors.Is and errors.As. Separately, context carries cancellation and deadlines across function and API boundaries so a whole request can be stopped at once.",
+      "Go has no exceptions. A function that can fail returns an error value, and you check it right where it happens. To keep the original cause as the error travels up the call stack, you 'wrap' it - building a chain you can later inspect with errors.Is and errors.As. Separately, context carries cancellation and deadlines across function and API boundaries so a whole request can be stopped at once.",
     animation: {
       id: "error-context",
       title: "Context Cancellation Tree",
@@ -746,13 +746,13 @@ func (e *ValidationError) Unwrap() error { return e.Err }`,
       ],
     },
     pitfalls: [
-      "Wrapping with %v instead of %w — you get a nice string but lose the ability to errors.Is/As the cause.",
-      "Storing a context.Context in a struct field instead of passing it as the first argument — it breaks cancellation and confuses lifetimes.",
-      "Using context.WithValue for required parameters — it's for request-scoped metadata (trace IDs), not a bag of arguments.",
+      "Wrapping with %v instead of %w - you get a nice string but lose the ability to errors.Is/As the cause.",
+      "Storing a context.Context in a struct field instead of passing it as the first argument - it breaks cancellation and confuses lifetimes.",
+      "Using context.WithValue for required parameters - it's for request-scoped metadata (trace IDs), not a bag of arguments.",
     ],
     takeaways: [
       "Wrap with %w on the way up; inspect with errors.Is/As at the boundary.",
-      "context is for cancellation and deadlines — always pass it, never store it.",
+      "context is for cancellation and deadlines - always pass it, never store it.",
       "internal/ enforces your module's API boundary at compile time.",
     ],
     checklist: [
@@ -792,7 +792,7 @@ func (e *ValidationError) Unwrap() error { return e.Err }`,
         code: `mux := http.NewServeMux()
 
 // Method + path are matched together. A bare "/" no longer
-// swallows everything — precedence is longest-pattern-wins.
+// swallows everything - precedence is longest-pattern-wins.
 mux.HandleFunc("GET /api/v1/ledger/{id}", getEntry)
 mux.HandleFunc("POST /api/v1/ledger", ingestTxn)
 mux.HandleFunc("GET /api/v1/ledger/{id}/audit", getAudit)
@@ -803,7 +803,7 @@ http.ListenAndServe(":8080", mux)`,
       {
         title: "Clean path variables with r.PathValue",
         body:
-          "Wildcards captured in the pattern are pulled out with r.PathValue — no regexp, no context juggling, no allocation-heavy router state. An unmatched method returns 405 with the correct Allow header automatically.",
+          "Wildcards captured in the pattern are pulled out with r.PathValue - no regexp, no context juggling, no allocation-heavy router state. An unmatched method returns 405 with the correct Allow header automatically.",
         code: `func getEntry(w http.ResponseWriter, r *http.Request) {
     id := r.PathValue("id") // "{id}" from the pattern
     if id == "" {
@@ -822,8 +822,8 @@ http.ListenAndServe(":8080", mux)`,
       {
         title: "Directory-restricted IO with os.Root",
         body:
-          "os.Root (Go 1.24) opens a directory and refuses any operation that resolves outside it — including symlink escapes and ../ traversal. Config loaders and local-storage readers become traversal-proof by construction, not by validation.",
-        code: `// Everything below is jailed to ./data — even if an
+          "os.Root (Go 1.24) opens a directory and refuses any operation that resolves outside it - including symlink escapes and ../ traversal. Config loaders and local-storage readers become traversal-proof by construction, not by validation.",
+        code: `// Everything below is jailed to ./data - even if an
 // attacker supplies "../../etc/passwd".
 root, err := os.OpenRoot("data")
 if err != nil { return err }
@@ -868,17 +868,17 @@ tool (
         "Build the public REST gateway for transaction ingestion with zero third-party routing imports: GET /ledger/{id}, POST /ledger, GET /ledger/{id}/audit, plus an os.Root-jailed config loader.",
     },
     pitfalls: [
-      "Assuming the old catch-all behaviour: a pattern like \"/\" no longer matches everything — ServeMux now uses longest-pattern-wins precedence.",
-      "Validating paths with string checks (strings.Contains(p, \"..\")) instead of os.Root — clever symlink and encoding tricks slip past manual checks.",
+      "Assuming the old catch-all behaviour: a pattern like \"/\" no longer matches everything - ServeMux now uses longest-pattern-wins precedence.",
+      "Validating paths with string checks (strings.Contains(p, \"..\")) instead of os.Root - clever symlink and encoding tricks slip past manual checks.",
       "Forgetting the method in the pattern (\"/x\" vs \"GET /x\") and being surprised that every verb hits the same handler.",
     ],
     takeaways: [
-      "Go 1.22+ ServeMux does method + wildcard routing — most apps can drop their router dependency.",
+      "Go 1.22+ ServeMux does method + wildcard routing - most apps can drop their router dependency.",
       "r.PathValue beats regexp routers for clarity and allocations.",
       "os.Root makes traversal attacks impossible by construction, not by validation.",
     ],
     checklist: [
-      "All routes served by net/http ServeMux — no gin/chi/echo imports.",
+      "All routes served by net/http ServeMux - no gin/chi/echo imports.",
       "Path variables read via r.PathValue, never regexp.",
       "Every filesystem read goes through an os.Root jail.",
       "Dev tools declared with the go.mod tool directive.",
@@ -916,7 +916,7 @@ tool (
     "encoding/json/jsontext"
 )
 
-// Stream tokens straight to the wire — no intermediate map[string]any.
+// Stream tokens straight to the wire - no intermediate map[string]any.
 enc := jsontext.NewEncoder(w)
 enc.WriteToken(jsontext.BeginObject)
 enc.WriteToken(jsontext.String("amount"))
@@ -930,7 +930,7 @@ json.MarshalWrite(w, txn, json.Deterministic(true))`,
       {
         title: "Inline pointer allocation with new(expr)",
         body:
-          "The new(expr) form lets you allocate a pointer to a literal value in one expression — perfect for optional JSON/Protobuf fields where nil means 'absent'. No throwaway local variables.",
+          "The new(expr) form lets you allocate a pointer to a literal value in one expression - perfect for optional JSON/Protobuf fields where nil means 'absent'. No throwaway local variables.",
         code: `type Txn struct {
     Amount   int64
     FeeBasis *int64 \`json:"feeBasis,omitempty"\`
@@ -948,7 +948,7 @@ txn := Txn{
         title: "Swiss Tables: cache-friendly maps",
         body:
           "Go 1.24 reimplemented the built-in map as a Swiss Table. Entries live in groups of 8 with a compact control byte per slot; a group's control bytes are scanned with SIMD-style parallelism, so a lookup usually touches one cache line instead of chasing bucket overflow pointers.",
-        code: `// No API change — same map[K]V — but lookups now:
+        code: `// No API change - same map[K]V - but lookups now:
 //   1. hash key -> pick a group of 8 slots
 //   2. load the 8 control bytes (one cache line)
 //   3. SIMD-compare all 8 tags in parallel
@@ -986,13 +986,13 @@ v := m["USD"] // ~1 cache line, no pointer chasing`,
         "Design the transaction serialization engine: a jsontext streaming encoder for outbound payloads and json/v2 decoders for ingestion, benchmarked under sustained high-throughput stress.",
     },
     pitfalls: [
-      "Reaching for map[string]any to parse JSON on a hot path — it allocates heavily and defeats the point of json/v2.",
-      "Assuming Swiss Tables change semantics — map iteration order is still randomized; don't rely on it.",
-      "Returning a slice that aliases a stack buffer — clone it (slices.Clone) before letting it escape.",
+      "Reaching for map[string]any to parse JSON on a hot path - it allocates heavily and defeats the point of json/v2.",
+      "Assuming Swiss Tables change semantics - map iteration order is still randomized; don't rely on it.",
+      "Returning a slice that aliases a stack buffer - clone it (slices.Clone) before letting it escape.",
     ],
     takeaways: [
       "json/v2 + jsontext is the high-throughput path; reflection json is the convenience path.",
-      "Swiss-Table maps win by touching one cache line per lookup — keys and values benefit from locality.",
+      "Swiss-Table maps win by touching one cache line per lookup - keys and values benefit from locality.",
       "Use -gcflags='-m' to confirm a buffer really stays on the stack.",
     ],
     checklist: [
@@ -1017,12 +1017,12 @@ v := m["USD"] // ~1 cache line, no pointer chasing`,
     summary:
       "Replace unpredictable finalizers with runtime.AddCleanup, shrink memory with the unique interning package, and read the scheduler's preemption, netpoller and lockless paths.",
     plain:
-      "When an object is about to be collected you sometimes need to run cleanup — close a file descriptor, release a handle. The old tool (finalizers) was unreliable. runtime.AddCleanup is the modern, predictable replacement. 'Interning' is a separate memory trick: if a million accounts all store the string \"USD\", you can keep just one copy and have everyone point to it. This module also peeks inside the scheduler that runs your goroutines.",
+      "When an object is about to be collected you sometimes need to run cleanup - close a file descriptor, release a handle. The old tool (finalizers) was unreliable. runtime.AddCleanup is the modern, predictable replacement. 'Interning' is a separate memory trick: if a million accounts all store the string \"USD\", you can keep just one copy and have everyone point to it. This module also peeks inside the scheduler that runs your goroutines.",
     animation: {
       id: "cleanup-seq",
       title: "The Cleanup Sequence",
       blurb:
-        "An object becomes unreachable; the GC runs its AddCleanup handler deterministically — without delaying collection of the parent span.",
+        "An object becomes unreachable; the GC runs its AddCleanup handler deterministically - without delaying collection of the parent span.",
     },
     concepts: [
       {
@@ -1033,7 +1033,7 @@ v := m["USD"] // ~1 cache line, no pointer chasing`,
 
 func newConn(fd int) *Conn {
     c := &Conn{fd: fd}
-    // The cleanup captures fd by value, NOT c — so it can't
+    // The cleanup captures fd by value, NOT c - so it can't
     // keep c alive and create a leak.
     runtime.AddCleanup(c, func(fd int) {
         syscall.Close(fd)
@@ -1093,17 +1093,17 @@ for {
         "Build an interning cache for currency symbols and account-prefix strings so millions of active accounts share canonical handles, and attach AddCleanup release hooks to pooled connection structs.",
     },
     pitfalls: [
-      "Capturing the object itself in an AddCleanup closure — it keeps the object alive forever, the exact leak you were trying to avoid. Capture the raw handle by value.",
-      "Treating cleanups as guaranteed to run promptly or at all — they run after collection, which may be never at shutdown. Use them as a backstop, not your primary close path.",
-      "Interning unbounded, rarely-repeated values — the global table just grows. Intern high-cardinality-but-repeated values like currency codes.",
+      "Capturing the object itself in an AddCleanup closure - it keeps the object alive forever, the exact leak you were trying to avoid. Capture the raw handle by value.",
+      "Treating cleanups as guaranteed to run promptly or at all - they run after collection, which may be never at shutdown. Use them as a backstop, not your primary close path.",
+      "Interning unbounded, rarely-repeated values - the global table just grows. Intern high-cardinality-but-repeated values like currency codes.",
     ],
     takeaways: [
-      "Prefer runtime.AddCleanup over SetFinalizer — once, predictable, no resurrection.",
+      "Prefer runtime.AddCleanup over SetFinalizer - once, predictable, no resurrection.",
       "unique.Make collapses repeated strings to a shared, pointer-comparable handle.",
       "Understanding G-M-P explains why blocking I/O doesn't waste threads.",
     ],
     checklist: [
-      "Zero runtime.SetFinalizer — all cleanup via runtime.AddCleanup.",
+      "Zero runtime.SetFinalizer - all cleanup via runtime.AddCleanup.",
       "Cleanups capture resource handles by value, never the parent.",
       "Repeated metadata strings interned with unique.Make.",
       "Can explain G-M-P, async preemption and netpoller wakeups.",
@@ -1124,12 +1124,12 @@ for {
     summary:
       "Kill flaky time.Sleep tests with testing/synctest's controlled time bubbles, and write predictable benchmarks with testing.B.Loop.",
     plain:
-      "Concurrency tests are notoriously 'flaky' — they pass locally and randomly fail in CI because they rely on time.Sleep to wait for goroutines. testing/synctest fixes this by giving the test a fake clock inside a 'bubble': when every goroutine is blocked, virtual time jumps forward instantly and deterministically, so there's nothing left to race.",
+      "Concurrency tests are notoriously 'flaky' - they pass locally and randomly fail in CI because they rely on time.Sleep to wait for goroutines. testing/synctest fixes this by giving the test a fake clock inside a 'bubble': when every goroutine is blocked, virtual time jumps forward instantly and deterministically, so there's nothing left to race.",
     animation: {
       id: "synctest-bubble",
       title: "The Synctest Clock Bubble",
       blurb:
-        "Concurrent routines run inside an isolated bubble with a fake clock. When every routine blocks, time fast-forwards cleanly — no sleeps, no flakes.",
+        "Concurrent routines run inside an isolated bubble with a fake clock. When every routine blocks, time fast-forwards cleanly - no sleeps, no flakes.",
     },
     concepts: [
       {
@@ -1143,7 +1143,7 @@ func TestTimeout(t *testing.T) {
         start := time.Now()
         done := make(chan struct{})
         go func() {
-            time.Sleep(5 * time.Second) // virtual — runs instantly
+            time.Sleep(5 * time.Second) // virtual - runs instantly
             close(done)
         }()
         <-done
@@ -1165,7 +1165,7 @@ func TestTimeout(t *testing.T) {
     go consumer(ch)
 
     synctest.Wait() // block until producer+consumer are parked
-    // Now assert on a known, settled state — zero flake risk.
+    // Now assert on a known, settled state - zero flake risk.
     assertLedgerBalanced(t)
 })`,
         lang: "go",
@@ -1196,17 +1196,17 @@ func TestTimeout(t *testing.T) {
         "Write deterministic tests for the audit-log processing pipeline that reliably catch concurrent updates, plus B.Loop benchmarks for the validation hot path.",
     },
     pitfalls: [
-      "Doing real I/O (network, disk) inside a synctest bubble — only the fake clock is virtualized; real blocking still blocks. Keep bubbles to in-memory concurrency.",
-      "Replacing time.Sleep in production code thinking synctest helps there — it's a testing tool only.",
-      "Still writing for i := 0; i < b.N loops — they're easy to get wrong with dead-code elimination; use b.Loop().",
+      "Doing real I/O (network, disk) inside a synctest bubble - only the fake clock is virtualized; real blocking still blocks. Keep bubbles to in-memory concurrency.",
+      "Replacing time.Sleep in production code thinking synctest helps there - it's a testing tool only.",
+      "Still writing for i := 0; i < b.N loops - they're easy to get wrong with dead-code elimination; use b.Loop().",
     ],
     takeaways: [
-      "synctest gives concurrency tests a deterministic virtual clock — no sleeps, no flakes.",
+      "synctest gives concurrency tests a deterministic virtual clock - no sleeps, no flakes.",
       "synctest.Wait is a precise 'everyone is parked' barrier.",
       "b.Loop() is the modern, footgun-free benchmark loop.",
     ],
     checklist: [
-      "No time.Sleep in tests — concurrency tested via synctest.",
+      "No time.Sleep in tests - concurrency tested via synctest.",
       "synctest.Wait used to assert on settled state.",
       "Benchmarks use b.Loop(), not manual b.N loops.",
       "CI runs the race detector with zero flakes.",
@@ -1227,7 +1227,7 @@ func TestTimeout(t *testing.T) {
     summary:
       "Generate compile-checked DB code from raw SQL with sqlc, tune pgxpool for production, and match Postgres error codes with Go 1.26's errors.AsType.",
     plain:
-      "Talking to a database is where many bugs hide. sqlc lets you write plain SQL and generates type-safe Go functions from it — so a misspelled column fails at compile time, not at 3am. pgxpool manages a pool of Postgres connections efficiently. And row-level locking is how two transfers touching the same account stay correct under load.",
+      "Talking to a database is where many bugs hide. sqlc lets you write plain SQL and generates type-safe Go functions from it - so a misspelled column fails at compile time, not at 3am. pgxpool manages a pool of Postgres connections efficiently. And row-level locking is how two transfers touching the same account stay correct under load.",
     animation: {
       id: "sql-txn",
       title: "The SQL Transaction Cycle",
@@ -1295,8 +1295,8 @@ row := pool.QueryRow(ctx, sql, id)`,
         "Build the account-balancing engine: double-entry validation, SELECT ... FOR UPDATE row locks, retry-on-serialization-failure, and clean context-cancel on client disconnect.",
     },
     pitfalls: [
-      "Setting MaxConns far higher than Postgres can handle — connections aren't free; size to the database, not the app.",
-      "Updating two account rows in an inconsistent lock order across code paths — that's how you deadlock. Always lock rows in a fixed order.",
+      "Setting MaxConns far higher than Postgres can handle - connections aren't free; size to the database, not the app.",
+      "Updating two account rows in an inconsistent lock order across code paths - that's how you deadlock. Always lock rows in a fixed order.",
       "Swallowing a 40001 serialization_failure as a generic error instead of retrying the transaction.",
     ],
     takeaways: [
@@ -1305,7 +1305,7 @@ row := pool.QueryRow(ctx, sql, id)`,
       "Row locks + a fixed lock order keep double-entry writes correct under contention.",
     ],
     checklist: [
-      "All DB access is sqlc-generated — no hand-written SQL strings in Go.",
+      "All DB access is sqlc-generated - no hand-written SQL strings in Go.",
       "pgxpool sized with explicit Max/Min conns and lifetimes.",
       "Postgres errors matched via errors.AsType + SQLSTATE.",
       "Double-entry writes use row-level locks inside a transaction.",
@@ -1326,12 +1326,12 @@ row := pool.QueryRow(ctx, sql, id)`,
     summary:
       "Wire gRPC + Protobuf with strict back-compat, harden transport against harvest-now-decrypt-later attacks using hybrid ML-KEM / HPKE, and encode invariants with self-referencing generics.",
     plain:
-      "Services talk to each other over the network, and that traffic must stay private — even against a future quantum computer. The threat is 'harvest now, decrypt later': an attacker records today's encrypted traffic and decrypts it years later once quantum computers can break classical crypto. Hybrid post-quantum key exchange (combining today's X25519 with quantum-resistant ML-KEM) defends against that now.",
+      "Services talk to each other over the network, and that traffic must stay private - even against a future quantum computer. The threat is 'harvest now, decrypt later': an attacker records today's encrypted traffic and decrypts it years later once quantum computers can break classical crypto. Hybrid post-quantum key exchange (combining today's X25519 with quantum-resistant ML-KEM) defends against that now.",
     animation: {
       id: "pqc-lattice",
       title: "The Cryptographic Lattice",
       blurb:
-        "A classic TLS handshake next to a hybrid ML-KEM exchange — see why a future quantum attacker cracks one captured key but not the lattice-protected one.",
+        "A classic TLS handshake next to a hybrid ML-KEM exchange - see why a future quantum attacker cracks one captured key but not the lattice-protected one.",
     },
     concepts: [
       {
@@ -1342,7 +1342,7 @@ row := pool.QueryRow(ctx, sql, id)`,
   string id        = 1;
   int64  amount    = 2;
   string currency  = 3;
-  // Added later — new tag, optional, old nodes ignore it.
+  // Added later - new tag, optional, old nodes ignore it.
   optional string memo = 4;
   // reserved 5;  // never reuse a retired field number
 }`,
@@ -1351,7 +1351,7 @@ row := pool.QueryRow(ctx, sql, id)`,
       {
         title: "Hybrid PQC with crypto/mlkem + crypto/hpke",
         body:
-          "A 'harvest now, decrypt later' adversary records today's traffic to crack with a future quantum computer. Hybrid key exchange combines classical X25519 with ML-KEM-768 — the session is safe unless BOTH are broken.",
+          "A 'harvest now, decrypt later' adversary records today's traffic to crack with a future quantum computer. Hybrid key exchange combines classical X25519 with ML-KEM-768 - the session is safe unless BOTH are broken.",
         code: `import "crypto/mlkem"
 
 // Receiver publishes an encapsulation key.
@@ -1369,7 +1369,7 @@ recovered, _ := dk.Decapsulate(ct)
       {
         title: "Self-referencing generic constraints",
         body:
-          "The curiously-recurring pattern type Node[T Node[T]] lets the compiler enforce that a method returns the concrete implementing type — encoding cluster-topology invariants that would otherwise be runtime asserts.",
+          "The curiously-recurring pattern type Node[T Node[T]] lets the compiler enforce that a method returns the concrete implementing type - encoding cluster-topology invariants that would otherwise be runtime asserts.",
         code: `type Node[T Node[T]] interface {
     ID() string
     Peers() []T          // returns concrete node type, not interface
@@ -1396,9 +1396,9 @@ func (n *LedgerNode) Merge(o *LedgerNode) *LedgerNode { /* ... */ }`,
         "Secure intra-cluster ledger updates over a hybrid quantum-resistant transport, with Protobuf schemas versioned for zero-break rolling upgrades.",
     },
     pitfalls: [
-      "Reusing a retired Protobuf field number — old and new nodes will silently misinterpret bytes. Always 'reserved' it.",
-      "Going pure post-quantum instead of hybrid — the PQC algorithms are newer; hybrid keeps classical security as a fallback.",
-      "Assuming TLS 'just handles it' — you must explicitly choose a hybrid key-exchange group; defaults may still be classical-only.",
+      "Reusing a retired Protobuf field number - old and new nodes will silently misinterpret bytes. Always 'reserved' it.",
+      "Going pure post-quantum instead of hybrid - the PQC algorithms are newer; hybrid keeps classical security as a fallback.",
+      "Assuming TLS 'just handles it' - you must explicitly choose a hybrid key-exchange group; defaults may still be classical-only.",
     ],
     takeaways: [
       "Protobuf compatibility is a discipline: add optional fields, never reuse numbers.",
@@ -1427,18 +1427,18 @@ func (n *LedgerNode) Merge(o *LedgerNode) *LedgerNode { /* ... */ }`,
     summary:
       "Keep a rolling in-memory trace with the FlightRecorder, dump diagnostic state on alarms, and trace deadlocks/leaks automatically with the goroutine-leak analyzer.",
     plain:
-      "When a production incident happens, the worst feeling is 'I wish I'd been recording'. The FlightRecorder keeps a few seconds of detailed execution history in memory at all times, cheaply — so when latency spikes or the process crashes, you dump the window leading up to the failure. The goroutine-leak analyzer then automatically points at why a goroutine got stuck.",
+      "When a production incident happens, the worst feeling is 'I wish I'd been recording'. The FlightRecorder keeps a few seconds of detailed execution history in memory at all times, cheaply - so when latency spikes or the process crashes, you dump the window leading up to the failure. The goroutine-leak analyzer then automatically points at why a goroutine got stuck.",
     animation: {
       id: "leak-graph",
       title: "The Leak Forensic Graph",
       blurb:
-        "A blocked production goroutine; the leak analyzer walks the channel graph back to the root blocker — an un-triggered channel or a missing context deadline.",
+        "A blocked production goroutine; the leak analyzer walks the channel graph back to the root blocker - an un-triggered channel or a missing context deadline.",
     },
     concepts: [
       {
         title: "Always-on tracing with FlightRecorder",
         body:
-          "trace.FlightRecorder (Go 1.25) keeps a bounded ring buffer of recent execution events in memory at near-zero cost. You only pay to write a trace when something interesting happens — so you capture the window *before* a crash, not after you redeploy with logging.",
+          "trace.FlightRecorder (Go 1.25) keeps a bounded ring buffer of recent execution events in memory at near-zero cost. You only pay to write a trace when something interesting happens - so you capture the window *before* a crash, not after you redeploy with logging.",
         code: `import "runtime/trace"
 
 fr := trace.NewFlightRecorder(trace.FlightRecorderConfig{
@@ -1472,7 +1472,7 @@ func onAlarm() {
       {
         title: "Automatic leak detection",
         body:
-          "The goroutine-leak analyzer inspects parked goroutines and traces each blockade back to its cause: a channel with no sender, a WaitGroup that never reaches zero, or a missing context deadline — turning hours of log spelunking into a generated report.",
+          "The goroutine-leak analyzer inspects parked goroutines and traces each blockade back to its cause: a channel with no sender, a WaitGroup that never reaches zero, or a missing context deadline - turning hours of log spelunking into a generated report.",
         code: `// In tests, assert no goroutines leaked past the test boundary:
 func TestNoLeak(t *testing.T) {
     defer goroutineleak.Check(t) // fails if any G is stuck
@@ -1497,8 +1497,8 @@ func TestNoLeak(t *testing.T) {
         "Add automatic diagnostic-dump hooks to the balance processor so anomalous latency spikes auto-capture a flight trace plus goroutine/heap profiles.",
     },
     pitfalls: [
-      "Turning on a full continuous trace 'just in case' — that's expensive. The FlightRecorder's bounded ring buffer is the cheap, always-on option.",
-      "Dumping diagnostics on every minor blip — you'll drown in files. Gate dumps on real SLO breaches with a cooldown.",
+      "Turning on a full continuous trace 'just in case' - that's expensive. The FlightRecorder's bounded ring buffer is the cheap, always-on option.",
+      "Dumping diagnostics on every minor blip - you'll drown in files. Gate dumps on real SLO breaches with a cooldown.",
       "Shipping without leak checks in tests, then discovering goroutine growth only in production.",
     ],
     takeaways: [
@@ -1528,7 +1528,7 @@ func TestNoLeak(t *testing.T) {
     summary:
       "Vectorize hot math with simd/archsimd, scrub secret keys from memory with runtime/secret, and understand the Green Tea GC's spatial-locality span scanning.",
     plain:
-      "Modern CPUs can do the same operation on many numbers at once — that's SIMD (Single Instruction, Multiple Data). For a loop that checksums every byte of a block, processing 16 bytes per instruction instead of one is a huge speedup. Separately, secret keys left lying in memory can leak into crash dumps; runtime/secret scrubs them. And 'Green Tea' is an experimental redesign of the garbage collector for better cache locality.",
+      "Modern CPUs can do the same operation on many numbers at once - that's SIMD (Single Instruction, Multiple Data). For a loop that checksums every byte of a block, processing 16 bytes per instruction instead of one is a huge speedup. Separately, secret keys left lying in memory can leak into crash dumps; runtime/secret scrubs them. And 'Green Tea' is an experimental redesign of the garbage collector for better cache locality.",
     animation: {
       id: "simd-gc",
       title: "SIMD Processing vs. Green Tea GC",
@@ -1539,7 +1539,7 @@ func TestNoLeak(t *testing.T) {
       {
         title: "Vector lanes with simd/archsimd",
         body:
-          "The experimental simd/archsimd package exposes CPU vector types (Int8x16, Float64x8). A checksum or validation loop that touches every byte can process a whole lane per instruction — often an order of magnitude faster than scalar Go.",
+          "The experimental simd/archsimd package exposes CPU vector types (Int8x16, Float64x8). A checksum or validation loop that touches every byte can process a whole lane per instruction - often an order of magnitude faster than scalar Go.",
         code: `import "simd/archsimd"
 
 // Sum 16 bytes per instruction instead of 1.
@@ -1572,7 +1572,7 @@ func sign(msg []byte) []byte {
         title: "The Green Tea garbage collector",
         body:
           "Green Tea (GOEXPERIMENT=greenteagc) restructures the GC around spatial locality: it scans memory in contiguous 8 KiB spans rather than chasing individual objects, dramatically improving cache behaviour and parallel scan throughput on big heaps.",
-        code: `// Same code — opt in at build time:
+        code: `// Same code - opt in at build time:
 //   GOEXPERIMENT=greenteagc go build ./...
 //
 // Old GC: object-by-object marking -> scattered cache access.
@@ -1594,12 +1594,12 @@ func sign(msg []byte) []byte {
         "Build an ultra-fast transaction-validation loop that verifies block checksums with vector instructions, with secure zeroing of encryption keys via runtime/secret.",
     },
     pitfalls: [
-      "Vectorizing without a scalar fallback — your binary then breaks on CPUs/arches without those instructions. Always keep a tail/remainder path.",
-      "Hand-rolling SIMD before profiling — only vectorize a loop the profiler proved is hot.",
-      "Keeping decrypted keys in ordinary []byte — they survive in core dumps and swap. Use runtime/secret and Destroy.",
+      "Vectorizing without a scalar fallback - your binary then breaks on CPUs/arches without those instructions. Always keep a tail/remainder path.",
+      "Hand-rolling SIMD before profiling - only vectorize a loop the profiler proved is hot.",
+      "Keeping decrypted keys in ordinary []byte - they survive in core dumps and swap. Use runtime/secret and Destroy.",
     ],
     takeaways: [
-      "SIMD turns per-element loops into per-lane loops — huge wins on hot math.",
+      "SIMD turns per-element loops into per-lane loops - huge wins on hot math.",
       "runtime/secret minimizes the window a key is recoverable in memory.",
       "Green Tea trades the object-graph walk for cache-friendly span sweeps.",
     ],
@@ -1625,7 +1625,7 @@ func sign(msg []byte) []byte {
     summary:
       "Make GOMAXPROCS cgroup-aware, ship hardened scratch/distroless images, automate fleet-wide refactors with go fix + //go:fix, and capture decisions in ADRs.",
     plain:
-      "Running Go in containers and rolling it out safely is its own skill. Go 1.25 now reads the container's CPU limit so it doesn't spawn 128 threads on a 4-core pod. A 'distroless' image ships just your binary — tiny and hard to attack. go fix can rewrite deprecated APIs across an entire codebase automatically. And ADRs are short notes that record why you made a big decision, so the next engineer isn't guessing.",
+      "Running Go in containers and rolling it out safely is its own skill. Go 1.25 now reads the container's CPU limit so it doesn't spawn 128 threads on a 4-core pod. A 'distroless' image ships just your binary - tiny and hard to attack. go fix can rewrite deprecated APIs across an entire codebase automatically. And ADRs are short notes that record why you made a big decision, so the next engineer isn't guessing.",
     animation: {
       id: "container-rollout",
       title: "The Container Rollout",
@@ -1648,14 +1648,14 @@ func sign(msg []byte) []byte {
       {
         title: "Hardened scratch / distroless images",
         body:
-          "A static CGO-free Go binary needs no OS. Multi-stage builds compile in a full toolchain image, then copy the single binary into scratch or distroless — a few MB, no shell, no package manager, minimal CVE surface.",
+          "A static CGO-free Go binary needs no OS. Multi-stage builds compile in a full toolchain image, then copy the single binary into scratch or distroless - a few MB, no shell, no package manager, minimal CVE surface.",
         code: `# build stage
 FROM golang:1.26 AS build
 WORKDIR /src
 COPY . .
 RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o /ledger ./cmd/ledger
 
-# final stage — nothing but the binary
+# final stage - nothing but the binary
 FROM gcr.io/distroless/static-debian12:nonroot
 COPY --from=build /ledger /ledger
 USER nonroot
@@ -1701,9 +1701,9 @@ Consequences: +1 RTT handshake cost; quantum-resistant confidentiality;
         "Package the complete distributed ledger with health/readiness probes and a distroless image, ready for zero-downtime rolling updates on Kubernetes.",
     },
     pitfalls: [
-      "Hard-coding GOMAXPROCS in a container — let the cgroup-aware default match the real CPU quota, or you'll thrash under throttling.",
-      "Shipping a full Linux base image when a distroless/scratch image would do — it's a needless CVE and size burden.",
-      "Rolling an update without readiness probes — traffic hits pods that aren't ready and requests drop.",
+      "Hard-coding GOMAXPROCS in a container - let the cgroup-aware default match the real CPU quota, or you'll thrash under throttling.",
+      "Shipping a full Linux base image when a distroless/scratch image would do - it's a needless CVE and size burden.",
+      "Rolling an update without readiness probes - traffic hits pods that aren't ready and requests drop.",
     ],
     takeaways: [
       "Let Go size GOMAXPROCS (and GOMEMLIMIT) to the container, not the host.",
@@ -1732,19 +1732,19 @@ Consequences: +1 RTT handshake cost; quantum-resistant confidentiality;
     summary:
       "Why the same Go code can run 10× faster or slower depending on memory layout: the cache hierarchy, the 64-byte cache line, spatial/temporal locality, and the false-sharing trap that silently kills concurrent counters.",
     plain:
-      "Your CPU is almost never waiting on arithmetic — it is waiting on memory. Reading a value already sitting in the fastest on-chip cache (L1) takes about a nanosecond; reading the same value from main memory (RAM) takes roughly 100× longer. The CPU hides this gap with a hierarchy of small, fast caches, and it never moves a single byte — it moves a whole 64-byte 'cache line' at a time. Once you understand that, a lot of Go performance advice (use slices not linked lists, keep hot fields together, avoid pointer-chasing) stops being folklore and becomes obvious. This module is about writing code that fits how the memory system actually works.",
+      "Your CPU is almost never waiting on arithmetic - it is waiting on memory. Reading a value already sitting in the fastest on-chip cache (L1) takes about a nanosecond; reading the same value from main memory (RAM) takes roughly 100× longer. The CPU hides this gap with a hierarchy of small, fast caches, and it never moves a single byte - it moves a whole 64-byte 'cache line' at a time. Once you understand that, a lot of Go performance advice (use slices not linked lists, keep hot fields together, avoid pointer-chasing) stops being folklore and becomes obvious. This module is about writing code that fits how the memory system actually works.",
     animation: {
       id: "cache-hierarchy",
       title: "The Memory Hierarchy & a Cache Line Fill",
       blurb:
-        "Follow one memory read down the hierarchy — L1 miss, L2 miss, L3 miss, then a full 64-byte line pulled from RAM — and see why the next few reads are suddenly free.",
+        "Follow one memory read down the hierarchy - L1 miss, L2 miss, L3 miss, then a full 64-byte line pulled from RAM - and see why the next few reads are suddenly free.",
     },
     concepts: [
       {
         title: "The hierarchy: small-and-fast down to big-and-slow",
         body:
-          "Memory is organized as a pyramid. Registers (a few hundred bytes) feed the ALU in zero cycles. Below them sit L1 (~32–64 KB, ~1 ns), L2 (~256 KB–2 MB, ~4 ns), and a shared L3 (several MB, ~10–40 ns). Below the chip is RAM (~100 ns) and then storage (microseconds to milliseconds). Each level down is roughly an order of magnitude bigger and slower. The CPU's whole job is to keep the data it needs near the top — and your job is to give it access patterns that make that possible.",
-        code: `// Rough latencies — memorize the SHAPE, not exact numbers.
+          "Memory is organized as a pyramid. Registers (a few hundred bytes) feed the ALU in zero cycles. Below them sit L1 (~32–64 KB, ~1 ns), L2 (~256 KB–2 MB, ~4 ns), and a shared L3 (several MB, ~10–40 ns). Below the chip is RAM (~100 ns) and then storage (microseconds to milliseconds). Each level down is roughly an order of magnitude bigger and slower. The CPU's whole job is to keep the data it needs near the top - and your job is to give it access patterns that make that possible.",
+        code: `// Rough latencies - memorize the SHAPE, not exact numbers.
 //   register        ~0   ns
 //   L1 cache        ~1   ns   (~4 cycles)
 //   L2 cache        ~4   ns
@@ -1754,11 +1754,11 @@ Consequences: +1 RTT handshake cost; quantum-resistant confidentiality;
 //   network / disk  ~ms
 //
 // "Memory is the new disk." Most hot loops are memory-bound,
-// not compute-bound — so layout beats micro-optimizing math.`,
+// not compute-bound - so layout beats micro-optimizing math.`,
         lang: "go",
       },
       {
-        title: "You never load one byte — you load a 64-byte line",
+        title: "You never load one byte - you load a 64-byte line",
         body:
           "Caches deal in fixed-size blocks called cache lines, almost always 64 bytes (Apple silicon uses 128). Touch a single int and the CPU pulls the entire 64-byte line containing it into L1. This is the single most important fact in this module: reads near each other in memory are nearly free once the line is warm, while reads scattered across memory each pay a fresh miss. A []int64 packs 8 values per line; a []*T forces a pointer-chase to a random address per element.",
         code: `// A 64-byte line holds eight int64 values.
@@ -1768,7 +1768,7 @@ for _, v := range nums { // nums []int64, contiguous
     sum += v             // 1 miss warms 8 values
 }
 
-// A linked list (or []*T) scatters nodes across the heap —
+// A linked list (or []*T) scatters nodes across the heap -
 // every step is a likely cache MISS, no matter how clever
 // the algorithm looks on paper.`,
         lang: "go",
@@ -1776,11 +1776,11 @@ for _, v := range nums { // nums []int64, contiguous
       {
         title: "Locality: the two kinds, and why slices win",
         body:
-          "Caches bet on two patterns. Temporal locality: data you used recently you will use again soon (so it is kept). Spatial locality: data next to what you just used will be needed soon (so the hardware prefetcher streams the next lines ahead of you). Sequential access over a contiguous []T maximizes both — which is why an array/slice often beats a 'theoretically faster' tree or map for small-to-medium N. Iterate in memory order: for a row-major 2D slice, loop rows in the outer loop, columns in the inner, never the reverse.",
+          "Caches bet on two patterns. Temporal locality: data you used recently you will use again soon (so it is kept). Spatial locality: data next to what you just used will be needed soon (so the hardware prefetcher streams the next lines ahead of you). Sequential access over a contiguous []T maximizes both - which is why an array/slice often beats a 'theoretically faster' tree or map for small-to-medium N. Iterate in memory order: for a row-major 2D slice, loop rows in the outer loop, columns in the inner, never the reverse.",
         code: `// Cache-friendly: inner loop walks contiguous memory.
 for i := 0; i < rows; i++ {
     for j := 0; j < cols; j++ {
-        total += grid[i][j] // stride 1 — prefetcher loves it
+        total += grid[i][j] // stride 1 - prefetcher loves it
     }
 }
 // Swap the loops and the SAME work can be several times slower:
@@ -1808,7 +1808,7 @@ type counters struct {
       {
         title: "Struct layout: padding, alignment & field order",
         body:
-          "The compiler aligns fields and inserts invisible padding so each field sits on its natural boundary. Order fields badly and a struct bloats with holes; order them large-to-small and it shrinks — fitting more objects per cache line and per allocation. Use `unsafe.Sizeof` to measure, and reach for `//go:packed`-style hand layout only when a profiler says a hot struct's size matters. Smaller hot structs = more of them per line = fewer misses.",
+          "The compiler aligns fields and inserts invisible padding so each field sits on its natural boundary. Order fields badly and a struct bloats with holes; order them large-to-small and it shrinks - fitting more objects per cache line and per allocation. Use `unsafe.Sizeof` to measure, and reach for `//go:packed`-style hand layout only when a profiler says a hot struct's size matters. Smaller hot structs = more of them per line = fewer misses.",
         code: `// 24 bytes: a bool forces 7 bytes of padding before the int64.
 type Bad struct { flag bool; id int64; kind uint8 }
 
@@ -1831,7 +1831,7 @@ fmt.Println(unsafe.Sizeof(Bad{}), unsafe.Sizeof(Good{})) // 24 16`,
       title: "Try it yourself",
       body: "Feel the cache with two tiny benchmarks.",
       steps: [
-        "Benchmark summing a []int64 of 10M elements vs a []*int64 of the same length — the pointer version is far slower purely from cache misses.",
+        "Benchmark summing a []int64 of 10M elements vs a []*int64 of the same length - the pointer version is far slower purely from cache misses.",
         "Write a 2D grid sum two ways (row-major vs column-major inner loop) and compare with `go test -bench`.",
         "Build the false-sharing counters struct, then the padded version; benchmark both with parallel goroutines and watch padding win.",
         "Print unsafe.Sizeof for a struct, reorder its fields large-to-small, and confirm it shrank.",
@@ -1839,12 +1839,12 @@ fmt.Println(unsafe.Sizeof(Bad{}), unsafe.Sizeof(Good{})) // 24 16`,
     },
     pitfalls: [
       "Choosing a 'faster' data structure (tree, linked list, map) for small N and losing to a plain slice because every node is a cache miss.",
-      "Sharing a hot, frequently-written struct across goroutines without padding — false sharing can erase all parallel speedup.",
+      "Sharing a hot, frequently-written struct across goroutines without padding - false sharing can erase all parallel speedup.",
       "Iterating a 2D structure in the wrong (column-major) order and blaming the algorithm for the slowdown.",
     ],
     takeaways: [
       "Most hot loops are memory-bound: layout and access pattern beat clever arithmetic.",
-      "The CPU moves 64-byte cache lines, never single bytes — sequential, contiguous access is nearly free.",
+      "The CPU moves 64-byte cache lines, never single bytes - sequential, contiguous access is nearly free.",
       "False sharing silently kills parallel counters; pad hot, separately-written fields onto their own cache lines.",
     ],
     checklist: [
@@ -1867,20 +1867,20 @@ fmt.Println(unsafe.Sizeof(Bad{}), unsafe.Sizeof(Good{})) // 24 16`,
     duration: "3 hrs",
     icon: "activity",
     summary:
-      "How a modern core overlaps instructions in a pipeline, guesses which way branches go, and runs work out of order — and why a single unpredictable `if` in a hot loop can cost more than the arithmetic around it.",
+      "How a modern core overlaps instructions in a pipeline, guesses which way branches go, and runs work out of order - and why a single unpredictable `if` in a hot loop can cost more than the arithmetic around it.",
     plain:
-      "A CPU does not finish one instruction before starting the next. Like an assembly line, it has stages — fetch, decode, execute, write-back — and keeps a dozen-plus instructions in flight at once, each at a different stage. This works beautifully until the CPU hits a branch (an `if`, a loop condition) and does not yet know which way to go. Rather than stall, it GUESSES, runs ahead speculatively, and throws the work away if it guessed wrong. A wrong guess costs ~15–20 cycles of flushed pipeline. So the surprising lesson is: in a tight loop, a predictable branch is almost free, and an unpredictable one can dominate your runtime — sometimes sorting the data first makes the same loop several times faster.",
+      "A CPU does not finish one instruction before starting the next. Like an assembly line, it has stages - fetch, decode, execute, write-back - and keeps a dozen-plus instructions in flight at once, each at a different stage. This works beautifully until the CPU hits a branch (an `if`, a loop condition) and does not yet know which way to go. Rather than stall, it GUESSES, runs ahead speculatively, and throws the work away if it guessed wrong. A wrong guess costs ~15–20 cycles of flushed pipeline. So the surprising lesson is: in a tight loop, a predictable branch is almost free, and an unpredictable one can dominate your runtime - sometimes sorting the data first makes the same loop several times faster.",
     animation: {
       id: "cpu-pipeline",
       title: "The Pipeline & a Branch Misprediction",
       blurb:
-        "Watch instructions flow through five overlapping stages, then hit a branch: the CPU speculates, guesses wrong, and flushes the pipeline — a visible bubble of wasted cycles.",
+        "Watch instructions flow through five overlapping stages, then hit a branch: the CPU speculates, guesses wrong, and flushes the pipeline - a visible bubble of wasted cycles.",
     },
     concepts: [
       {
         title: "The pipeline: instructions overlap like an assembly line",
         body:
-          "A classic pipeline splits each instruction into stages — Fetch, Decode, Execute, Memory, Write-back. While instruction 1 is executing, instruction 2 is decoding and instruction 3 is being fetched. Ideally the core retires one instruction per cycle even though each takes several cycles end-to-end. Real cores are deeper (15–20 stages) and SUPERSCALAR (multiple pipelines side by side), retiring several instructions per cycle. The catch: anything that breaks the steady flow — a wrong branch guess, a cache miss, a data dependency — leaves 'bubbles' of idle stages.",
+          "A classic pipeline splits each instruction into stages - Fetch, Decode, Execute, Memory, Write-back. While instruction 1 is executing, instruction 2 is decoding and instruction 3 is being fetched. Ideally the core retires one instruction per cycle even though each takes several cycles end-to-end. Real cores are deeper (15–20 stages) and SUPERSCALAR (multiple pipelines side by side), retiring several instructions per cycle. The catch: anything that breaks the steady flow - a wrong branch guess, a cache miss, a data dependency - leaves 'bubbles' of idle stages.",
         code: `// Conceptually, five instructions overlapping in a pipeline:
 // cycle:   1    2    3    4    5    6    7
 // instr1:  F    D    E    M    W
@@ -1896,7 +1896,7 @@ fmt.Println(unsafe.Sizeof(Bad{}), unsafe.Sizeof(Good{})) // 24 16`,
       {
         title: "Branches: the CPU guesses so it never stalls",
         body:
-          "When the core reaches a conditional branch, the condition often is not computed yet — but stalling would waste the whole pipeline. So a branch predictor guesses the outcome from history (this loop branch was taken the last 1000 times → take it again) and the core speculatively executes down the predicted path. If the guess was right, zero cost. If wrong, every speculatively-executed instruction must be discarded and the pipeline refilled from the correct target — a misprediction penalty of roughly 15–20 cycles. Predictors are very good (often >95%) on regular patterns and helpless on random ones.",
+          "When the core reaches a conditional branch, the condition often is not computed yet - but stalling would waste the whole pipeline. So a branch predictor guesses the outcome from history (this loop branch was taken the last 1000 times → take it again) and the core speculatively executes down the predicted path. If the guess was right, zero cost. If wrong, every speculatively-executed instruction must be discarded and the pipeline refilled from the correct target - a misprediction penalty of roughly 15–20 cycles. Predictors are very good (often >95%) on regular patterns and helpless on random ones.",
         code: `// Predictable: the branch goes the same way almost every time.
 for i := range data {
     if i < len(data)-1 { // ~always true → predicted, free
@@ -1905,20 +1905,20 @@ for i := range data {
 }
 
 // Unpredictable: a 50/50 data-dependent branch in a hot loop
-// mispredicts ~half the time — each miss ~ a cache-miss-sized
+// mispredicts ~half the time - each miss ~ a cache-miss-sized
 // stall, dwarfing the cheap comparison itself.`,
         lang: "go",
       },
       {
         title: "The classic demo: sorting unlocks the predictor",
         body:
-          "The famous result: summing only the elements above a threshold runs dramatically faster on SORTED data than on the same data shuffled — with identical instructions and identical element count. Why? On sorted data the `if v >= threshold` branch is false-false-…-false then true-true-…-true: long predictable runs the predictor nails. On shuffled data it flips randomly and mispredicts constantly. Same Big-O, same arithmetic, multiples-different wall time — all from branch prediction. The fix when it matters: make the work branchless (compute both sides) or arrange data so branches are predictable.",
+          "The famous result: summing only the elements above a threshold runs dramatically faster on SORTED data than on the same data shuffled - with identical instructions and identical element count. Why? On sorted data the `if v >= threshold` branch is false-false-…-false then true-true-…-true: long predictable runs the predictor nails. On shuffled data it flips randomly and mispredicts constantly. Same Big-O, same arithmetic, multiples-different wall time - all from branch prediction. The fix when it matters: make the work branchless (compute both sides) or arrange data so branches are predictable.",
         code: `total := 0
 for _, v := range data {
     if v >= 128 { total += v } // sorted: ~free / shuffled: slow
 }
 
-// Branchless version — no data-dependent branch to mispredict:
+// Branchless version - no data-dependent branch to mispredict:
 for _, v := range data {
     mask := -(int(v) >> 31 ^ ...) // (illustrative) select via math
     total += v & keepMask(v)
@@ -1929,8 +1929,8 @@ for _, v := range data {
       {
         title: "Out-of-order & ILP: filling the gaps with independent work",
         body:
-          "Modern cores execute out of order: while one instruction waits on a slow load from memory, the core looks ahead in a window of upcoming instructions and runs any that do not depend on the stalled result. This is instruction-level parallelism (ILP), and it is why long dependency chains hurt — if each step needs the previous step's result, the core cannot find independent work to overlap. Breaking a reduction into several independent accumulators gives the core parallel chains to interleave, often speeding up a sum or hash loop with no change in instruction count.",
-        code: `// Single dependency chain — each add waits on the last.
+          "Modern cores execute out of order: while one instruction waits on a slow load from memory, the core looks ahead in a window of upcoming instructions and runs any that do not depend on the stalled result. This is instruction-level parallelism (ILP), and it is why long dependency chains hurt - if each step needs the previous step's result, the core cannot find independent work to overlap. Breaking a reduction into several independent accumulators gives the core parallel chains to interleave, often speeding up a sum or hash loop with no change in instruction count.",
+        code: `// Single dependency chain - each add waits on the last.
 var s int64
 for _, v := range a { s += v }
 
@@ -1945,7 +1945,7 @@ s := s0 + s1 + s2 + s3 // + handle the tail`,
       {
         title: "How this connects to Go: inlining, bounds checks & the memory model",
         body:
-          "You rarely write assembly, but you steer the pipeline through the compiler. Inlining (`-gcflags=-m`) removes call overhead and exposes more instructions for the core to overlap. Eliminated bounds checks remove a hidden branch per index. And the same speculation that powers performance is exactly why the Go memory model exists: because cores reorder and speculate, two goroutines need explicit synchronization (atomics, mutexes, channels — Module M13) to agree on the order of memory operations. Hardware reordering is the reason 'it worked on my machine' races exist.",
+          "You rarely write assembly, but you steer the pipeline through the compiler. Inlining (`-gcflags=-m`) removes call overhead and exposes more instructions for the core to overlap. Eliminated bounds checks remove a hidden branch per index. And the same speculation that powers performance is exactly why the Go memory model exists: because cores reorder and speculate, two goroutines need explicit synchronization (atomics, mutexes, channels - Module M13) to agree on the order of memory operations. Hardware reordering is the reason 'it worked on my machine' races exist.",
         code: `// Help the core: range (not index) drops per-iteration bounds checks,
 // small hot funcs inline so their instructions can overlap.
 func sum(b []byte) (s uint64) {
@@ -1970,14 +1970,14 @@ func sum(b []byte) (s uint64) {
       body: "Reproduce the famous branch-prediction result.",
       steps: [
         "Fill a large []uint8 with random values; sum only those >= 128 and time it.",
-        "sort.Slice the same data, run the identical sum, and compare — sorted is dramatically faster.",
+        "sort.Slice the same data, run the identical sum, and compare - sorted is dramatically faster.",
         "Rewrite the sum branchlessly (e.g. multiply by a 0/1 mask) and confirm it is fast regardless of order.",
         "Try four independent accumulators on a large int64 sum and measure the ILP speedup.",
       ],
     },
     pitfalls: [
       "Assuming runtime is dominated by arithmetic when an unpredictable branch in the hot loop is the real cost.",
-      "Writing branchless code everywhere 'for speed' — it hurts readability and only helps when the branch is genuinely unpredictable and hot.",
+      "Writing branchless code everywhere 'for speed' - it hurts readability and only helps when the branch is genuinely unpredictable and hot.",
       "Building one long dependency chain (a single accumulator, a pointer walk) and starving the core's out-of-order engine of independent work.",
     ],
     takeaways: [
@@ -2007,7 +2007,7 @@ func sum(b []byte) (s uint64) {
     summary:
       "How Go runs a million goroutines on a handful of OS threads: the G-M-P model, per-P run queues and work stealing, the netpoller that makes blocking I/O cheap, syscall handoff, and asynchronous preemption.",
     plain:
-      "Goroutines are not OS threads — they are far cheaper, and the Go runtime has its own scheduler that maps many goroutines onto a small number of threads. Understanding this 'G-M-P' machine explains the things that otherwise feel like magic: why you can start 100,000 goroutines, why a blocking network read does not burn a thread, why a tight CPU loop no longer freezes the whole program, and why GOMAXPROCS is the dial that controls real parallelism. This is the runtime working on your behalf — and knowing how it works lets you reason about latency, throughput, and the leaks that happen when goroutines never get to run again.",
+      "Goroutines are not OS threads - they are far cheaper, and the Go runtime has its own scheduler that maps many goroutines onto a small number of threads. Understanding this 'G-M-P' machine explains the things that otherwise feel like magic: why you can start 100,000 goroutines, why a blocking network read does not burn a thread, why a tight CPU loop no longer freezes the whole program, and why GOMAXPROCS is the dial that controls real parallelism. This is the runtime working on your behalf - and knowing how it works lets you reason about latency, throughput, and the leaks that happen when goroutines never get to run again.",
     animation: {
       id: "gmp-scheduler",
       title: "G-M-P Scheduling & Work Stealing",
@@ -2018,7 +2018,7 @@ func sum(b []byte) (s uint64) {
       {
         title: "G, M and P: the three players",
         body:
-          "Three entities cooperate. A G is a goroutine: a tiny struct with a ~2 KB growable stack and a program counter — cheap to create by the thousands. An M is a machine, i.e. a real OS thread that actually executes code. A P is a processor: a scheduling context that owns a local run queue of ready goroutines; the number of Ps equals GOMAXPROCS. The rule that makes it all work: to run Go code, an M must hold a P. So at most GOMAXPROCS goroutines run truly in parallel, no matter how many Gs or Ms exist.",
+          "Three entities cooperate. A G is a goroutine: a tiny struct with a ~2 KB growable stack and a program counter - cheap to create by the thousands. An M is a machine, i.e. a real OS thread that actually executes code. A P is a processor: a scheduling context that owns a local run queue of ready goroutines; the number of Ps equals GOMAXPROCS. The rule that makes it all work: to run Go code, an M must hold a P. So at most GOMAXPROCS goroutines run truly in parallel, no matter how many Gs or Ms exist.",
         code: `// G = goroutine   (millions possible; ~2 KB stack, grows on demand)
 // M = OS thread   (the thing the kernel schedules onto a core)
 // P = processor   (a run-queue + scheduling context; count = GOMAXPROCS)
@@ -2035,7 +2035,7 @@ fmt.Println(runtime.GOMAXPROCS(0), runtime.NumGoroutine())`,
       {
         title: "Run queues & work stealing: keeping every P busy",
         body:
-          "Each P has its own local run queue (a fast, mostly lock-free ring of ~256 goroutines), plus there is one global queue for overflow. When you `go f()`, the new G usually lands on the current P's local queue — no global lock, great cache locality. When a P empties its local queue, it does not go idle: it steals half the goroutines from a randomly chosen victim P, and occasionally checks the global queue and netpoller. Work stealing is what keeps all cores fed without a central bottleneck, even when work is created unevenly.",
+          "Each P has its own local run queue (a fast, mostly lock-free ring of ~256 goroutines), plus there is one global queue for overflow. When you `go f()`, the new G usually lands on the current P's local queue - no global lock, great cache locality. When a P empties its local queue, it does not go idle: it steals half the goroutines from a randomly chosen victim P, and occasionally checks the global queue and netpoller. Work stealing is what keeps all cores fed without a central bottleneck, even when work is created unevenly.",
         code: `// go f()  → push G onto THIS P's local run queue (cheap, local).
 go handle(conn)
 
@@ -2051,7 +2051,7 @@ go handle(conn)
       {
         title: "The netpoller: why 100k blocked connections are cheap",
         body:
-          "Here is the trick behind Go's networking. When a goroutine does a blocking read on a socket that has no data, the runtime does NOT block the OS thread. It parks the goroutine and registers the socket with the OS event system (epoll on Linux, kqueue on BSD/macOS, IOCP on Windows) — the netpoller. The M is freed to run other goroutines. When the OS later signals the socket is readable, the netpoller wakes the parked goroutine and it gets scheduled again. So a server with 100,000 idle connections needs ~100,000 cheap goroutines, not 100,000 threads — the C10k problem, solved by the runtime.",
+          "Here is the trick behind Go's networking. When a goroutine does a blocking read on a socket that has no data, the runtime does NOT block the OS thread. It parks the goroutine and registers the socket with the OS event system (epoll on Linux, kqueue on BSD/macOS, IOCP on Windows) - the netpoller. The M is freed to run other goroutines. When the OS later signals the socket is readable, the netpoller wakes the parked goroutine and it gets scheduled again. So a server with 100,000 idle connections needs ~100,000 cheap goroutines, not 100,000 threads - the C10k problem, solved by the runtime.",
         code: `// This LOOKS like a thread-per-connection blocking read…
 func serve(conn net.Conn) {
     buf := make([]byte, 4096)
@@ -2067,7 +2067,7 @@ for { conn, _ := ln.Accept(); go serve(conn) }
       {
         title: "Syscalls: handing off the P so others keep running",
         body:
-          "A blocking syscall the netpoller cannot handle — a disk read, a DNS lookup, some cgo call — is different: it really does block the OS thread for its duration. To stop that from stalling a whole P's worth of goroutines, the runtime detaches the P from the blocked M and hands it to another M (spinning one up or reusing a parked one) so the remaining goroutines keep running on a different thread. When the syscall returns, the original M tries to reacquire a P; if none is free, its goroutine goes to the global queue. This is why #M can exceed GOMAXPROCS.",
+          "A blocking syscall the netpoller cannot handle - a disk read, a DNS lookup, some cgo call - is different: it really does block the OS thread for its duration. To stop that from stalling a whole P's worth of goroutines, the runtime detaches the P from the blocked M and hands it to another M (spinning one up or reusing a parked one) so the remaining goroutines keep running on a different thread. When the syscall returns, the original M tries to reacquire a P; if none is free, its goroutine goes to the global queue. This is why #M can exceed GOMAXPROCS.",
         code: `// Blocking syscall (e.g. a file read) holds its OS thread.
 data, err := os.ReadFile("big.dat") // M blocks in the kernel
 
@@ -2081,7 +2081,7 @@ data, err := os.ReadFile("big.dat") // M blocks in the kernel
       {
         title: "Preemption: no goroutine can hog a core",
         body:
-          "Early Go could only switch goroutines at function calls (cooperative preemption), so a tight loop with no calls — `for {}` — could starve every other goroutine on that P, and even stall the GC. Since Go 1.14 the runtime uses ASYNCHRONOUS preemption: a background monitor (sysmon) notices a goroutine that has run more than ~10 ms and sends the thread a signal, which safely interrupts it at a preemption point and lets the scheduler run something else. This is why a CPU-bound goroutine no longer freezes your program, and why STW phases can actually stop the world promptly.",
+          "Early Go could only switch goroutines at function calls (cooperative preemption), so a tight loop with no calls - `for {}` - could starve every other goroutine on that P, and even stall the GC. Since Go 1.14 the runtime uses ASYNCHRONOUS preemption: a background monitor (sysmon) notices a goroutine that has run more than ~10 ms and sends the thread a signal, which safely interrupts it at a preemption point and lets the scheduler run something else. This is why a CPU-bound goroutine no longer freezes your program, and why STW phases can actually stop the world promptly.",
         code: `// Pre-1.14 this could hang the whole program; now sysmon
 // preempts it after ~10 ms via a signal.
 go func() { for { /* pure CPU, no function calls */ } }()
@@ -2111,7 +2111,7 @@ go func() { for { /* pure CPU, no function calls */ } }()
       ],
     },
     pitfalls: [
-      "Assuming each goroutine is an OS thread and sizing pools to CPU count out of fear — goroutines are cheap; the netpoller handles the blocking.",
+      "Assuming each goroutine is an OS thread and sizing pools to CPU count out of fear - goroutines are cheap; the netpoller handles the blocking.",
       "Leaking goroutines: a G parked forever in the netpoller or on a channel is never reclaimed and holds its stack (see M7).",
       "Setting GOMAXPROCS by hand in a container instead of letting Go 1.25 read the cgroup quota (see M9), then thrashing under throttling.",
     ],
@@ -2140,9 +2140,9 @@ go func() { for { /* pure CPU, no function calls */ } }()
     duration: "4 hrs",
     icon: "lock",
     summary:
-      "The three ways Go goroutines coordinate — lock-free atomics, mutexes, and channels — what each actually guarantees through the memory model, their relative cost, and a clear decision guide for which to reach for.",
+      "The three ways Go goroutines coordinate - lock-free atomics, mutexes, and channels - what each actually guarantees through the memory model, their relative cost, and a clear decision guide for which to reach for.",
     plain:
-      "When two goroutines touch the same data, you need synchronization — without it you have a data race, where the result depends on timing and the program is simply broken (and the compiler/CPU are free to reorder your reads and writes). Go gives you three tools. Atomics are the lightest: a single machine instruction to update one word, no lock. A Mutex is a lock you take around a critical section to protect more complex state. Channels pass ownership of data from one goroutine to another, coordinating who is allowed to touch it. They are not interchangeable — each fits a different shape of problem — and this module is about choosing correctly and understanding the guarantees underneath.",
+      "When two goroutines touch the same data, you need synchronization - without it you have a data race, where the result depends on timing and the program is simply broken (and the compiler/CPU are free to reorder your reads and writes). Go gives you three tools. Atomics are the lightest: a single machine instruction to update one word, no lock. A Mutex is a lock you take around a critical section to protect more complex state. Channels pass ownership of data from one goroutine to another, coordinating who is allowed to touch it. They are not interchangeable - each fits a different shape of problem - and this module is about choosing correctly and understanding the guarantees underneath.",
     animation: {
       id: "sync-primitives",
       title: "Atomic CAS vs Mutex vs Channel Handoff",
@@ -2153,8 +2153,8 @@ go func() { for { /* pure CPU, no function calls */ } }()
       {
         title: "The data race & the memory model (happens-before)",
         body:
-          "A data race is two goroutines accessing the same memory concurrently with at least one write and no synchronization between them. The result is undefined — not 'a wrong number', but genuinely unspecified behaviour, because the compiler and CPU may reorder operations (Module M11). The Go memory model defines 'happens-before': synchronization operations (a channel send/receive, a mutex Lock/Unlock, an atomic) establish an ordering that makes one goroutine's writes visible to another. Every correct concurrent program is built from these ordering guarantees. Always test with `-race`.",
-        code: `// DATA RACE — undefined behaviour, not just a wrong total:
+          "A data race is two goroutines accessing the same memory concurrently with at least one write and no synchronization between them. The result is undefined - not 'a wrong number', but genuinely unspecified behaviour, because the compiler and CPU may reorder operations (Module M11). The Go memory model defines 'happens-before': synchronization operations (a channel send/receive, a mutex Lock/Unlock, an atomic) establish an ordering that makes one goroutine's writes visible to another. Every correct concurrent program is built from these ordering guarantees. Always test with `-race`.",
+        code: `// DATA RACE - undefined behaviour, not just a wrong total:
 var n int
 for i := 0; i < 1000; i++ { go func() { n++ }() } // BROKEN
 
@@ -2168,12 +2168,12 @@ for i := 0; i < 1000; i++ { go func() { n++ }() } // BROKEN
       {
         title: "Atomics: lock-free updates to a single word",
         body:
-          "`sync/atomic` (use the typed `atomic.Int64`, `atomic.Bool`, `atomic.Pointer[T]`) performs an indivisible read-modify-write on one machine word using a CPU instruction — no lock, no blocking, no goroutine ever waits. They are the fastest primitive, ideal for counters, flags, and lock-free swaps of a single value. The building block is compare-and-swap (CAS): 'set X to new only if it still equals old', looped until it succeeds. The limit: atomics protect ONE word. The moment your invariant spans two related variables, an atomic cannot keep them consistent — you need a mutex.",
+          "`sync/atomic` (use the typed `atomic.Int64`, `atomic.Bool`, `atomic.Pointer[T]`) performs an indivisible read-modify-write on one machine word using a CPU instruction - no lock, no blocking, no goroutine ever waits. They are the fastest primitive, ideal for counters, flags, and lock-free swaps of a single value. The building block is compare-and-swap (CAS): 'set X to new only if it still equals old', looped until it succeeds. The limit: atomics protect ONE word. The moment your invariant spans two related variables, an atomic cannot keep them consistent - you need a mutex.",
         code: `var requests atomic.Int64
 requests.Add(1)               // lock-free increment from any goroutine
 cur := requests.Load()
 
-// CAS — the heart of lock-free algorithms:
+// CAS - the heart of lock-free algorithms:
 for {
     old := gauge.Load()
     if gauge.CompareAndSwap(old, old+1) {
@@ -2188,7 +2188,7 @@ cfg.Store(newCfg)              // readers see old-or-new, never torn`,
       {
         title: "Mutex: a lock around a critical section",
         body:
-          "A `sync.Mutex` guards a critical section: only one goroutine holds the lock at a time, so the multi-step update inside is atomic with respect to other goroutines. This is the right tool when an invariant spans several fields (a map plus its size, a balance plus a log) — exactly what atomics cannot do. `sync.RWMutex` allows many concurrent readers OR one writer, a win for read-mostly state. The discipline: keep critical sections SHORT (no I/O under a lock), always pair Lock with `defer Unlock`, and never copy a struct that contains a mutex.",
+          "A `sync.Mutex` guards a critical section: only one goroutine holds the lock at a time, so the multi-step update inside is atomic with respect to other goroutines. This is the right tool when an invariant spans several fields (a map plus its size, a balance plus a log) - exactly what atomics cannot do. `sync.RWMutex` allows many concurrent readers OR one writer, a win for read-mostly state. The discipline: keep critical sections SHORT (no I/O under a lock), always pair Lock with `defer Unlock`, and never copy a struct that contains a mutex.",
         code: `type Account struct {
     mu      sync.Mutex
     balance int64
@@ -2198,7 +2198,7 @@ func (a *Account) Deposit(amt int64, e Entry) {
     a.mu.Lock()
     defer a.mu.Unlock()       // always paired; survives panics
     a.balance += amt          // two related fields stay consistent
-    a.log = append(a.log, e)  // — an atomic can't span both
+    a.log = append(a.log, e)  // - an atomic can't span both
 }
 
 // Read-mostly? RWMutex lets readers run in parallel:
@@ -2208,7 +2208,7 @@ func (a *Account) Deposit(amt int64, e Entry) {
       {
         title: "Channels: transfer ownership, coordinate work",
         body:
-          "A channel does more than move data — it moves OWNERSHIP. 'Don't communicate by sharing memory; share memory by communicating': instead of locking a value that two goroutines both touch, hand the value through a channel so only one goroutine owns it at a time, removing the shared state entirely. Channels shine for pipelines, fan-out/fan-in worker pools, signalling completion or cancellation, and applying backpressure (a full buffered channel blocks fast producers). They are heavier than a mutex per operation, so use them for coordination and data flow — not as a fancy lock around a counter.",
+          "A channel does more than move data - it moves OWNERSHIP. 'Don't communicate by sharing memory; share memory by communicating': instead of locking a value that two goroutines both touch, hand the value through a channel so only one goroutine owns it at a time, removing the shared state entirely. Channels shine for pipelines, fan-out/fan-in worker pools, signalling completion or cancellation, and applying backpressure (a full buffered channel blocks fast producers). They are heavier than a mutex per operation, so use them for coordination and data flow - not as a fancy lock around a counter.",
         code: `// Ownership of each job passes through the channel; no shared
 // state, so no lock is needed on the job itself.
 jobs := make(chan Job, 64)        // buffer = backpressure
@@ -2216,7 +2216,7 @@ for w := 0; w < n; w++ { go worker(jobs) }
 for _, j := range work { jobs <- j }
 close(jobs)                        // sender closes; workers drain & exit
 
-// Signalling (not data) — close to broadcast 'stop' to many:
+// Signalling (not data) - close to broadcast 'stop' to many:
 done := make(chan struct{})
 go func() { <-done; cleanup() }()
 close(done)`,
@@ -2225,7 +2225,7 @@ close(done)`,
       {
         title: "The decision guide: which one, and when",
         body:
-          "Pick by the SHAPE of the problem, not by taste. One counter or flag, or hot-swapping a single value → atomic (fastest, lock-free). An invariant over several fields, or read-mostly shared state → mutex (RWMutex if reads dominate). Passing data between goroutines, pipelines, worker pools, cancellation, or backpressure → channels. When two fit, prefer the simplest that is correct: a mutex around a counter is fine and clearer than a clever channel; an atomic counter beats a mutex when it is literally just a counter. Measure contention before optimizing — and remember every choice still needs `-race` to verify.",
+          "Pick by the SHAPE of the problem, not by taste. One counter or flag, or hot-swapping a single value → atomic (fastest, lock-free). An invariant over several fields, or read-mostly shared state → mutex (RWMutex if reads dominate). Passing data between goroutines, pipelines, worker pools, cancellation, or backpressure → channels. When two fit, prefer the simplest that is correct: a mutex around a counter is fine and clearer than a clever channel; an atomic counter beats a mutex when it is literally just a counter. Measure contention before optimizing - and remember every choice still needs `-race` to verify.",
         code: `// Rule of thumb:
 //   atomic   → one word: counter, flag, lock-free pointer swap
 //   mutex    → multi-field invariant / read-mostly (RWMutex)
@@ -2242,7 +2242,7 @@ close(done)`,
     ai: {
       title: "Learn faster with an AI tutor",
       body:
-        "Describe shared state and let an LLM argue which primitive fits — then sanity-check its reasoning against the rules above.",
+        "Describe shared state and let an LLM argue which primitive fits - then sanity-check its reasoning against the rules above.",
       prompt:
         "I have this shared state accessed by multiple goroutines in Go: <describe the fields and who reads/writes them>. Recommend atomic vs sync.Mutex/RWMutex vs channel, explain the happens-before guarantee that makes it correct, point out any data race, and show the idiomatic implementation. Note the trade-offs if I picked a different primitive.",
     },
@@ -2252,17 +2252,17 @@ close(done)`,
       steps: [
         "Increment a shared counter from 100 goroutines with no synchronization, run with -race, and watch it both report a race and produce a wrong total.",
         "Fix it with atomic.Int64.Add, then with a sync.Mutex, then by sending increments over a channel to a single owner goroutine.",
-        "Benchmark all three under contention with `go test -bench` and `-cpu=1,4,8` — note where atomics win and where channels cost more.",
+        "Benchmark all three under contention with `go test -bench` and `-cpu=1,4,8` - note where atomics win and where channels cost more.",
         "Build a read-mostly cache with RWMutex and compare RLock throughput against a plain Mutex.",
       ],
     },
     pitfalls: [
-      "Using an atomic per field to protect an invariant that spans two fields — each update is atomic but the pair can still be observed inconsistent; use a mutex.",
+      "Using an atomic per field to protect an invariant that spans two fields - each update is atomic but the pair can still be observed inconsistent; use a mutex.",
       "Holding a mutex across I/O or a channel operation, turning a short critical section into a contention bottleneck (or a deadlock).",
-      "Reaching for channels as a general-purpose lock around a counter — it is slower and less clear than an atomic or mutex.",
+      "Reaching for channels as a general-purpose lock around a counter - it is slower and less clear than an atomic or mutex.",
     ],
     takeaways: [
-      "Synchronization is not optional: an unsynchronized shared write is a data race and undefined behaviour — always run `-race`.",
+      "Synchronization is not optional: an unsynchronized shared write is a data race and undefined behaviour - always run `-race`.",
       "Atomics protect one word lock-free; mutexes protect multi-field invariants; channels transfer ownership and coordinate.",
       "Choose by the shape of the problem and prefer the simplest correct primitive; measure contention before optimizing.",
     ],
@@ -2286,20 +2286,20 @@ close(done)`,
     duration: "3–4 hrs",
     icon: "gauge",
     summary:
-      "Making a running system explain itself: structured logging with slog, the RED/USE metrics that page you, and distributed traces that follow one request across services — the three pillars and how they fit together.",
+      "Making a running system explain itself: structured logging with slog, the RED/USE metrics that page you, and distributed traces that follow one request across services - the three pillars and how they fit together.",
     plain:
-      "In production you cannot attach a debugger to a service handling thousands of requests a second. Instead the system has to tell you what it is doing, continuously and cheaply. That is observability, and it rests on three complementary signals. Logs are timestamped records of discrete events. Metrics are cheap numeric aggregates over time (request rate, error rate, latency) — what your dashboards and alerts watch. Traces follow a single request as it hops across services, showing where its time actually went. None alone is enough: metrics tell you SOMETHING is wrong, traces tell you WHERE, and logs tell you WHY. This module wires all three into a Go service the idiomatic way.",
+      "In production you cannot attach a debugger to a service handling thousands of requests a second. Instead the system has to tell you what it is doing, continuously and cheaply. That is observability, and it rests on three complementary signals. Logs are timestamped records of discrete events. Metrics are cheap numeric aggregates over time (request rate, error rate, latency) - what your dashboards and alerts watch. Traces follow a single request as it hops across services, showing where its time actually went. None alone is enough: metrics tell you SOMETHING is wrong, traces tell you WHERE, and logs tell you WHY. This module wires all three into a Go service the idiomatic way.",
     animation: {
       id: "three-pillars",
       title: "One Request Across the Three Pillars",
       blurb:
-        "A single request flows through three services. Watch it emit a trace of nested spans, bump latency/error metrics, and drop structured log lines — and see how a trace ID ties them together.",
+        "A single request flows through three services. Watch it emit a trace of nested spans, bump latency/error metrics, and drop structured log lines - and see how a trace ID ties them together.",
     },
     concepts: [
       {
         title: "The three pillars, and the question each answers",
         body:
-          "Logs, metrics, and traces are not competitors — they answer different questions and you want all three. Metrics answer 'is something wrong, and how bad?' cheaply and continuously (they are aggregates, so cost does not grow with traffic). Traces answer 'where in the request path did the time/error happen?' across service boundaries. Logs answer 'what exactly happened in this one event?' with full detail. The mature workflow: an alert fires on a METRIC, you open a TRACE of a slow request to find the offending service, then read its LOGS for the precise cause. Correlate them by stamping a trace ID into logs and metrics labels.",
+          "Logs, metrics, and traces are not competitors - they answer different questions and you want all three. Metrics answer 'is something wrong, and how bad?' cheaply and continuously (they are aggregates, so cost does not grow with traffic). Traces answer 'where in the request path did the time/error happen?' across service boundaries. Logs answer 'what exactly happened in this one event?' with full detail. The mature workflow: an alert fires on a METRIC, you open a TRACE of a slow request to find the offending service, then read its LOGS for the precise cause. Correlate them by stamping a trace ID into logs and metrics labels.",
         code: `// Each pillar, one question:
 //   metrics → "IS it broken, and how badly?"   (alert here)
 //   traces  → "WHERE did the time/error go?"    (across services)
@@ -2312,7 +2312,7 @@ close(done)`,
       {
         title: "Structured logging with log/slog",
         body:
-          "Plain text logs (`log.Printf(\"user %s failed: %v\", id, err)`) are unsearchable at scale. `log/slog` (standard since Go 1.21) emits structured key/value records — JSON in production — that a log system can index and filter. Log key/value attributes, not interpolated strings; set levels (Debug/Info/Warn/Error); and attach request-scoped fields once with `logger.With(...)` so every line in that request carries them. Use a JSON handler in prod and a human handler in dev. Pass the logger (or pull a request-scoped one from context) rather than using a global.",
+          "Plain text logs (`log.Printf(\"user %s failed: %v\", id, err)`) are unsearchable at scale. `log/slog` (standard since Go 1.21) emits structured key/value records - JSON in production - that a log system can index and filter. Log key/value attributes, not interpolated strings; set levels (Debug/Info/Warn/Error); and attach request-scoped fields once with `logger.With(...)` so every line in that request carries them. Use a JSON handler in prod and a human handler in dev. Pass the logger (or pull a request-scoped one from context) rather than using a global.",
         code: `import "log/slog"
 
 logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
@@ -2330,7 +2330,7 @@ reqLog.Info("accepted")   // → {"level":"INFO","trace_id":...,"route":...}`,
       {
         title: "Metrics: counters, gauges, histograms & RED/USE",
         body:
-          "Metrics are cheap because they aggregate: a counter that only ever goes up (requests, errors), a gauge that goes up and down (in-flight requests, queue depth), and a histogram that buckets a distribution (latency) so you can compute p50/p95/p99. Two framings tell you WHAT to measure: RED for request-driven services — Rate, Errors, Duration; USE for resources — Utilization, Saturation, Errors. Expose them on a `/metrics` endpoint for Prometheus to scrape. The cardinal rule below: never label a metric with an unbounded value.",
+          "Metrics are cheap because they aggregate: a counter that only ever goes up (requests, errors), a gauge that goes up and down (in-flight requests, queue depth), and a histogram that buckets a distribution (latency) so you can compute p50/p95/p99. Two framings tell you WHAT to measure: RED for request-driven services - Rate, Errors, Duration; USE for resources - Utilization, Saturation, Errors. Expose them on a `/metrics` endpoint for Prometheus to scrape. The cardinal rule below: never label a metric with an unbounded value.",
         code: `// RED for a service:  rate · errors · duration
 //   requests_total{route,method,status}   counter
 //   request_duration_seconds{route}        histogram → p99
@@ -2346,7 +2346,7 @@ reqLog.Info("accepted")   // → {"level":"INFO","trace_id":...,"route":...}`,
       {
         title: "Distributed tracing: spans & context propagation",
         body:
-          "A trace is a tree of spans — each span is one timed operation (an HTTP handler, a DB query, an RPC) with a start, duration, and attributes. The root span covers the whole request; child spans nest beneath it, so the trace literally shows where the milliseconds went across services. The magic is CONTEXT PROPAGATION: the trace ID and current span ID ride along in `context.Context` and are injected into outgoing request headers (W3C `traceparent`), so the next service continues the SAME trace. This is exactly why Module F5 insists context is the first argument to everything — it carries the trace.",
+          "A trace is a tree of spans - each span is one timed operation (an HTTP handler, a DB query, an RPC) with a start, duration, and attributes. The root span covers the whole request; child spans nest beneath it, so the trace literally shows where the milliseconds went across services. The magic is CONTEXT PROPAGATION: the trace ID and current span ID ride along in `context.Context` and are injected into outgoing request headers (W3C `traceparent`), so the next service continues the SAME trace. This is exactly why Module F5 insists context is the first argument to everything - it carries the trace.",
         code: `import "go.opentelemetry.io/otel"
 
 func handle(w http.ResponseWriter, r *http.Request) {
@@ -2366,8 +2366,8 @@ func handle(w http.ResponseWriter, r *http.Request) {
       {
         title: "Cardinality, sampling & cost: the production realities",
         body:
-          "Observability has a cost you must control. CARDINALITY is the killer: a metric label with unbounded values (user ID, request ID, raw URL with IDs) explodes into millions of time series and can take down your metrics backend — keep labels to small, bounded sets (route template, status code, method). Traces are sampled (you cannot store every span at scale) — head-based (decide at the root) or tail-based (keep the slow/errored ones); always sample, but keep the interesting traces. Logs are the most expensive at volume — log at the right level, avoid logging in tight loops, and prefer a sampled-trace + metric over a per-request log line.",
-        code: `// CARDINALITY TRAP — do NOT do this:
+          "Observability has a cost you must control. CARDINALITY is the killer: a metric label with unbounded values (user ID, request ID, raw URL with IDs) explodes into millions of time series and can take down your metrics backend - keep labels to small, bounded sets (route template, status code, method). Traces are sampled (you cannot store every span at scale) - head-based (decide at the root) or tail-based (keep the slow/errored ones); always sample, but keep the interesting traces. Logs are the most expensive at volume - log at the right level, avoid logging in tight loops, and prefer a sampled-trace + metric over a per-request log line.",
+        code: `// CARDINALITY TRAP - do NOT do this:
 //   requests_total{user_id="...", url="/ledger/8f3a-..."}  💥 millions of series
 // Bounded labels only:
 //   requests_total{route="/ledger/{id}", method="POST", status="200"}  ✓
@@ -2395,12 +2395,12 @@ func handle(w http.ResponseWriter, r *http.Request) {
       ],
     },
     pitfalls: [
-      "Labeling metrics with unbounded values (user/request IDs, raw paths) — a cardinality explosion that can crash the metrics backend.",
-      "Logging unstructured strings or logging inside hot loops — unsearchable and ruinously expensive at production volume.",
+      "Labeling metrics with unbounded values (user/request IDs, raw paths) - a cardinality explosion that can crash the metrics backend.",
+      "Logging unstructured strings or logging inside hot loops - unsearchable and ruinously expensive at production volume.",
       "Starting spans but dropping the context (not passing ctx down), so child operations land in a different trace or none at all.",
     ],
     takeaways: [
-      "Use all three pillars: metrics say IF it's broken, traces say WHERE, logs say WHY — correlate them with a trace ID.",
+      "Use all three pillars: metrics say IF it's broken, traces say WHERE, logs say WHY - correlate them with a trace ID.",
       "Structured slog + RED/USE metrics + context-propagated spans is the idiomatic Go stack.",
       "Control cost deliberately: bounded metric labels, sampled traces, level-disciplined logs.",
     ],
@@ -2426,7 +2426,7 @@ func handle(w http.ResponseWriter, r *http.Request) {
     summary:
       "How a distributed system survives partial failure instead of amplifying it: deadlines on every call, retries with backoff and jitter, circuit breakers, rate limiting, load shedding, and bounded-queue backpressure.",
     plain:
-      "In a single program a failure is usually a crash you can read in a stack trace. In a distributed system, failures are PARTIAL and contagious: one slow dependency makes its callers slow, which exhausts their connections and goroutines, which makes THEIR callers slow — a cascade that takes down a whole system from one struggling node. Resilience engineering is the set of patterns that stop a partial failure from becoming a total one: put a deadline on everything, retry transient errors carefully (without becoming a self-inflicted DDoS), stop calling a service that is clearly down, and shed load you cannot serve instead of falling over. These patterns are the difference between a blip and an outage.",
+      "In a single program a failure is usually a crash you can read in a stack trace. In a distributed system, failures are PARTIAL and contagious: one slow dependency makes its callers slow, which exhausts their connections and goroutines, which makes THEIR callers slow - a cascade that takes down a whole system from one struggling node. Resilience engineering is the set of patterns that stop a partial failure from becoming a total one: put a deadline on everything, retry transient errors carefully (without becoming a self-inflicted DDoS), stop calling a service that is clearly down, and shed load you cannot serve instead of falling over. These patterns are the difference between a blip and an outage.",
     animation: {
       id: "circuit-breaker",
       title: "The Circuit Breaker State Machine",
@@ -2437,14 +2437,14 @@ func handle(w http.ResponseWriter, r *http.Request) {
       {
         title: "Deadlines everywhere: the foundation of resilience",
         body:
-          "The first rule: no call waits forever. Every network operation gets a timeout via `context.WithTimeout`, and that context propagates down the whole call chain (Module F5), so when a request's deadline passes, every in-flight downstream call for it is cancelled at once. Without deadlines, one stuck dependency parks goroutines and connections until the server runs out — the classic cascade. A request budget (e.g. 2 s total) is split across hops, and each hop checks `ctx.Err()`. Timeouts are not a nicety; they are what bound the blast radius of a slow dependency.",
+          "The first rule: no call waits forever. Every network operation gets a timeout via `context.WithTimeout`, and that context propagates down the whole call chain (Module F5), so when a request's deadline passes, every in-flight downstream call for it is cancelled at once. Without deadlines, one stuck dependency parks goroutines and connections until the server runs out - the classic cascade. A request budget (e.g. 2 s total) is split across hops, and each hop checks `ctx.Err()`. Timeouts are not a nicety; they are what bound the blast radius of a slow dependency.",
         code: `// Bound every external call; cancel propagates to all children.
 ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
 defer cancel()
 
 resp, err := client.Do(req.WithContext(ctx)) // aborts at the deadline
 if errors.Is(err, context.DeadlineExceeded) {
-    // fail fast — don't pile up waiters behind a slow dependency
+    // fail fast - don't pile up waiters behind a slow dependency
 }
 // Servers need deadlines too:
 //   &http.Server{ReadHeaderTimeout: 5*time.Second, ...}`,
@@ -2453,7 +2453,7 @@ if errors.Is(err, context.DeadlineExceeded) {
       {
         title: "Retries: backoff, jitter & idempotency",
         body:
-          "Transient failures (a dropped connection, a 503, a serialization conflict from M5) are worth retrying — but naively. Three rules. EXPONENTIAL BACKOFF: wait 100 ms, 200 ms, 400 ms… so you do not hammer a struggling service. JITTER: randomize each delay, or thousands of clients retry in lockstep and create a synchronized 'thundering herd' that knocks the recovering service back down. IDEMPOTENCY: only retry operations that are safe to repeat (a retried payment must carry an idempotency key, or you double-charge). And cap the attempts — retries multiply load, so an uncapped retry storm is a self-inflicted DDoS.",
+          "Transient failures (a dropped connection, a 503, a serialization conflict from M5) are worth retrying - but naively. Three rules. EXPONENTIAL BACKOFF: wait 100 ms, 200 ms, 400 ms… so you do not hammer a struggling service. JITTER: randomize each delay, or thousands of clients retry in lockstep and create a synchronized 'thundering herd' that knocks the recovering service back down. IDEMPOTENCY: only retry operations that are safe to repeat (a retried payment must carry an idempotency key, or you double-charge). And cap the attempts - retries multiply load, so an uncapped retry storm is a self-inflicted DDoS.",
         code: `func withRetry(ctx context.Context, op func() error) error {
     base := 100 * time.Millisecond
     for attempt := 0; attempt < 5; attempt++ {
@@ -2475,7 +2475,7 @@ if errors.Is(err, context.DeadlineExceeded) {
       {
         title: "Circuit breakers: stop calling what is already down",
         body:
-          "Retrying a service that is genuinely down just wastes time and piles on load. A circuit breaker is a state machine that wraps a dependency. CLOSED: calls flow normally while it tracks the failure rate. When failures cross a threshold it trips to OPEN: every call fails INSTANTLY for a cooldown period — no waiting on timeouts, giving the dependency room to recover. After the cooldown it goes HALF-OPEN and lets a few probe calls through; if they succeed it closes again, if they fail it re-opens. This 'fail fast' behaviour is what prevents one dead dependency from consuming all your goroutines and connections.",
+          "Retrying a service that is genuinely down just wastes time and piles on load. A circuit breaker is a state machine that wraps a dependency. CLOSED: calls flow normally while it tracks the failure rate. When failures cross a threshold it trips to OPEN: every call fails INSTANTLY for a cooldown period - no waiting on timeouts, giving the dependency room to recover. After the cooldown it goes HALF-OPEN and lets a few probe calls through; if they succeed it closes again, if they fail it re-opens. This 'fail fast' behaviour is what prevents one dead dependency from consuming all your goroutines and connections.",
         code: `// Conceptual breaker states:
 //   CLOSED   → calls pass; count failures
 //   OPEN     → trip after N failures; calls fail FAST for cooldown
@@ -2492,7 +2492,7 @@ if errors.Is(err, breaker.ErrOpen) { return cachedFallback() }`,
       {
         title: "Rate limiting & load shedding: protect yourself and others",
         body:
-          "Two valves bound how much work enters the system. A RATE LIMITER (token bucket — `golang.org/x/time/rate`) caps the requests per second you accept or send, smoothing bursts and protecting a downstream from overload. LOAD SHEDDING is the harder-edged sibling: when you are already saturated (queue full, latency past SLO), reject excess requests immediately with 429/503 instead of accepting work you cannot finish. Counter-intuitively, shedding load KEEPS the system up: a server that accepts everything under overload slows to a crawl and serves NOBODY, while one that sheds 20% serves the other 80% at full speed.",
+          "Two valves bound how much work enters the system. A RATE LIMITER (token bucket - `golang.org/x/time/rate`) caps the requests per second you accept or send, smoothing bursts and protecting a downstream from overload. LOAD SHEDDING is the harder-edged sibling: when you are already saturated (queue full, latency past SLO), reject excess requests immediately with 429/503 instead of accepting work you cannot finish. Counter-intuitively, shedding load KEEPS the system up: a server that accepts everything under overload slows to a crawl and serves NOBODY, while one that sheds 20% serves the other 80% at full speed.",
         code: `import "golang.org/x/time/rate"
 
 lim := rate.NewLimiter(rate.Limit(1000), 200) // 1000 rps, burst 200
@@ -2509,7 +2509,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
       {
         title: "Backpressure: bounded queues that push back",
         body:
-          "The deepest resilience idea is backpressure: when a consumer cannot keep up, the system must SLOW THE PRODUCER rather than buffer without limit. An unbounded queue (or channel) under overload just grows until it exhausts memory and the process is OOM-killed — it converts a throughput problem into a crash. A BOUNDED buffered channel gives you backpressure for free: when it is full, sends block, which propagates the slowness back to the producer so it stops accepting more. Combined with deadlines, the slow path then times out cleanly. Bound every queue; treat 'queue full' as a signal to shed, not to grow.",
+          "The deepest resilience idea is backpressure: when a consumer cannot keep up, the system must SLOW THE PRODUCER rather than buffer without limit. An unbounded queue (or channel) under overload just grows until it exhausts memory and the process is OOM-killed - it converts a throughput problem into a crash. A BOUNDED buffered channel gives you backpressure for free: when it is full, sends block, which propagates the slowness back to the producer so it stops accepting more. Combined with deadlines, the slow path then times out cleanly. Bound every queue; treat 'queue full' as a signal to shed, not to grow.",
         code: `// Bounded channel = built-in backpressure.
 jobs := make(chan Job, 100) // NOT unbounded
 
@@ -2530,7 +2530,7 @@ default:                                 // queue full → shed, don't grow
       body:
         "Hand an LLM a fragile call path and have it layer the resilience patterns in the right order.",
       prompt:
-        "Here is a Go function that calls a flaky downstream service: <paste>. Add the resilience patterns in the correct order — context deadline, capped retries with exponential backoff + jitter, a circuit breaker, and a fallback — and explain which failures each layer handles. Point out any non-idempotent operation that is unsafe to retry.",
+        "Here is a Go function that calls a flaky downstream service: <paste>. Add the resilience patterns in the correct order - context deadline, capped retries with exponential backoff + jitter, a circuit breaker, and a fallback - and explain which failures each layer handles. Point out any non-idempotent operation that is unsafe to retry.",
     },
     practice: {
       title: "Try it yourself",
@@ -2543,13 +2543,13 @@ default:                                 // queue full → shed, don't grow
       ],
     },
     pitfalls: [
-      "Retrying without backoff, jitter, or a cap — turning a brief downstream blip into a self-inflicted thundering-herd DDoS.",
+      "Retrying without backoff, jitter, or a cap - turning a brief downstream blip into a self-inflicted thundering-herd DDoS.",
       "Retrying non-idempotent operations (payments, sends) without an idempotency key, causing duplicates.",
       "Using unbounded channels/queues so overload becomes an OOM crash instead of clean backpressure and shedding.",
     ],
     takeaways: [
       "Put a context deadline on every external call; propagation cancels the whole request's in-flight work at once.",
-      "Retry only transient, idempotent operations — capped, with exponential backoff AND jitter.",
+      "Retry only transient, idempotent operations - capped, with exponential backoff AND jitter.",
       "Fail fast (circuit breaker) and shed load under saturation; bounded queues give backpressure instead of an OOM.",
     ],
     checklist: [
@@ -2573,18 +2573,18 @@ default:                                 // queue full → shed, don't grow
     summary:
       "Redis as a single-threaded, in-memory data structure server: the cache-aside pattern that keeps it safely beside your real database, and the atomic commands (SETNX, INCR) that turn the same server into a distributed lock and a rate limiter for free.",
     plain:
-      "Think of Redis as a small whiteboard sitting right next to a filing cabinet that holds the real records. Reading the whiteboard is nearly instant; digging through the cabinet is slow. So you check the whiteboard first — there (a HIT), you're done. Not there (a MISS), you go to the cabinet, find the answer, and jot it on the whiteboard before you leave, with a sticky note that says 'erase this in 60 seconds' so nobody trusts stale handwriting forever. The twist that makes Redis more than just 'a fast whiteboard' is that only one clerk ever touches it, and that clerk handles one request at a time, start to finish, never two at once. That means an instruction like 'write this ONLY IF the space is still blank' is automatically fair — even if five people shout it at the exact same instant, the clerk still processes them one after another, so exactly one of them succeeds. That single property, one clerk handling one command at a time, is what turns a fast cache into a working distributed lock and a working rate limiter, with no extra coordination required on top.",
+      "Think of Redis as a small whiteboard sitting right next to a filing cabinet that holds the real records. Reading the whiteboard is nearly instant; digging through the cabinet is slow. So you check the whiteboard first - there (a HIT), you're done. Not there (a MISS), you go to the cabinet, find the answer, and jot it on the whiteboard before you leave, with a sticky note that says 'erase this in 60 seconds' so nobody trusts stale handwriting forever. The twist that makes Redis more than just 'a fast whiteboard' is that only one clerk ever touches it, and that clerk handles one request at a time, start to finish, never two at once. That means an instruction like 'write this ONLY IF the space is still blank' is automatically fair - even if five people shout it at the exact same instant, the clerk still processes them one after another, so exactly one of them succeeds. That single property, one clerk handling one command at a time, is what turns a fast cache into a working distributed lock and a working rate limiter, with no extra coordination required on top.",
     animation: {
       id: "redis-cache",
       title: "The Cache-Aside Lifecycle & the Atomic Lock",
       blurb:
-        "Watch a read fall through from a miss to the real database, get cached with a TTL, come back as a near-instant hit, expire, and miss again — then watch SETNX let exactly one of five racing clients win a lock.",
+        "Watch a read fall through from a miss to the real database, get cached with a TTL, come back as a near-instant hit, expire, and miss again - then watch SETNX let exactly one of five racing clients win a lock.",
     },
     concepts: [
       {
         title: "What Redis actually is: an in-memory store with one clerk",
         body:
-          "Redis keeps its data set in memory (not on disk, though it CAN persist to disk for recovery), so reads and writes are measured in microseconds instead of the milliseconds a disk-backed database needs. The part that surprises people: Redis is single-threaded for command execution — one event loop processes commands one at a time, start to finish, even though your Go program is calling it from many goroutines at once. That single-threaded core is not a limitation to work around; it is the reason every individual command is atomic with zero extra locking, a property the rest of this module leans on directly.",
+          "Redis keeps its data set in memory (not on disk, though it CAN persist to disk for recovery), so reads and writes are measured in microseconds instead of the milliseconds a disk-backed database needs. The part that surprises people: Redis is single-threaded for command execution - one event loop processes commands one at a time, start to finish, even though your Go program is calling it from many goroutines at once. That single-threaded core is not a limitation to work around; it is the reason every individual command is atomic with zero extra locking, a property the rest of this module leans on directly.",
         code: `rdb := redis.NewClient(&redis.Options{Addr: "localhost:6379"})
 ctx := context.Background()
 
@@ -2597,7 +2597,7 @@ val, err := rdb.Get(ctx, "user:42:name").Result()
       {
         title: "Cache-aside: Redis sits BESIDE the source of truth, not instead of it",
         body:
-          "In the cache-aside pattern, your application code checks Redis first. On a HIT, it returns straight from Redis and never touches the real database. On a MISS (the Go client surfaces this as the sentinel error `redis.Nil`), it queries the real source of truth, writes the result into Redis with a TTL, and returns it. Crucially, Redis is never the only copy of the data — the database is still authoritative, so it is safe to lose the cache entirely (a restart, an eviction, an `flushall`) and simply repopulate it on the next miss.",
+          "In the cache-aside pattern, your application code checks Redis first. On a HIT, it returns straight from Redis and never touches the real database. On a MISS (the Go client surfaces this as the sentinel error `redis.Nil`), it queries the real source of truth, writes the result into Redis with a TTL, and returns it. Crucially, Redis is never the only copy of the data - the database is still authoritative, so it is safe to lose the cache entirely (a restart, an eviction, an `flushall`) and simply repopulate it on the next miss.",
         code: `price, err := rdb.Get(ctx, "price:"+sku).Result()
 if errors.Is(err, redis.Nil) {
     price, err = fetchPriceFromDB(sku)        // slow path: the real source
@@ -2611,7 +2611,7 @@ if errors.Is(err, redis.Nil) {
       {
         title: "TTL and invalidation: a cache is allowed to be a little wrong",
         body:
-          "A TTL bounds exactly how stale a cached value can ever be — set it to 60s and you have accepted, on purpose, that a value may lag reality by up to 60 seconds. That is usually a fine trade for the speed you get back. When it is not fine (a price just changed and must be correct immediately), invalidate explicitly: delete the key the moment the source of truth is updated, rather than waiting for the TTL to catch up. The two techniques compose — TTL is the safety net for keys nobody explicitly invalidates, explicit deletion is the fast path for the ones that matter.",
+          "A TTL bounds exactly how stale a cached value can ever be - set it to 60s and you have accepted, on purpose, that a value may lag reality by up to 60 seconds. That is usually a fine trade for the speed you get back. When it is not fine (a price just changed and must be correct immediately), invalidate explicitly: delete the key the moment the source of truth is updated, rather than waiting for the TTL to catch up. The two techniques compose - TTL is the safety net for keys nobody explicitly invalidates, explicit deletion is the fast path for the ones that matter.",
         code: `func updatePrice(ctx context.Context, rdb *redis.Client, sku, newPrice string) error {
     if err := writeToRealDatabase(sku, newPrice); err != nil {
         return err
@@ -2623,13 +2623,13 @@ if errors.Is(err, redis.Nil) {
       {
         title: "Atomicity for free: SETNX as a distributed lock",
         body:
-          "`SET key value NX` ('set if Not eXists') either creates the key and returns success, or does nothing and returns failure if the key is already there. Because the whole check-and-write happens as ONE command on Redis's single-threaded event loop, there is no gap between 'check' and 'write' for a second caller to slip into — the exact race that a naive `if GET key == nil { SET key }` in your own Go code would have. That makes SETNX (with a TTL, so a crashed holder does not lock things forever) a correct distributed lock across any number of processes or machines, using nothing but one Redis instance.",
+          "`SET key value NX` ('set if Not eXists') either creates the key and returns success, or does nothing and returns failure if the key is already there. Because the whole check-and-write happens as ONE command on Redis's single-threaded event loop, there is no gap between 'check' and 'write' for a second caller to slip into - the exact race that a naive `if GET key == nil { SET key }` in your own Go code would have. That makes SETNX (with a TTL, so a crashed holder does not lock things forever) a correct distributed lock across any number of processes or machines, using nothing but one Redis instance.",
         code: `ok, err := rdb.SetNX(ctx, "lock:invoice:9001", "worker-3", 5*time.Second).Result()
 if ok {
     // this caller, and only this caller, holds the lock
     defer rdb.Del(ctx, "lock:invoice:9001")
 } else {
-    // someone else already holds it — back off and retry, or skip
+    // someone else already holds it - back off and retry, or skip
 }`,
         lang: "go",
       },
@@ -2658,26 +2658,26 @@ if count > 100 {
       body: "Build and break the cache-aside pattern, then the lock, then the limiter.",
       steps: [
         "Point go-redis at a local Redis, run a cache-aside Get/Set, and confirm a cold miss populates the cache while a warm read skips your 'slow' source entirely.",
-        "Set a short TTL, wait past it, and confirm the next read is a clean miss again — then add explicit Del-on-write invalidation and confirm it beats the TTL to the punch.",
+        "Set a short TTL, wait past it, and confirm the next read is a clean miss again - then add explicit Del-on-write invalidation and confirm it beats the TTL to the punch.",
         "Race 5+ goroutines on the same SETNX key and run it several times: confirm exactly one succeeds every run, even though WHICH one wins changes.",
         "Build the INCR + EXPIRE limiter, fire more requests than the limit inside one window, and confirm the excess get rejected instead of silently allowed.",
       ],
     },
     pitfalls: [
-      "Treating Redis as the system of record instead of a cache — if it is flushed, evicted, or restarted, anything that only ever lived in Redis is simply gone.",
-      "Doing a non-atomic GET-then-SET in application code for a counter or a lock — the exact check-then-act race that SETNX and INCR exist specifically to make impossible.",
+      "Treating Redis as the system of record instead of a cache - if it is flushed, evicted, or restarted, anything that only ever lived in Redis is simply gone.",
+      "Doing a non-atomic GET-then-SET in application code for a counter or a lock - the exact check-then-act race that SETNX and INCR exist specifically to make impossible.",
       "Cache stampede: many keys expiring at once (or one very hot key expiring) sends a burst of simultaneous misses straight at the real database all together.",
-      "Acquiring a lock with SETNX but forgetting its TTL — a holder that crashes before releasing leaves the lock stuck forever with nobody able to acquire it.",
+      "Acquiring a lock with SETNX but forgetting its TTL - a holder that crashes before releasing leaves the lock stuck forever with nobody able to acquire it.",
     ],
     takeaways: [
       "Cache-aside: check Redis first, fall through to the real source of truth on a miss, repopulate with a TTL.",
-      "Redis is single-threaded for command execution, so SETNX and INCR are atomic across every caller — that gives you a distributed lock and a rate limiter with zero extra synchronization.",
+      "Redis is single-threaded for command execution, so SETNX and INCR are atomic across every caller - that gives you a distributed lock and a rate limiter with zero extra synchronization.",
       "A cached value can be wrong for up to its TTL; design for that staleness window on purpose instead of assuming the cache is always correct.",
     ],
     checklist: [
       "Every cached key has either an explicit TTL or an explicit invalidation path on write.",
       "Cache misses fall through cleanly to the real source of truth and repopulate the cache before returning.",
-      "Locks and counters use SETNX/INCR — never a separate GET followed by a SET.",
+      "Locks and counters use SETNX/INCR - never a separate GET followed by a SET.",
       "Every lock key carries its own TTL, so a crashed holder cannot lock a resource forever.",
     ],
   },
@@ -2687,7 +2687,7 @@ if count > 100 {
 const MORE_CONCEPTS = {
   m3: [{
     title: "Weak pointers for caches (the weak package)",
-    body: "Go 1.24's weak package gives you a reference that does NOT keep its target alive. It's ideal for a cache or canonical map that should let entries be collected under memory pressure — the weak handle simply reads back nil once the object is gone.",
+    body: "Go 1.24's weak package gives you a reference that does NOT keep its target alive. It's ideal for a cache or canonical map that should let entries be collected under memory pressure - the weak handle simply reads back nil once the object is gone.",
     code: `import "weak"
 
 // A cache whose values never prevent garbage collection.
@@ -2696,7 +2696,7 @@ var cache sync.Map // key -> weak.Pointer[Big]
 func get(k string) *Big {
     if v, ok := cache.Load(k); ok {
         if p := v.(weak.Pointer[Big]).Value(); p != nil {
-            return p // still alive — reuse it
+            return p // still alive - reuse it
         }
     }
     b := load(k)
@@ -2707,7 +2707,7 @@ func get(k string) *Big {
   }],
   m4: [{
     title: "Bubbles detect durable deadlocks",
-    body: "A bonus of synctest: if every goroutine in the bubble becomes durably blocked and no timer can fire, that's a deadlock — and the bubble fails the test immediately instead of hanging your CI. You catch 'everyone is waiting on everyone' bugs deterministically.",
+    body: "A bonus of synctest: if every goroutine in the bubble becomes durably blocked and no timer can fire, that's a deadlock - and the bubble fails the test immediately instead of hanging your CI. You catch 'everyone is waiting on everyone' bugs deterministically.",
     code: `synctest.Test(t, func(t *testing.T) {
     ch := make(chan int) // nobody will ever send
     <-ch                 // durably blocked, no timers left
@@ -2718,7 +2718,7 @@ func get(k string) *Big {
   }],
   m5: [{
     title: "Explicit transactions with pgx.Tx",
-    body: "For multi-statement atomicity, begin a transaction, defer a Rollback, and Commit at the end. The deferred Rollback is a no-op after a successful Commit, so this pattern is always safe — any early return undoes the partial work.",
+    body: "For multi-statement atomicity, begin a transaction, defer a Rollback, and Commit at the end. The deferred Rollback is a no-op after a successful Commit, so this pattern is always safe - any early return undoes the partial work.",
     code: `tx, err := pool.Begin(ctx)
 if err != nil { return err }
 defer tx.Rollback(ctx) // no-op once we Commit
@@ -2747,7 +2747,7 @@ return tx.Commit(ctx) // both legs land atomically`,
   }],
   m7: [{
     title: "Full execution traces with go tool trace",
-    body: "A FlightRecorder dump is a runtime/trace file — open it with `go tool trace` for a timeline of every goroutine, GC cycle, syscall and scheduler event. It's the microscope for 'why did this 50 ms request actually take 50 ms'.",
+    body: "A FlightRecorder dump is a runtime/trace file - open it with `go tool trace` for a timeline of every goroutine, GC cycle, syscall and scheduler event. It's the microscope for 'why did this 50 ms request actually take 50 ms'.",
     code: `import "runtime/trace"
 
 f, _ := os.Create("trace.out")
@@ -2785,7 +2785,7 @@ const GLOSSARY = {
     ["Write barrier", "Tiny bookkeeping on pointer writes so concurrent marking never loses a live object."],
     ["GOGC", "Heap-growth target before the next GC (default 100 = let the live heap double)."],
     ["GOMEMLIMIT", "Soft total-memory cap; the GC works harder as you approach it to avoid OOM."],
-    ["Stop-the-world", "The brief pauses where all goroutines halt — sub-millisecond in Go."],
+    ["Stop-the-world", "The brief pauses where all goroutines halt - sub-millisecond in Go."],
   ],
   f2: [
     ["Profile", "A statistical sample of where a program spends a resource (CPU, memory…)."],
@@ -2828,14 +2828,14 @@ const GLOSSARY = {
   ],
   m2: [
     ["Serialization", "Converting in-memory values to bytes (e.g. JSON) and back."],
-    ["Reflection", "Runtime type inspection — flexible but comparatively slow."],
+    ["Reflection", "Runtime type inspection - flexible but comparatively slow."],
     ["jsontext", "The low-level streaming JSON token API in encoding/json/v2."],
     ["Swiss Table", "A cache-friendly map layout that checks 8 slots' tags at once."],
     ["Control byte", "A 1-byte per-slot tag a Swiss Table compares SIMD-style."],
     ["Escape analysis", "The compiler deciding whether a value lives on the stack or heap."],
   ],
   m3: [
-    ["Finalizer", "Legacy, unreliable pre-collection callback — avoid it."],
+    ["Finalizer", "Legacy, unreliable pre-collection callback - avoid it."],
     ["runtime.AddCleanup", "Modern, run-once cleanup that fires after an object is unreachable."],
     ["Interning", "Deduplicating equal values to one shared copy (unique.Make)."],
     ["Weak pointer", "A reference that does not keep its target alive (weak package)."],
@@ -2853,10 +2853,10 @@ const GLOSSARY = {
   m5: [
     ["sqlc", "Generates type-safe Go from raw SQL + schema at build time."],
     ["pgxpool", "A managed pool of Postgres connections with lifetimes and limits."],
-    ["Row-level lock", "SELECT … FOR UPDATE — locks specific rows, not the whole table."],
+    ["Row-level lock", "SELECT … FOR UPDATE - locks specific rows, not the whole table."],
     ["Double-entry", "Every transfer debits one account and credits another by the same amount."],
     ["SQLSTATE", "Postgres's 5-character error code (e.g. 23505 = unique_violation)."],
-    ["40001", "serialization_failure — a concurrency conflict that should be retried."],
+    ["40001", "serialization_failure - a concurrency conflict that should be retried."],
   ],
   m6: [
     ["gRPC", "An RPC framework over HTTP/2 that carries Protobuf messages."],
@@ -2864,13 +2864,13 @@ const GLOSSARY = {
     ["ML-KEM", "NIST's post-quantum key-encapsulation mechanism (lattice-based)."],
     ["Hybrid KEM", "Classical + post-quantum combined; secure unless BOTH break."],
     ["Harvest-now-decrypt-later", "Recording ciphertext today to decrypt with a future quantum computer."],
-    ["Field number", "A Protobuf tag identifying a field — never reuse a retired one."],
+    ["Field number", "A Protobuf tag identifying a field - never reuse a retired one."],
   ],
   m7: [
     ["FlightRecorder", "An always-on, bounded in-memory buffer of recent trace events."],
     ["Execution trace", "A timeline of goroutines, GC, syscalls and scheduling (go tool trace)."],
     ["Goroutine dump", "A snapshot of every goroutine's current stack."],
-    ["p99 latency", "The latency 99% of requests beat — the slow tail."],
+    ["p99 latency", "The latency 99% of requests beat - the slow tail."],
     ["Goroutine leak", "A goroutine stuck forever and never reclaimed."],
   ],
   m8: [
@@ -2886,14 +2886,14 @@ const GLOSSARY = {
     ["cgroup", "Linux kernel resource limits applied to a container."],
     ["Distroless / scratch", "Minimal base images that contain little or no OS."],
     ["go fix / //go:fix", "Tooling that auto-rewrites deprecated call sites across a repo."],
-    ["ADR", "Architecture Decision Record — a short note on why a choice was made."],
+    ["ADR", "Architecture Decision Record - a short note on why a choice was made."],
     ["Readiness probe", "A health check telling the load balancer a pod can take traffic."],
   ],
   m10: [
     ["Cache line", "The 64-byte (128 on Apple silicon) block moved between RAM and cache as one unit."],
     ["L1 / L2 / L3", "Progressively bigger, slower on-chip caches sitting between registers and RAM."],
-    ["Temporal locality", "Data used recently is likely to be used again soon — so caches keep it."],
-    ["Spatial locality", "Data near what you just used is likely needed soon — prefetchers exploit this."],
+    ["Temporal locality", "Data used recently is likely to be used again soon - so caches keep it."],
+    ["Spatial locality", "Data near what you just used is likely needed soon - prefetchers exploit this."],
     ["False sharing", "Independent variables on one cache line forcing needless cross-core invalidation."],
     ["Struct padding", "Compiler-inserted filler bytes that align each field to its natural boundary."],
   ],
@@ -2914,7 +2914,7 @@ const GLOSSARY = {
     ["sysmon", "The runtime's background monitor thread that has no P of its own."],
   ],
   m13: [
-    ["Data race", "Concurrent unsynchronized access to memory with at least one write — undefined behavior."],
+    ["Data race", "Concurrent unsynchronized access to memory with at least one write - undefined behavior."],
     ["happens-before", "The ordering guarantee the Go memory model gives between synchronized operations."],
     ["CAS (compare-and-swap)", "Atomic 'set X to new only if it still equals old', looped until it succeeds."],
     ["Critical section", "Code guarded by a mutex so only one goroutine executes it at a time."],
@@ -2923,8 +2923,8 @@ const GLOSSARY = {
   ],
   m14: [
     ["Structured logging", "Key/value log records (e.g. via slog) instead of interpolated text strings."],
-    ["RED metrics", "Rate, Errors, Duration — the framing for instrumenting a request-driven service."],
-    ["USE metrics", "Utilization, Saturation, Errors — the framing for instrumenting a resource."],
+    ["RED metrics", "Rate, Errors, Duration - the framing for instrumenting a request-driven service."],
+    ["USE metrics", "Utilization, Saturation, Errors - the framing for instrumenting a resource."],
     ["Span", "One timed operation in a trace, with a start, duration, and attributes."],
     ["Context propagation", "Carrying the trace/span ID through context.Context and outgoing request headers."],
     ["Cardinality", "The number of distinct label combinations a metric produces; unbounded labels explode it."],
@@ -2939,9 +2939,9 @@ const GLOSSARY = {
   ],
   m16: [
     ["Cache-aside", "Check the cache first; on a miss, read the real source of truth and populate the cache before returning."],
-    ["TTL", "Time-to-live — how long a key survives before Redis automatically expires it."],
-    ["redis.Nil", "The sentinel error go-redis returns for a GET on a key that does not exist — a cache miss, not a failure."],
-    ["SETNX", "'Set if Not eXists' — an atomic create-only write, the building block of a distributed lock."],
+    ["TTL", "Time-to-live - how long a key survives before Redis automatically expires it."],
+    ["redis.Nil", "The sentinel error go-redis returns for a GET on a key that does not exist - a cache miss, not a failure."],
+    ["SETNX", "'Set if Not eXists' - an atomic create-only write, the building block of a distributed lock."],
     ["INCR", "An atomic increment-and-return, the building block of a race-free counter or rate limiter."],
     ["Cache stampede", "A burst of simultaneous misses (from mass expiry or one hot key) hitting the real database all at once."],
   ],
@@ -2949,7 +2949,7 @@ const GLOSSARY = {
 
 /* ----------------------------------------------------- Verification grid */
 const VERIFICATION = [
-  ["Go Environment Target", "go 1.26 — strictly enforced via CI checks"],
+  ["Go Environment Target", "go 1.26 - strictly enforced via CI checks"],
   ["Linting System", "golangci-lint with custom rule presets"],
   [
     "Concurrency Rule",
@@ -2967,10 +2967,10 @@ const VERIFICATION = [
 
 /* --------------------------------------------------------- Assignments
    Auto-checkable practice. Types:
-     mcq    — multiple choice (answer = index)
-     blank  — fill in the blank (accept = list of accepted answers, case-insensitive)
-     predict— predict the printed output (accept = list)
-     code   — write code, graded by structural rules:
+     mcq    - multiple choice (answer = index)
+     blank  - fill in the blank (accept = list of accepted answers, case-insensitive)
+     predict- predict the printed output (accept = list)
+     code   - write code, graded by structural rules:
                 { has: "substr" } must contain
                 { not: "substr" } must NOT contain
                 { re:  "regex"  } must match
@@ -2978,12 +2978,12 @@ const VERIFICATION = [
 const ASSIGNMENTS = {
   f1: [
     { type: "mcq", prompt: "At the end of the mark phase, what does a WHITE object represent?",
-      options: ["Reachable and fully scanned", "Reachable but not yet scanned", "Unreachable — it will be swept", "Pinned in memory forever"],
+      options: ["Reachable and fully scanned", "Reachable but not yet scanned", "Unreachable - it will be swept", "Pinned in memory forever"],
       answer: 2, explain: "White = never reached from the roots, so it is garbage and gets swept. Grey = reachable but not yet scanned; black = scanned." },
     { type: "blank", prompt: "Set a 512 MiB soft memory limit at runtime. Fill the blank:",
       code: `debug.____(512 << 20)`, accept: ["SetMemoryLimit"],
       explain: "debug.SetMemoryLimit(512<<20) sets GOMEMLIMIT in code; the GC gets more aggressive as the heap approaches it." },
-    { type: "code", prompt: "Write one line (using runtime/debug) that lets the heap grow ~2× before each GC — i.e. double the default GOGC.",
+    { type: "code", prompt: "Write one line (using runtime/debug) that lets the heap grow ~2× before each GC - i.e. double the default GOGC.",
       starter: `// runtime/debug is already imported\n`,
       checks: [{ has: "SetGCPercent", msg: "Call debug.SetGCPercent" }, { has: "200", msg: "Pass 200 (double the default of 100)" }],
       explain: "debug.SetGCPercent(200) is the programmatic form of GOGC=200: fewer collections, more memory used." },
@@ -2997,7 +2997,7 @@ const ASSIGNMENTS = {
       explain: 'A blank import of "net/http/pprof" registers the debug handlers on the default mux.' },
     { type: "code", prompt: "Write the command that opens the interactive flame-graph web UI for cpu.out on port 8080.",
       starter: ``, checks: [{ has: "go tool pprof", msg: "Use go tool pprof" }, { has: "-http", msg: "Use the -http web UI flag" }, { has: "cpu.out", msg: "Point it at cpu.out" }],
-      explain: "go tool pprof -http=:8080 cpu.out — the fastest way to see the flame graph." },
+      explain: "go tool pprof -http=:8080 cpu.out - the fastest way to see the flame graph." },
   ],
   f3: [
     { type: "mcq", prompt: "Which method reports a failure but lets the rest of the test keep running?",
@@ -3005,10 +3005,10 @@ const ASSIGNMENTS = {
       explain: "t.Error/t.Errorf record a failure and continue; t.Fatal/t.Fatalf stop the current test immediately." },
     { type: "blank", prompt: "Run each table case as a named, isolated subtest. Fill the blank:",
       code: `t.____(c.name, func(t *testing.T) { /* ... */ })`, accept: ["Run"],
-      explain: "t.Run(name, fn) creates a subtest — failures point at the exact case name." },
+      explain: "t.Run(name, fn) creates a subtest - failures point at the exact case name." },
     { type: "code", prompt: "Write the everyday command to run all tests with the race detector and coverage.",
       starter: ``, checks: [{ has: "go test", msg: "Use go test" }, { has: "-race", msg: "Enable the race detector with -race" }, { has: "-cover", msg: "Enable coverage with -cover" }],
-      explain: "go test -race -cover ./... — run it constantly." },
+      explain: "go test -race -cover ./... - run it constantly." },
   ],
   f4: [
     { type: "mcq", prompt: "A send on an UNBUFFERED channel blocks until:",
@@ -3020,7 +3020,7 @@ const ASSIGNMENTS = {
     { type: "code", prompt: "Start 3 worker goroutines that each range over a `jobs` channel.",
       starter: `jobs := make(chan int)\n// start 3 workers here\n`,
       checks: [{ has: "go func", msg: "Spawn goroutines with go func" }, { has: "range jobs", msg: "Each worker should range over jobs" }],
-      explain: "for w := 0; w < 3; w++ { go func() { for j := range jobs { process(j) } }() } — the classic fan-out." },
+      explain: "for w := 0; w < 3; w++ { go func() { for j := range jobs { process(j) } }() } - the classic fan-out." },
   ],
   f5: [
     { type: "mcq", prompt: "Which fmt verb wraps an error so errors.Is / errors.As can later unwrap it?",
@@ -3031,7 +3031,7 @@ const ASSIGNMENTS = {
       explain: "Because %w wrapped ErrNF, errors.Is finds it in the chain → true." },
     { type: "blank", prompt: "Always release a timeout context's resources. Fill the blank:",
       code: `ctx, cancel := context.WithTimeout(ctx, 3*time.Second)\ndefer ____()`, accept: ["cancel"],
-      explain: "defer cancel() releases the timer and signals children — required even if the timeout never fires." },
+      explain: "defer cancel() releases the timer and signals children - required even if the timeout never fires." },
   ],
   m1: [
     { type: "mcq", prompt: "When two patterns could match, Go 1.22+ ServeMux picks:",
@@ -3039,8 +3039,8 @@ const ASSIGNMENTS = {
       explain: "Precedence is most-specific-wins, so /ledger/{id}/audit beats /ledger/{id}." },
     { type: "blank", prompt: "Read the {id} wildcard captured by the pattern. Fill the blank:",
       code: `id := r.____("id")`, accept: ["PathValue"],
-      explain: "r.PathValue(\"id\") returns the wildcard segment — no regexp, no allocations." },
-    { type: "code", prompt: "Register getEntry for GET /api/v1/ledger/{id} on mux — no third-party router.",
+      explain: "r.PathValue(\"id\") returns the wildcard segment - no regexp, no allocations." },
+    { type: "code", prompt: "Register getEntry for GET /api/v1/ledger/{id} on mux - no third-party router.",
       starter: `mux := http.NewServeMux()\n`,
       checks: [{ has: "HandleFunc", msg: "Use mux.HandleFunc" }, { has: "GET /api/v1/ledger/{id}", msg: "Match method + path: GET /api/v1/ledger/{id}" }, { not: "gin", msg: "No gin import" }, { not: "chi", msg: "No chi import" }],
       explain: 'mux.HandleFunc("GET /api/v1/ledger/{id}", getEntry)' },
@@ -3051,21 +3051,21 @@ const ASSIGNMENTS = {
       explain: "A group of 8 control bytes fits in a cache line and is compared SIMD-style, so a lookup usually touches one cache line." },
     { type: "blank", prompt: "Allocate a *int64 pointing to 25 in one expression (Go's new(expr)). Fill the blank:",
       code: `fee := ____(int64(25))`, accept: ["new"],
-      explain: "new(int64(25)) allocates and returns a *int64 inline — handy for optional fields." },
+      explain: "new(int64(25)) allocates and returns a *int64 inline - handy for optional fields." },
     { type: "code", prompt: "Write the `go build` command that prints the compiler's escape-analysis decisions.",
       starter: ``, checks: [{ has: "go build", msg: "Use go build" }, { has: "-gcflags", msg: "Pass compiler flags with -gcflags" }, { has: "-m", msg: "Enable escape analysis output with -m" }],
-      explain: "go build -gcflags='-m' ./... — look for 'does not escape'." },
+      explain: "go build -gcflags='-m' ./... - look for 'does not escape'." },
   ],
   m3: [
     { type: "mcq", prompt: "Why must a runtime.AddCleanup closure NOT capture the object it cleans?",
-      options: ["it would run too early", "it keeps the object reachable forever — the exact leak you wanted to avoid", "cleanups can't take arguments", "it panics at compile time"], answer: 1,
+      options: ["it would run too early", "it keeps the object reachable forever - the exact leak you wanted to avoid", "cleanups can't take arguments", "it panics at compile time"], answer: 1,
       explain: "Capturing the object makes it reachable, so it's never collected and the cleanup never runs. Capture the raw handle (fd) by value instead." },
     { type: "blank", prompt: "Intern a repeated string to a shared, comparable handle. Fill the blank:",
       code: `usd := unique.____("USD")`, accept: ["Make"],
       explain: "unique.Make(\"USD\") returns a Handle[string]; equal values share one copy and compare by pointer." },
     { type: "mcq", prompt: "Compared to runtime.SetFinalizer, runtime.AddCleanup:",
       options: ["can resurrect the object", "runs once and never resurrects the object", "delays collection by a full GC cycle", "is deprecated"], answer: 1,
-      explain: "AddCleanup runs exactly once after the object is truly unreachable, with no resurrection — strictly better than finalizers." },
+      explain: "AddCleanup runs exactly once after the object is truly unreachable, with no resurrection - strictly better than finalizers." },
   ],
   m4: [
     { type: "mcq", prompt: "Inside a synctest bubble, time.Sleep(5 * time.Second):",
@@ -3073,11 +3073,11 @@ const ASSIGNMENTS = {
       explain: "The bubble clock is virtual: when every goroutine is blocked, time jumps to the next timer instantly and deterministically." },
     { type: "blank", prompt: "Block the test until every other goroutine in the bubble is parked. Fill the blank:",
       code: `synctest.____()`, accept: ["Wait"],
-      explain: "synctest.Wait() is a precise 'everyone is durably blocked' barrier — replaces 'sleep and hope'." },
+      explain: "synctest.Wait() is a precise 'everyone is durably blocked' barrier - replaces 'sleep and hope'." },
     { type: "code", prompt: "Write the header line of a modern benchmark loop (no b.N bookkeeping).",
       starter: `func BenchmarkValidate(b *testing.B) {\n    // your loop here\n}`,
       checks: [{ has: "b.Loop()", msg: "Use for b.Loop()" }],
-      explain: "for b.Loop() { ... } — keeps values alive and runs setup once." },
+      explain: "for b.Loop() { ... } - keeps values alive and runs setup once." },
   ],
   m5: [
     { type: "mcq", prompt: "sqlc's main benefit is that it moves SQL mistakes:",
@@ -3093,7 +3093,7 @@ const ASSIGNMENTS = {
   m6: [
     { type: "mcq", prompt: "'Harvest now, decrypt later' attacks are defeated by:",
       options: ["bigger RSA keys", "a hybrid classical + ML-KEM key exchange", "turning off TLS", "faster CPUs"], answer: 1,
-      explain: "Hybrid key exchange stays secure unless BOTH X25519 and ML-KEM are broken — so recorded traffic resists a future quantum computer." },
+      explain: "Hybrid key exchange stays secure unless BOTH X25519 and ML-KEM are broken - so recorded traffic resists a future quantum computer." },
     { type: "mcq", prompt: "When evolving a Protobuf message, you must NEVER:",
       options: ["add a new optional field", "reuse a retired field number", "add a brand-new message type", "bump the Go version"], answer: 1,
       explain: "Reusing a field number makes old and new nodes misread the same bytes. Reserve retired numbers." },
@@ -3107,7 +3107,7 @@ const ASSIGNMENTS = {
       explain: "It holds a small rolling window in memory; you only pay to serialize a trace when something interesting happens." },
     { type: "mcq", prompt: "A goroutine parked forever on <-ch with no possible sender is a:",
       options: ["whole-program deadlock", "goroutine leak", "compile error", "data race"], answer: 1,
-      explain: "Other goroutines keep running, but this one never exits and its memory is never freed — a leak the analyzer can trace." },
+      explain: "Other goroutines keep running, but this one never exits and its memory is never freed - a leak the analyzer can trace." },
     { type: "blank", prompt: "Dump all goroutine stacks to a file. Fill the blank:",
       code: `pprof.Lookup("____").WriteTo(f, 2)`, accept: ["goroutine"],
       explain: 'pprof.Lookup("goroutine").WriteTo(f, 2) writes every goroutine stack (debug level 2).' },
@@ -3121,15 +3121,15 @@ const ASSIGNMENTS = {
       explain: "It minimizes the exposure window: the key is scrubbed on Destroy and never copied around the movable heap (so it won't linger in core dumps)." },
     { type: "blank", prompt: "Opt into the Green Tea GC at build time. Fill the blank:",
       code: `GOEXPERIMENT=____ go build ./...`, accept: ["greenteagc"],
-      explain: "GOEXPERIMENT=greenteagc enables the span-based collector — no code changes." },
+      explain: "GOEXPERIMENT=greenteagc enables the span-based collector - no code changes." },
   ],
   m9: [
     { type: "mcq", prompt: "On a pod limited to 4 CPUs, Go 1.25 sets GOMAXPROCS to:",
-      options: ["the host's total core count", "4 — the cgroup CPU quota", "1", "128"], answer: 1,
+      options: ["the host's total core count", "4 - the cgroup CPU quota", "1", "128"], answer: 1,
       explain: "Go 1.25 reads the cgroup limit so GOMAXPROCS matches the real quota, avoiding CFS throttling." },
     { type: "mcq", prompt: "Shipping a distroless / scratch final image gives you:",
       options: ["a full shell for debugging", "smaller size and a much smaller attack surface", "faster compiles", "more CVEs"], answer: 1,
-      explain: "A static Go binary needs no OS — no shell, no package manager, minimal CVE surface, a few MB." },
+      explain: "A static Go binary needs no OS - no shell, no package manager, minimal CVE surface, a few MB." },
     { type: "blank", prompt: "Auto-rewrite deprecated call sites flagged by //go:fix across the repo. Fill the blank:",
       code: `go ____ ./...`, accept: ["fix"],
       explain: "go fix ./... applies machine-applicable migrations declared with //go:fix." },
@@ -3137,7 +3137,7 @@ const ASSIGNMENTS = {
   m10: [
     { type: "mcq", prompt: "Reading from L1 cache vs main memory (RAM) is roughly:",
       options: ["~2× faster", "~10× faster", "~100× faster", "~10,000× faster"], answer: 2,
-      explain: "L1 is ~1 ns, RAM is ~100 ns — about two orders of magnitude apart, the central fact behind cache-aware code." },
+      explain: "L1 is ~1 ns, RAM is ~100 ns - about two orders of magnitude apart, the central fact behind cache-aware code." },
     { type: "mcq", prompt: "False sharing happens when:",
       options: ["two goroutines share a mutex", "two independently-written variables happen to sit on the same cache line", "a slice exceeds the L3 cache size", "the GC runs concurrently with your code"], answer: 1,
       explain: "Even though the variables are logically unrelated, the line ping-pongs between cores' caches every time either is written, killing parallel throughput." },
@@ -3147,11 +3147,11 @@ const ASSIGNMENTS = {
   ],
   m11: [
     { type: "mcq", prompt: "A branch misprediction on a modern core costs roughly:",
-      options: ["0 cycles — it's free", "~1 cycle", "~15–20 cycles to flush and refill the pipeline", "~10,000 cycles"], answer: 2,
+      options: ["0 cycles - it's free", "~1 cycle", "~15–20 cycles to flush and refill the pipeline", "~10,000 cycles"], answer: 2,
       explain: "Every speculatively-executed instruction down the wrong path is discarded and the pipeline must refill from the correct target." },
     { type: "mcq", prompt: "Why does summing only values above a threshold run faster on SORTED data than on the same data shuffled?",
       options: ["sorted data compresses better in cache", "the branch predictor nails the long predictable runs of true/false", "the CPU clocks up automatically", "shuffled data causes more cache misses, unrelated to branching"], answer: 1,
-      explain: "Sorted data turns the if into long runs the predictor learns instantly; shuffled data flips unpredictably and mispredicts constantly — same instructions, very different wall time." },
+      explain: "Sorted data turns the if into long runs the predictor learns instantly; shuffled data flips unpredictably and mispredicts constantly - same instructions, very different wall time." },
     { type: "blank", prompt: "Inspect which bounds checks the compiler eliminated. Fill the blank:",
       code: `go build -gcflags='-d=ssa/check_bce/debug=____'`, accept: ["1"],
       explain: "Setting debug=1 makes the compiler print which bounds checks it proved safe and removed." },
@@ -3173,14 +3173,14 @@ const ASSIGNMENTS = {
       explain: "Atomics protect exactly one word; the moment correctness depends on two fields agreeing, you need a mutex around both." },
     { type: "mcq", prompt: "Channels are the right tool primarily for:",
       options: ["replacing every mutex for raw speed", "transferring ownership of data and coordinating goroutines", "avoiding the need to run -race", "protecting a single shared counter"], answer: 1,
-      explain: "Channels shine at handing data (and its ownership) between goroutines — pipelines, fan-out/fan-in, signalling — not as a faster lock for simple state." },
+      explain: "Channels shine at handing data (and its ownership) between goroutines - pipelines, fan-out/fan-in, signalling - not as a faster lock for simple state." },
     { type: "blank", prompt: "Run tests with the data-race detector enabled. Fill the blank:",
       code: `go test -____ ./...`, accept: ["race"],
       explain: "go test -race instruments memory accesses and reports any unsynchronized concurrent access." },
   ],
   m14: [
     { type: "mcq", prompt: "Which pillar tells you WHERE in a multi-service request the time or error happened?",
-      options: ["logs", "metrics", "traces", "none of them — you need a debugger"], answer: 2,
+      options: ["logs", "metrics", "traces", "none of them - you need a debugger"], answer: 2,
       explain: "A trace's nested spans show exactly which hop in the call chain the time went to, across service boundaries." },
     { type: "mcq", prompt: "A metric cardinality explosion is most often caused by:",
       options: ["using too many counters", "labeling a metric with an unbounded value like a user ID or raw URL", "using histograms instead of counters", "exporting metrics to Prometheus"], answer: 1,
@@ -3203,13 +3203,13 @@ const ASSIGNMENTS = {
   m16: [
     { type: "mcq", prompt: "A GET for a key that does not exist in go-redis returns:",
       options: ["a nil *redis.Client", "an empty string with a nil error", "the sentinel error redis.Nil", "a panic"], answer: 2,
-      explain: "go-redis surfaces a missing key as the sentinel error redis.Nil, which you check with errors.Is(err, redis.Nil) — that IS the cache-miss signal, not a failure to handle specially." },
+      explain: "go-redis surfaces a missing key as the sentinel error redis.Nil, which you check with errors.Is(err, redis.Nil) - that IS the cache-miss signal, not a failure to handle specially." },
     { type: "mcq", prompt: "Why is `SET key val NX` safe as a distributed lock across many concurrent callers, with no extra locking on top?",
       options: ["Redis retries the command until it succeeds", "Redis executes commands one at a time on a single thread, so the check-and-write is one indivisible step", "the Go client adds its own mutex before sending the command", "NX makes the command run twice as fast"], answer: 1,
-      explain: "Because Redis processes one command at a time, there is no window between 'is the key free' and 'write it' for a second caller to slip into — the whole operation is atomic for free." },
+      explain: "Because Redis processes one command at a time, there is no window between 'is the key free' and 'write it' for a second caller to slip into - the whole operation is atomic for free." },
     { type: "blank", prompt: "Fill in the atomic command that increments a counter and returns its new value in one round trip:",
       code: `count, err := rdb.____(ctx, "ratelimit:ip:1.2.3.4").Result()`, accept: ["Incr"],
-      explain: "rdb.Incr atomically adds 1 and returns the new total — two concurrent callers can never both read the old value and overwrite each other's increment." },
+      explain: "rdb.Incr atomically adds 1 and returns the new total - two concurrent callers can never both read the old value and overwrite each other's increment." },
   ],
 };
 

@@ -1,5 +1,5 @@
 /* =====================================================================
-   APP — routing, persistence, rendering, animation wiring
+   APP - routing, persistence, rendering, animation wiring
    Pure vanilla JS. Runs over file:// (no modules, no fetch).
    ===================================================================== */
 (function () {
@@ -19,7 +19,7 @@
     clearTimeout(saveTimer);
     saveTimer = setTimeout(() => localStorage.setItem(LS, JSON.stringify(state)), 120);
   }
-  // Use this instead of save() right before anything that reloads/navigates away —
+  // Use this instead of save() right before anything that reloads/navigates away -
   // save() debounces the write by 120ms, so a reload fired right after save() can
   // beat the pending write and silently discard the change (this is exactly what
   // broke the language switcher: state.lang flipped in memory but never hit
@@ -67,7 +67,7 @@
       out[key] = Object.assign({}, en[key] || {}, ru[key] || {});
     });
     // WORKED_EXAMPLES: deep-merge per module, then per step, so a
-    // translated step (title/concept/why) keeps its EN code/lang —
+    // translated step (title/concept/why) keeps its EN code/lang -
     // the RU file never needs to repeat the (unchanged) Go source.
     const enWE = en.WORKED_EXAMPLES || {}, ruWE = ru.WORKED_EXAMPLES || {};
     out.WORKED_EXAMPLES = {};
@@ -85,7 +85,7 @@
   const COURSE = LANG === "ru" ? mergeCourse(window.COURSE_EN, window.COURSE_RU) : window.COURSE_EN;
   const UI = (window.UI_STRINGS && window.UI_STRINGS[LANG]) || window.UI_STRINGS.en;
   // animation step title/desc/why captions are translated via the same exact-string
-  // dictionary animations.js uses for canvas text (window.CANVAS_RU) — see AGENTS.md.
+  // dictionary animations.js uses for canvas text (window.CANVAS_RU) - see AGENTS.md.
   function trCap(s) { return (LANG === "ru" && window.CANVAS_RU && window.CANVAS_RU[s]) || s; }
 
   const { COURSE_META, PARTS, MODULES, VERIFICATION, ASSIGNMENTS, GLOSSARY } = COURSE;
@@ -94,7 +94,7 @@
   const moduleById = Object.fromEntries(MODULES.map((m) => [m.id, m]));
   const partById = Object.fromEntries(PARTS.map((p) => [p.id, p]));
   // The course sequence (sidebar order, home order, prev/next) is defined by
-  // PARTS + each part's `modules` list — NOT by the physical MODULES array
+  // PARTS + each part's `modules` list - NOT by the physical MODULES array
   // order. Flatten it once so navigation follows the intended learning ramp.
   const ORDERED = PARTS.flatMap((p) => p.modules).map((id) => moduleById[id]).filter(Boolean);
   // Every module renders one or more visualizations. Older data uses a single
@@ -410,9 +410,9 @@
       if (a.type === "code" && res.details) {
         out.innerHTML = res.details.map((d) =>
           `<div class="chk ${d.ok ? "ok" : "no"}">${d.ok ? "✓" : "✗"} ${esc(d.msg)}</div>`).join("") +
-          `<div class="assign-verdict ${res.ok ? "ok" : "no"}">${res.ok ? "✓ All checks pass — nice." : "Not all checks pass yet — fix the ✗ items above."}</div>`;
+          `<div class="assign-verdict ${res.ok ? "ok" : "no"}">${res.ok ? "✓ All checks pass - nice." : "Not all checks pass yet - fix the ✗ items above."}</div>`;
       } else {
-        out.innerHTML = `<div class="assign-verdict ${res.ok ? "ok" : "no"}">${res.ok ? "✓ Correct!" : "✗ Not quite — try again, then hit Explanation."}</div>`;
+        out.innerHTML = `<div class="assign-verdict ${res.ok ? "ok" : "no"}">${res.ok ? "✓ Correct!" : "✗ Not quite - try again, then hit Explanation."}</div>`;
       }
       if (res.ok) {
         solved[i] = true; card.classList.add("is-solved");
@@ -490,7 +490,7 @@
       ? `<section class="block worked-example">
            <h2 class="block-h">${esc(UI.workedExample)}
              <span class="lesson-meta">${example.steps.length} ${esc(UI.steps)} · ${esc(UI.runnableGo)}</span></h2>
-           <p class="we-intro">${highlightInline(example.title)} — ${esc(example.intro)}</p>
+           <p class="we-intro">${highlightInline(example.title)} - ${esc(example.intro)}</p>
            <div class="we-steps">${example.steps.map((s, i) => `
              <div class="we-step">
                <div class="we-step-head"><span class="we-n">${i + 1}</span><h4>${esc(s.title)}</h4></div>
@@ -646,7 +646,7 @@
             <canvas id="viz-canvas-${i}"></canvas>
           </div>
           <div class="viz-steps" id="viz-steps-${i}"></div>
-          <div class="viz-caption" id="viz-caption-${i}">—</div>
+          <div class="viz-caption" id="viz-caption-${i}">-</div>
           <div class="viz-controls">
             <button class="vc-btn" id="vc-reset-${i}" title="${esc(UI.resetToStart)}">⟲</button>
             <button class="vc-btn" id="vc-step-b-${i}" title="${esc(UI.nudgeBack)}">⟨</button>
@@ -720,7 +720,7 @@
       anim.setSpeed(SPEEDS[speedI]);
       speedBtn.textContent = SPEEDS[speedI] + "×";
     });
-    // autoplay only the first viz on first view — the rest wait for the user,
+    // autoplay only the first viz on first view - the rest wait for the user,
     // so several players don't all animate (and burn CPU) at once.
     setTimeout(() => { anim.resize(); if (i === 0) { anim.play(); } refresh(); }, 120);
   }
