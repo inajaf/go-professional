@@ -126,6 +126,8 @@
     "no locks · no shared mutable state": "без блокировок · без общего изменяемого состояния",
     "running ●": "выполняется ●",
     // error-context
+    "ctx (root)": "ctx (корень)",
+    "worker": "воркер",
     "ctx.Done() ✓": "ctx.Done() ✓",
     "✓ every goroutine returned - no leaks": "✓ все горутины завершились - утечек нет",
     // mux-trie
@@ -169,6 +171,8 @@
     // pqc-lattice
     "Alice": "Алиса",
     "Bob": "Боб",
+    "Channel A · Classic (X25519)": "Канал A · классика (X25519)",
+    "Channel B · Hybrid (+ML-KEM-768)": "Канал B · гибрид (+ML-KEM-768)",
     "harvester - recording ciphertext from both channels": "перехватчик - записывает шифротекст с обоих каналов",
     "ct": "шт",
     "stored, waiting for a future quantum computer": "сохранено, в ожидании будущего квантового компьютера",
@@ -516,9 +520,9 @@
     "This is the proof the pattern works: concurrent access was serialized just enough to keep Σ(balances) constant, without serializing the WHOLE database.": "Это доказательство того, что паттерн работает: конкурентный доступ был сериализован ровно настолько, чтобы Σ(балансов) оставалась постоянной, без сериализации ВСЕЙ базы данных.",
 
     // pqc-lattice
-    "Two handshakes, same shape, different math": "Два handshake, одна форма, разная математика",
+    "Two handshakes, same shape, different math": "Два рукопожатия, одна форма, разная математика",
     "Channel A negotiates a classical X25519 key. Channel B negotiates a hybrid key - classical X25519 PLUS a lattice-based ML-KEM-768 key, combined.": "Канал A договаривается о классическом ключе X25519. Канал B договаривается о гибридном ключе - классический X25519 ПЛЮС решёточный ключ ML-KEM-768, объединённые.",
-    "Both look identical at the protocol level - a normal TLS handshake. The difference that matters is invisible: what hard math problem the key relies on.": "На уровне протокола оба выглядят одинаково - обычный TLS handshake. Значимая разница невидима: на какую сложную математическую задачу опирается ключ.",
+    "Both look identical at the protocol level - a normal TLS handshake. The difference that matters is invisible: what hard math problem the key relies on.": "На уровне протокола оба выглядят одинаково - обычное TLS-рукопожатие. Значимая разница невидима: на какую сложную математическую задачу опирается ключ.",
     "An attacker harvests today's ciphertext": "Атакующий собирает сегодняшний шифротекст",
     "A passive adversary doesn't try to break the key right now - it just records both encrypted sessions and stores them.": "Пассивный атакующий не пытается взломать ключ прямо сейчас - он просто записывает обе зашифрованные сессии и сохраняет их.",
     "This is 'harvest now, decrypt later': the attack doesn't need to be feasible TODAY, only by the time a quantum computer exists.": "Это «собери сейчас, расшифруй позже»: атаке не нужно быть реализуемой СЕГОДНЯ, только к моменту, когда появится квантовый компьютер.",
@@ -826,11 +830,22 @@
   }
   function text(ctx, str, x, y, opts = {}) {
     ctx.fillStyle = opts.color || "#fff";
-    ctx.font = `${opts.weight || 500} ${opts.size || 13}px ${opts.mono ? "ui-monospace, 'JetBrains Mono', monospace" : "Inter, system-ui, sans-serif"}`;
+    const rendered = tr(str);
+    const family = opts.mono ? "ui-monospace, 'JetBrains Mono', monospace" : "Inter, system-ui, sans-serif";
+    let size = opts.size || 13;
+    const minSize = opts.minSize || Math.max(8.5, size - 3);
+    ctx.font = `${opts.weight || 500} ${size}px ${family}`;
+    if (opts.maxWidth) {
+      while (size > minSize && ctx.measureText(rendered).width > opts.maxWidth) {
+        size -= 0.5;
+        ctx.font = `${opts.weight || 500} ${size}px ${family}`;
+      }
+    }
     ctx.textAlign = opts.align || "left";
     ctx.textBaseline = opts.baseline || "alphabetic";
     if (opts.alpha != null) { ctx.globalAlpha = opts.alpha; }
-    ctx.fillText(tr(str), x, y);
+    if (opts.maxWidth) ctx.fillText(rendered, x, y, opts.maxWidth);
+    else ctx.fillText(rendered, x, y);
     ctx.globalAlpha = 1;
   }
   function line(ctx, x1, y1, x2, y2, color, lw, dash) {
@@ -871,7 +886,7 @@
     items.forEach((it) => {
       ctx.fillStyle = it[1]; rr(ctx, cx, y - 9, 11, 11, 3); ctx.fill();
       text(ctx, it[0], cx + 16, y, { color: it[2] || "#9fb0cc", size: 10.5, weight: 500 });
-      cx += 16 + ctx.measureText(it[0]).width + 18;
+      cx += 16 + ctx.measureText(tr(it[0])).width + 18;
     });
   }
 
@@ -950,14 +965,14 @@
      so every phase is a focused, self-contained mini-scene. */
   function stepRender(steps, duration, header) {
     return function (ctx, t, w, h, c, u) {
-      if (header) text(ctx, header, 24, 28, { color: c.text, size: 13.5, weight: 700, mono: true });
+      if (header) text(ctx, header, 24, 28, { color: c.text, size: 13.5, minSize: 10, weight: 700, mono: true, maxWidth: w - 48 });
       let i = 0;
       for (let k = 0; k < steps.length; k++) if (steps[k].t <= t + 1e-6) i = k;
       const startT = steps[i].t;
       const endT = i + 1 < steps.length ? steps[i + 1].t : duration;
       const p = clamp((t - startT) / Math.max(0.0001, endT - startT), 0, 1);
       text(ctx, tr("STEP ") + (i + 1) + "/" + steps.length + tr("  ·  ") + tr(steps[i].title), 24, 50,
-        { color: c.purple, size: 11.5, weight: 700, mono: true });
+        { color: c.purple, size: 11.5, minSize: 9.5, weight: 700, mono: true, maxWidth: w - 48 });
       u.t = t; // continuous global time, for ambient motion (flow/glowPulse) inside step draws
       steps[i].draw(ctx, p, w, h, c, u, { index: i, total: steps.length, title: steps[i].title });
     };
@@ -966,7 +981,7 @@
   /* --------------------------------------------------- timeline engine */
   function makeTimeline(canvas, def) {
     const ctx = canvas.getContext("2d");
-    let raf = 0, playing = false, t = 0, last = 0, speed = 0.75;
+    let raf = 0, playing = false, t = 0, last = 0, speed = 0.4;
     const dur = def.duration;
     const phases = def.phases || [{ t: 0, title: "", desc: "" }];
     let frameCb = null;
@@ -1697,12 +1712,14 @@
     const edges = [["root", "c1"], ["root", "c2"], ["c1", "g1"], ["c1", "g2"], ["c2", "g3"], ["c2", "g4"]];
 
     function drawTree(ctx, c, u, w, h, maxDepth, cancelledFn) {
-      const N = (fx) => 24 + fx * (w - 48), M = (fy) => 64 + fy * (h - 120);
+      const N = (fx) => 28 + fx * (w - 56);
+      const levelY = [92, Math.max(174, h * 0.46), h - 54];
+      const M = (fy, d) => levelY[d] || (64 + fy * (h - 120));
       edges.forEach((e) => {
         const a = nodes[e[0]], b = nodes[e[1]];
         if (a.d > maxDepth || b.d > maxDepth) return;
         const dead = cancelledFn && cancelledFn(b);
-        u.line(ctx, N(a.x), M(a.y) + 16, N(b.x), M(b.y) - 16, dead ? c.bad : c.good, dead ? 2.2 : 1.8);
+        u.line(ctx, N(a.x), M(a.y, a.d) + 16, N(b.x), M(b.y, b.d) - 16, dead ? c.bad : c.good, dead ? 2.2 : 1.8);
       });
       Object.keys(nodes).forEach((k) => {
         const n = nodes[k];
@@ -1710,10 +1727,12 @@
         const dead = cancelledFn && cancelledFn(n);
         const fill = dead ? "rgba(255,107,107,.12)" : "rgba(58,210,159,.10)";
         const stroke = dead ? c.bad : c.good;
-        const x = N(n.x), y = M(n.y), bw = 116, bh = 44;
+        const leafW = Math.max(72, Math.min(116, (w - 72) / 4 - 8));
+        const branchW = Math.min(136, Math.max(104, w * 0.13));
+        const x = N(n.x), y = M(n.y, n.d), bw = n.d === 2 ? leafW : branchW, bh = 44;
         u.fillRR(ctx, x - bw / 2, y - bh / 2, bw, bh, 11, fill, stroke, dead ? 2 : 1.7);
-        u.text(ctx, n.label, x, y - 2, { align: "center", color: dead ? c.bad : c.text, size: 11.5, weight: 700, mono: true });
-        u.text(ctx, dead ? "ctx.Done() ✓" : "running ●", x, y + 14, { align: "center", color: dead ? c.bad : c.good, size: 10, weight: 600, mono: true });
+        u.text(ctx, n.label, x, y - 2, { align: "center", color: dead ? c.bad : c.text, size: 11.5, minSize: 9.5, weight: 700, mono: true, maxWidth: bw - 16 });
+        u.text(ctx, dead ? "ctx.Done() ✓" : "running ●", x, y + 14, { align: "center", color: dead ? c.bad : c.good, size: 10, minSize: 8.5, weight: 600, mono: true, maxWidth: bw - 16 });
       });
     }
 
@@ -1747,8 +1766,9 @@
         draw(ctx, p, w, h, c, u) {
           drawTree(ctx, c, u, w, h, 2, (n) => n.d === 0);
           const f = 0.5 + 0.5 * Math.sin(p * 26);
-          const N = (fx) => 24 + fx * (w - 48), M = (fy) => 64 + fy * (h - 120);
-          const x = N(nodes.root.x), y = M(nodes.root.y);
+          const N = (fx) => 28 + fx * (w - 56);
+          const levelY = [92, Math.max(174, h * 0.46), h - 54];
+          const x = N(nodes.root.x), y = levelY[nodes.root.d];
           ctx.strokeStyle = "rgba(255,107,107," + f + ")"; ctx.lineWidth = 3;
           u.rr(ctx, x - 61, y - 25, 122, 50, 12); ctx.stroke();
         },
@@ -1761,12 +1781,14 @@
         draw(ctx, p, w, h, c, u) {
           const wave = u.clamp(p, 0, 1) * 2;
           drawTree(ctx, c, u, w, h, 2, (n) => wave >= n.d);
-          const N = (fx) => 24 + fx * (w - 48), M = (fy) => 64 + fy * (h - 120);
+          const N = (fx) => 28 + fx * (w - 56);
+          const levelY = [92, Math.max(174, h * 0.46), h - 54];
+          const M = (n) => levelY[n.d];
           edges.forEach((e) => {
             const a = nodes[e[0]], b = nodes[e[1]];
             const localp = u.clamp(wave - (b.d - 1), 0, 1);
-            if (wave >= b.d) u.flow(ctx, N(a.x), M(a.y) + 16, N(b.x), M(b.y) - 16, "rgba(255,107,107,.7)", 2, u.t || 0);
-            if (wave >= a.d && localp > 0 && localp < 1) u.dot(ctx, u.lerp(N(a.x), N(b.x), localp), u.lerp(M(a.y) + 16, M(b.y) - 16, localp), 5, c.bad, "rgba(255,107,107,.5)");
+            if (wave >= b.d) u.flow(ctx, N(a.x), M(a) + 16, N(b.x), M(b) - 16, "rgba(255,107,107,.7)", 2, u.t || 0);
+            if (wave >= a.d && localp > 0 && localp < 1) u.dot(ctx, u.lerp(N(a.x), N(b.x), localp), u.lerp(M(a) + 16, M(b) - 16, localp), 5, c.bad, "rgba(255,107,107,.5)");
           });
         },
       },
@@ -1778,8 +1800,9 @@
         draw(ctx, p, w, h, c, u) {
           drawTree(ctx, c, u, w, h, 2, () => true);
           if (p < 0.5) {
-            const N = (fx) => 24 + fx * (w - 48), M = (fy) => 64 + fy * (h - 120);
-            ["g1", "g2", "g3", "g4"].forEach((k) => u.burst(ctx, N(nodes[k].x), M(nodes[k].y), c.good, u.easeOut(u.clamp(p / 0.5, 0, 1)), 6));
+            const N = (fx) => 28 + fx * (w - 56);
+            const levelY = [92, Math.max(174, h * 0.46), h - 54];
+            ["g1", "g2", "g3", "g4"].forEach((k) => u.burst(ctx, N(nodes[k].x), levelY[nodes[k].d], c.good, u.easeOut(u.clamp(p / 0.5, 0, 1)), 6));
           }
           u.text(ctx, "✓ every goroutine returned - no leaks", w / 2, h - 16, { align: "center", color: c.good, size: 13, weight: 700, alpha: u.clamp(p / 0.3, 0, 1) });
         },
@@ -1802,11 +1825,13 @@
 
     function drawTrie(ctx, c, u, w, h, active, y) {
       const n = nodes.length, x0 = w * 0.08, x1 = w * 0.78, step = (x1 - x0) / (n - 1);
-      for (let i = 0; i < n - 1; i++) u.line(ctx, x0 + step * i + 18, y, x0 + step * (i + 1) - 18, y, i < active ? c.go : c.line, i < active ? 2.5 : 1.5);
+      const widths = nodes.map((node) => Math.max(36, Math.min(78, tr(node).length * 8 + 18)));
+      for (let i = 0; i < n - 1; i++) u.line(ctx, x0 + step * i + widths[i] / 2, y, x0 + step * (i + 1) - widths[i + 1] / 2, y, i < active ? c.go : c.line, i < active ? 2.5 : 1.5);
       for (let i = 0; i < n; i++) {
         const nx = x0 + step * i, on = i <= active, wild = nodes[i] === "{id}";
-        u.fillRR(ctx, nx - 18, y - 18, 36, 36, 9, on ? (wild ? c.warn : c.go) : c.panel, on ? (wild ? c.warn : c.go) : c.line, on ? 2.2 : 1.5);
-        u.text(ctx, nodes[i], nx, y + 5, { align: "center", color: on ? "#06101f" : c.dim, size: 11.5, weight: 700, mono: true });
+        const nw = widths[i];
+        u.fillRR(ctx, nx - nw / 2, y - 18, nw, 36, 9, on ? (wild ? c.warn : c.go) : c.panel, on ? (wild ? c.warn : c.go) : c.line, on ? 2.2 : 1.5);
+        u.text(ctx, nodes[i], nx, y + 5, { align: "center", color: on ? "#06101f" : c.dim, size: 11.5, minSize: 9.5, weight: 700, mono: true, maxWidth: nw - 8 });
         u.text(ctx, labels[i], nx, y + 38, { align: "center", color: on ? c.text : c.dim, size: 11, mono: true, alpha: on ? 1 : 0.5 });
       }
       return { x0, x1, step, n };
@@ -2385,14 +2410,14 @@
   /* =================================================================== */
   ANIM["pqc-lattice"] = (canvas) => {
     function channelHead(ctx, c, u, x, colW, label, color) {
-      u.text(ctx, label, x, h0, { color, size: 13, weight: 700 });
+      u.text(ctx, label, x, h0, { color, size: 13, minSize: 10.5, weight: 700, maxWidth: colW });
       u.fillRR(ctx, x, h0 + 18, 60, 32, 8, c.panel, c.line, 1.4);
       u.text(ctx, "Alice", x + 30, h0 + 39, { align: "center", color: c.text, size: 11.5 });
       u.fillRR(ctx, x + colW - 90, h0 + 18, 60, 32, 8, c.panel, c.line, 1.4);
       u.text(ctx, "Bob", x + colW - 60, h0 + 39, { align: "center", color: c.text, size: 11.5 });
       u.line(ctx, x + 60, h0 + 34, x + colW - 90, h0 + 34, c.line, 1.5);
     }
-    const h0 = 60;
+    const h0 = 92;
 
     const STEPS = [
       {
@@ -2404,7 +2429,7 @@
           const colW = (w - 80) / 2;
           channelHead(ctx, c, u, 40, colW, "Channel A · Classic (X25519)", c.accent);
           channelHead(ctx, c, u, 40 + colW + 20, colW, "Channel B · Hybrid (+ML-KEM-768)", c.go);
-          u.line(ctx, w / 2, h0 - 10, w / 2, h * 0.7, c.line, 1.5, [4, 6]);
+          u.line(ctx, w / 2, h0 - 8, w / 2, h * 0.75, c.line, 1.5, [4, 6]);
           const kp = u.easeInOut(u.clamp(p / 0.7, 0, 1));
           [[40, c.accent], [40 + colW + 20, c.go]].forEach(([x, col]) => {
             u.dot(ctx, u.lerp(x + 64, x + colW - 94, kp), h0 + 34, 6, col, col + "55");
@@ -2418,7 +2443,7 @@
         why: "This is 'harvest now, decrypt later': the attack doesn't need to be feasible TODAY, only by the time a quantum computer exists.",
         draw(ctx, p, w, h, c, u) {
           const a = u.clamp(p / 0.3, 0, 1);
-          u.text(ctx, "harvester - recording ciphertext from both channels", w / 2, h * 0.3, { align: "center", color: c.warn, size: 13, weight: 600, alpha: a });
+          u.text(ctx, "harvester - recording ciphertext from both channels", w / 2, h * 0.3, { align: "center", color: c.warn, size: 13, minSize: 10, weight: 600, alpha: a, maxWidth: w - 56 });
           for (let i = 0; i < 8; i++) {
             const ia = u.clamp((p - i * 0.08) / 0.3, 0, 1);
             if (ia <= 0) continue;
@@ -2426,7 +2451,7 @@
             u.fillRR(ctx, x, h * 0.42, 40, 36, 6, "rgba(245,177,76,0.18)", c.warn, 1.4);
             u.text(ctx, "ct", x + 20, h * 0.42 + 23, { align: "center", color: c.warn, size: 12, weight: 700, mono: true, alpha: ia });
           }
-          u.text(ctx, "stored, waiting for a future quantum computer", w / 2, h * 0.58, { align: "center", color: c.dim, size: 12, alpha: a });
+          u.text(ctx, "stored, waiting for a future quantum computer", w / 2, h * 0.58, { align: "center", color: c.dim, size: 12, minSize: 9.5, alpha: a, maxWidth: w - 56 });
         },
       },
       {
@@ -2437,7 +2462,7 @@
         draw(ctx, p, w, h, c, u) {
           const a = u.clamp(p / 0.4, 0, 1);
           u.text(ctx, "quantum computer online", w / 2, h * 0.4, { align: "center", color: c.purple, size: 16, weight: 700, alpha: a });
-          u.text(ctx, "→ attacking both recorded sessions", w / 2, h * 0.4 + 30, { align: "center", color: c.dim, size: 13, alpha: a });
+          u.text(ctx, "→ attacking both recorded sessions", w / 2, h * 0.4 + 30, { align: "center", color: c.dim, size: 13, minSize: 10, alpha: a, maxWidth: w - 56 });
         },
       },
       {
@@ -2452,7 +2477,7 @@
           for (let i = 0; i < 30; i++) { const ang = i * 0.6, r2 = 30 + (i % 4) * 7; u.dot(ctx, x + colW * 0.3 + Math.cos(ang) * r2, h * 0.42 + Math.sin(ang) * r2 * 0.6, 2.4, cracked ? c.bad : c.accent); }
           if (cracked && p < 0.75) u.burst(ctx, x + colW * 0.75, h * 0.42, c.bad, u.easeOut(u.clamp((p - 0.5) / 0.25, 0, 1)), 10);
           drawLock(ctx, x + colW * 0.75, h * 0.42, cracked ? c.bad : c.warn, !cracked, u);
-          u.text(ctx, cracked ? "broken by Shor's algorithm" : "still classically secure", x + colW * 0.75, h * 0.42 + 56, { align: "center", color: cracked ? c.bad : c.warn, size: 12.5, weight: 700 });
+          u.text(ctx, cracked ? "broken by Shor's algorithm" : "still classically secure", x + colW * 0.75, h * 0.42 + 56, { align: "center", color: cracked ? c.bad : c.warn, size: 12.5, minSize: 10, weight: 700, maxWidth: colW * 0.44 });
         },
       },
       {
@@ -2471,7 +2496,7 @@
           }
           u.glowPulse(ctx, x + colW * 0.78, h * 0.42, 22, "rgba(58,210,159,.4)", u.t || 0);
           drawLock(ctx, x + colW * 0.78, h * 0.42, c.good, true, u);
-          u.text(ctx, "quantum-resistant - stays secret", x + colW * 0.78, h * 0.42 + 56, { align: "center", color: c.good, size: 12.5, weight: 700, alpha: u.clamp(p / 0.6, 0, 1) });
+          u.text(ctx, "quantum-resistant - stays secret", x + colW * 0.78, h * 0.42 + 56, { align: "center", color: c.good, size: 12.5, minSize: 10, weight: 700, alpha: u.clamp(p / 0.6, 0, 1), maxWidth: colW * 0.44 });
         },
       },
     ];
@@ -2696,15 +2721,16 @@
   ANIM["container-rollout"] = (canvas) => {
     const colors = (c) => ({ ready: c.good, starting: c.warn, draining: c.accent, empty: c.line });
     function lb(ctx, c, u, w) {
-      const lbx = w / 2 - 70, lby = h0;
-      u.fillRR(ctx, lbx, lby, 140, 38, 10, "rgba(0,173,216,0.12)", c.go, 1.8);
-      u.text(ctx, "load balancer", lbx + 70, lby + 24, { align: "center", color: c.go, size: 12.5, weight: 700 });
-      return { lbx, lby };
+      const lbw = Math.min(230, Math.max(150, w - 96));
+      const lbx = w / 2 - lbw / 2, lby = h0;
+      u.fillRR(ctx, lbx, lby, lbw, 38, 10, "rgba(0,173,216,0.12)", c.go, 1.8);
+      u.text(ctx, "load balancer", lbx + lbw / 2, lby + 24, { align: "center", color: c.go, size: 12.5, minSize: 10, weight: 700, maxWidth: lbw - 18 });
+      return { lbx, lby, lbw };
     }
-    const h0 = 56;
+    const h0 = 84;
     function pods(ctx, c, u, w, states, traffic, animT) {
-      const { lbx, lby } = lb(ctx, c, u, w);
-      const slotY = h0 + 130, podW = Math.min(120, (w - 80) / 4 - 14), gap = (w - 80 - podW * states.length) / Math.max(1, states.length - 1);
+      const { lbx, lby, lbw } = lb(ctx, c, u, w);
+      const slotY = h0 + 112, podW = Math.min(120, (w - 80) / 4 - 14), gap = (w - 80 - podW * states.length) / Math.max(1, states.length - 1);
       const col = colors(c);
       states.forEach((st, i) => {
         const x = 40 + i * (podW + gap), pc = col[st.status] || c.line, isReady = st.status === "ready";
@@ -2713,10 +2739,10 @@
           u.fillRR(ctx, x, slotY, podW, 64, 12, "rgba(255,255,255,0.02)", pc, isReady ? 2.2 : 1.6);
           u.text(ctx, tr("pod ") + st.ver, x + podW / 2, slotY + 26, { align: "center", color: c.text, size: 13, weight: 700, mono: true });
           const pillTxt = st.status === "ready" ? "● Ready" : st.status === "starting" ? "◌ Starting" : "◍ Draining";
-          u.text(ctx, pillTxt, x + podW / 2, slotY + 46, { align: "center", color: pc, size: 11, weight: 600 });
+          u.text(ctx, pillTxt, x + podW / 2, slotY + 46, { align: "center", color: pc, size: 11, minSize: 9, weight: 600, maxWidth: podW - 10 });
         }
         if (traffic) {
-          const fromX = lbx + 70, fromY = lby + 38, toX = x + podW / 2, toY = slotY;
+          const fromX = lbx + lbw / 2, fromY = lby + 38, toX = x + podW / 2, toY = slotY;
           if (isReady) {
             u.flow(ctx, fromX, fromY, toX, toY, "rgba(58,210,159,0.4)", 1.6, animT);
             for (let d = 0; d < 3; d++) { const phase = (animT * 0.6 + d / 3 + i * 0.13) % 1; u.dot(ctx, u.lerp(fromX, toX, phase), u.lerp(fromY, toY, phase), 3, c.good); }
@@ -2743,7 +2769,7 @@
         draw(ctx, p, w, h, c, u) {
           pods(ctx, c, u, w, [{ ver: "v1", status: "ready" }, { ver: "v1", status: "ready" }, { ver: "v1", status: "ready" }, { ver: "v2", status: "starting" }], true, p * 10);
           const blink = Math.sin(p * 16) > 0;
-          u.text(ctx, blink ? "probe ✗" : "probe …", w - 90, h0 + 130 + 80, { align: "center", color: c.warn, size: 11, mono: true });
+          u.text(ctx, blink ? "probe ✗" : "probe …", w - 90, h0 + 112 + 80, { align: "center", color: c.warn, size: 11, mono: true });
         },
       },
       {
@@ -2754,8 +2780,8 @@
         draw(ctx, p, w, h, c, u) {
           pods(ctx, c, u, w, [{ ver: "v1", status: "ready" }, { ver: "v1", status: "ready" }, { ver: "v1", status: "ready" }, { ver: "v2", status: "ready" }], true, p * 10);
           if (p > 0.3) {
-            u.text(ctx, "probe ✓", w - 90, h0 + 130 + 80, { align: "center", color: c.good, size: 11, mono: true, weight: 600 });
-            if (p < 0.6) u.ring(ctx, w - 90, h0 + 130 + 32, c.good, u.clamp((p - 0.3) / 0.3, 0, 1), { from: 4, to: 30, lw: 2 });
+            u.text(ctx, "probe ✓", w - 90, h0 + 112 + 80, { align: "center", color: c.good, size: 11, mono: true, weight: 600 });
+            if (p < 0.6) u.ring(ctx, w - 90, h0 + 112 + 32, c.good, u.clamp((p - 0.3) / 0.3, 0, 1), { from: 4, to: 30, lw: 2 });
           }
         },
       },
@@ -2766,7 +2792,7 @@
         why: "Draining (not killing) is what guarantees zero dropped requests - a request that's already in progress always gets to complete.",
         draw(ctx, p, w, h, c, u) {
           pods(ctx, c, u, w, [{ ver: "v1", status: "draining" }, { ver: "v1", status: "ready" }, { ver: "v1", status: "ready" }, { ver: "v2", status: "ready" }], true, p * 10);
-          u.text(ctx, "finishing in-flight requests…", 40 + 60, h0 + 130 + 80, { align: "center", color: c.accent, size: 11, mono: true });
+          u.text(ctx, "finishing in-flight requests…", 40 + 60, h0 + 112 + 80, { align: "center", color: c.accent, size: 11, minSize: 8.5, mono: true, maxWidth: 150 });
         },
       },
       {
@@ -2787,7 +2813,7 @@
         draw(ctx, p, w, h, c, u) {
           pods(ctx, c, u, w, [{ ver: "v2", status: "ready" }, { ver: "v2", status: "ready" }, { ver: "v1", status: "ready" }, { ver: "v2", status: "ready" }], true, p * 10);
           const pct = Math.round(u.clamp(p / 0.6, 0, 1) * 100);
-          u.text(ctx, tr("rollout ") + Math.min(100, 75 + pct / 4) + "%", w - 60, h0 + 130 + 100, { align: "right", color: c.go, size: 13, weight: 700, mono: true });
+          u.text(ctx, tr("rollout ") + Math.min(100, 75 + pct / 4) + "%", w - 60, h0 + 112 + 100, { align: "right", color: c.go, size: 13, weight: 700, mono: true, maxWidth: 180 });
         },
       },
     ];

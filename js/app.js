@@ -191,6 +191,20 @@
     lock: "M6 11h12v10H6zM9 11V7a3 3 0 016 0v4M12 15v3",
     gauge: "M4 16a8 8 0 0116 0M12 16l4.5-5M12 16a1.4 1.4 0 100 .1M7 16h.01M17 16h.01",
     bolt: "M13 2L4 14h6l-1 8 9-12h-6l1-8z",
+    lightbulb: "M9 18h6M10 22h4M8 14a5 5 0 118 0c-1.5 1.2-2 2.2-2 4h-4c0-1.8-.5-2.8-2-4",
+    landmark: "M3 10h18M5 10l7-5 7 5M6 10v8M10 10v8M14 10v8M18 10v8M4 18h16M3 22h18",
+    film: "M4 4h16v16H4zM8 4v16M16 4v16M4 8h4M4 16h4M16 8h4M16 16h4",
+    clipboard: "M9 4h6M9 4a2 2 0 00-2 2v1h10V6a2 2 0 00-2-2M7 7H5v14h14V7h-2",
+    alert: "M12 3l10 18H2L12 3zM12 9v5M12 17h.01",
+    key: "M15 7a4 4 0 11-2.8 6.8L9 17H6v3H3v-3l5.2-5.2A4 4 0 0115 7zM15 7h.01",
+    menu: "M4 6h16M4 12h16M4 18h16",
+    moon: "M21 12.8A8 8 0 1111.2 3a6 6 0 009.8 9.8z",
+    sun: "M12 4V2M12 22v-2M4 12H2M22 12h-2M5 5l-1.4-1.4M20.4 20.4L19 19M19 5l1.4-1.4M3.6 20.4L5 19M12 8a4 4 0 100 8 4 4 0 000-8z",
+    rotateCcw: "M3 12a9 9 0 109-9M3 4v8h8",
+    chevronLeft: "M15 18l-6-6 6-6",
+    chevronRight: "M9 18l6-6-6-6",
+    play: "M8 5v14l11-7-11-7z",
+    pause: "M8 5v14M16 5v14",
   };
   const ico = (name, size = 18) =>
     `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${(ICONS[name] || "")
@@ -255,8 +269,8 @@
           <h4>${m.title}</h4>
           <p>${m.summary}</p>
           <div class="mod-card-foot">
-            <span class="chip">${m.level}</span><span class="chip ghost">${m.duration}</span>
-            <span class="mod-anim-tag">🎬 ${animsOf(m).length > 1 ? animsOf(m).length + " " + esc(UI.animations) : m.animation.title}</span>
+            <span class="chip">${m.level}</span><span class="chip ghost">${esc(UI.moduleScope)}</span>
+            <span class="mod-anim-tag">${ico("film", 13)}${animsOf(m).length > 1 ? animsOf(m).length + " " + esc(UI.animations) : m.animation.title}</span>
           </div>
           <div class="mod-card-bar"><span style="width:${pr * 100}%"></span></div>
         </a>`;
@@ -292,7 +306,7 @@
         </div>
       </section>
       <div class="capstone-banner">
-        <span class="cap-ico">🏦</span>
+        <span class="cap-ico">${ico("landmark", 24)}</span>
         <div><b>${esc(UI.capstoneProject)}</b> ${esc(UI.capstoneTagline)}
         <b>${COURSE_META.capstone}</b>. ${esc(UI.capstoneFooter)}</div>
       </div>
@@ -455,7 +469,7 @@
         <span class="check-box">${checks[i] ? "✓" : ""}</span><span>${esc(c)}</span></li>`).join("");
 
     const plainHtml = m.plain
-      ? `<section class="plain"><span class="plain-ic">💡</span>
+      ? `<section class="plain"><span class="plain-ic">${ico("lightbulb", 22)}</span>
            <div><span class="plain-k">${esc(UI.inPlainTerms)}</span><p>${esc(m.plain)}</p></div></section>`
       : "";
     const rightCard = m.capstone
@@ -475,7 +489,7 @@
     const lessonHtml = lesson.length
       ? `<section class="block lesson">
            <h2 class="block-h">${esc(UI.deepDive)}
-             <span class="lesson-meta">${lesson.length} ${esc(UI.sections)} · ~${Math.max(6, Math.round(lesson.length * 2.5))} ${esc(UI.minRead)}</span></h2>
+             <span class="lesson-meta">${lesson.length} ${esc(UI.sections)} · ${esc(UI.selfPaced)}</span></h2>
            <div class="lesson-body">${lesson.map((s, i) => `
              <div class="lesson-sec">
                <h4><span class="ls-n">${i + 1}</span>${esc(s.h)}</h4>
@@ -520,7 +534,7 @@
         <header class="mod-header">
           <div class="mod-h-ic">${ico(m.icon, 26)}</div>
           <div>
-            <div class="mod-h-meta"><span class="chip">${m.level}</span><span class="chip ghost">${m.duration}</span>
+            <div class="mod-h-meta"><span class="chip">${m.level}</span><span class="chip ghost">${esc(UI.moduleScope)}</span>
               ${moduleDone(m) ? `<span class="chip done-chip">✓ ${esc(UI.complete)}</span>` : ""}</div>
             <h1>${m.title}</h1>
             <p>${m.summary}</p>
@@ -547,7 +561,7 @@
             <h3><span class="dot-ai"></span>${m.ai.title}</h3>
             <p>${m.ai.body}</p>
             <div class="prompt">
-              <div class="prompt-head"><span class="prompt-k">${esc(UI.readyPrompt)}</span>
+              <div class="prompt-head"><span class="prompt-k">${ico("clipboard", 14)}${esc(UI.readyPrompt)}</span>
                 <button class="copy-btn small" data-copy="${esc(m.ai.prompt)}">${esc(UI.copyPrompt)}</button></div>
               <p class="prompt-body">${esc(m.ai.prompt)}</p>
             </div>
@@ -558,11 +572,11 @@
 
         <section class="two-col">
           <div class="card pitfalls-card">
-            <h3><span class="ic-pill warn">⚠</span> ${esc(UI.commonPitfalls)}</h3>
+            <h3><span class="ic-pill warn">${ico("alert", 14)}</span> ${esc(UI.commonPitfalls)}</h3>
             <ul class="pitfalls">${pitfallsHtml}</ul>
           </div>
           <div class="card takeaways-card">
-            <h3><span class="ic-pill key">🔑</span> ${esc(UI.keyTakeaways)}</h3>
+            <h3><span class="ic-pill key">${ico("key", 14)}</span> ${esc(UI.keyTakeaways)}</h3>
             <ul class="takeaways">${takeawaysHtml}</ul>
           </div>
         </section>
@@ -627,7 +641,7 @@
   }
 
   /* ---------------------------------------------------- animation */
-  const SPEEDS = [0.5, 0.75, 1, 1.5];
+  const SPEEDS = [0.2, 0.4, 0.5, 0.75, 1, 1.5];
 
   // One viz section per animation. All element ids are suffixed with the
   // animation's index so several players can coexist on one module page.
@@ -637,7 +651,7 @@
     return `
         <section class="viz card">
           <div class="viz-head">
-            <div><span class="viz-tag">${esc(UI.interactiveViz)}</span>
+            <div><span class="viz-tag">${ico("film", 13)}${esc(UI.interactiveViz)}</span>
               <h2>${a.title}</h2></div>
             ${counter}
           </div>
@@ -648,12 +662,12 @@
           <div class="viz-steps" id="viz-steps-${i}"></div>
           <div class="viz-caption" id="viz-caption-${i}">-</div>
           <div class="viz-controls">
-            <button class="vc-btn" id="vc-reset-${i}" title="${esc(UI.resetToStart)}">⟲</button>
-            <button class="vc-btn" id="vc-step-b-${i}" title="${esc(UI.nudgeBack)}">⟨</button>
-            <button class="vc-btn play" id="vc-play-${i}" title="${esc(UI.playPause)}">▶</button>
-            <button class="vc-btn" id="vc-step-f-${i}" title="${esc(UI.nudgeForward)}">⟩</button>
+            <button class="vc-btn" id="vc-reset-${i}" title="${esc(UI.resetToStart)}">${ico("rotateCcw", 17)}</button>
+            <button class="vc-btn" id="vc-step-b-${i}" title="${esc(UI.nudgeBack)}">${ico("chevronLeft", 18)}</button>
+            <button class="vc-btn play" id="vc-play-${i}" title="${esc(UI.playPause)}">${ico("play", 17)}</button>
+            <button class="vc-btn" id="vc-step-f-${i}" title="${esc(UI.nudgeForward)}">${ico("chevronRight", 18)}</button>
             <input type="range" id="vc-scrub-${i}" min="0" max="1000" value="0" aria-label="scrub" />
-            <button class="vc-btn speed" id="vc-speed-${i}" title="${esc(UI.playbackSpeed)}">0.75×</button>
+            <button class="vc-btn speed" id="vc-speed-${i}" title="${esc(UI.playbackSpeed)}">0.4×</button>
           </div>
         </section>`;
   }
@@ -676,6 +690,8 @@
     const playBtn = $("#vc-play-" + i), scrub = $("#vc-scrub-" + i), cap = $("#viz-caption-" + i),
       stepsEl = $("#viz-steps-" + i), speedBtn = $("#vc-speed-" + i);
     const phases = anim.getPhases();
+    const captionHtml = (ph) => esc(trCap(ph.desc)) +
+      (ph.why ? `<span class="viz-why"><b>${esc(UI.why)}</b> ${esc(trCap(ph.why))}</span>` : "");
 
     // build the step indicator: a clickable dot per phase + current step label
     stepsEl.innerHTML =
@@ -685,16 +701,55 @@
        <span class="steps-title">${esc(trCap(phases[0].title))}</span></div>`;
     const dots = $$(".step-dot", stepsEl);
     const sBadge = $(".steps-badge", stepsEl), sTitle = $(".steps-title", stepsEl);
+    const stepsNow = $(".steps-now", stepsEl);
 
-    let dragging = false, speedI = 1; // default 0.75×
+    function reserveDynamicTextSpace() {
+      const currentCaption = cap.innerHTML;
+      const currentTitle = sTitle.textContent;
+      cap.style.minHeight = "";
+      stepsNow.style.minHeight = "";
+
+      let capH = 0;
+      phases.forEach((ph) => {
+        cap.innerHTML = captionHtml(ph);
+        capH = Math.max(capH, cap.offsetHeight);
+      });
+      cap.style.minHeight = capH + "px";
+
+      let titleH = 0;
+      phases.forEach((ph) => {
+        sTitle.textContent = trCap(ph.title);
+        titleH = Math.max(titleH, stepsNow.offsetHeight);
+      });
+      stepsNow.style.minHeight = titleH + "px";
+
+      cap.innerHTML = currentCaption || captionHtml(phases[0]);
+      sTitle.textContent = currentTitle || trCap(phases[0].title);
+    }
+    reserveDynamicTextSpace();
+    let reserveTimer = 0;
+    function onResizeTextSpace() {
+      clearTimeout(reserveTimer);
+      reserveTimer = setTimeout(reserveDynamicTextSpace, 80);
+    }
+    window.addEventListener("resize", onResizeTextSpace);
+    const destroyAnim = anim.destroy;
+    anim.destroy = () => {
+      clearTimeout(reserveTimer);
+      window.removeEventListener("resize", onResizeTextSpace);
+      destroyAnim();
+    };
+
+    let dragging = false, speedI = 1; // default 0.4×
+    let lastPhase = -1;
     anim.setSpeed(SPEEDS[speedI]);
     speedBtn.textContent = SPEEDS[speedI] + "×";
 
     anim.onFrame((p, ph) => {
       if (!dragging) scrub.value = Math.round(p * 1000);
-      if (ph) {
-        cap.innerHTML = esc(trCap(ph.desc)) +
-          (ph.why ? `<span class="viz-why"><b>${esc(UI.why)}</b> ${esc(trCap(ph.why))}</span>` : "");
+      if (ph && ph.index !== lastPhase) {
+        lastPhase = ph.index;
+        cap.innerHTML = captionHtml(ph);
         sBadge.textContent = UI.step + " " + (ph.index + 1) + " / " + ph.total;
         sTitle.textContent = trCap(ph.title);
         dots.forEach((d, k) => {
@@ -705,7 +760,7 @@
       refresh();
     });
     function refresh() {
-      playBtn.textContent = anim.isPlaying() ? "❚❚" : "▶";
+      playBtn.innerHTML = anim.isPlaying() ? ico("pause", 17) : ico("play", 17);
       playBtn.classList.toggle("playing", anim.isPlaying());
     }
     playBtn.addEventListener("click", () => { anim.toggle(); refresh(); });
@@ -749,7 +804,7 @@
   function applyTheme() {
     document.documentElement.dataset.theme = state.theme;
     const tb = $("#theme-btn");
-    if (tb) tb.textContent = state.theme === "dark" ? "☾" : "☀";
+    if (tb) tb.innerHTML = state.theme === "dark" ? ico("moon", 17) : ico("sun", 17);
   }
 
   /* -------------------------------------------------- keyboard nav */
@@ -769,7 +824,7 @@
   function boot() {
     document.getElementById("app").innerHTML = `
       <header class="topbar">
-        <button class="nav-toggle" id="nav-toggle" aria-label="menu">☰</button>
+        <button class="nav-toggle" id="nav-toggle" aria-label="menu">${ico("menu", 18)}</button>
         <a class="brand" href="#/home">
           <span class="brand-mark">go</span>
           <span class="brand-text"><b>Hardcore Go</b><small>${esc(UI.brandSubtitle)}</small></span>
@@ -777,7 +832,7 @@
         <div class="topbar-right">
           <div class="top-progress" id="top-progress"></div>
           <button class="icon-btn lang-btn" id="lang-btn" title="${esc(UI.toggleLang)}">${LANG === "ru" ? "EN" : "RU"}</button>
-          <button class="icon-btn" id="theme-btn" title="${esc(UI.toggleTheme)}">☾</button>
+          <button class="icon-btn" id="theme-btn" title="${esc(UI.toggleTheme)}">${ico("moon", 17)}</button>
         </div>
       </header>
       <div class="layout">
