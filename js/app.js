@@ -461,6 +461,7 @@
 
   /* -------------------------------------------------------- module */
   let activeAnims = [];
+  let lazyVizObservers = [];
   function renderModule(m) {
     state.last = m.id;
     state.started[m.id] = true;
@@ -693,11 +694,45 @@
   }
 
   function setupAnims(m) {
-    activeAnims.forEach((a) => a.destroy());
-    activeAnims = [];
-    animsOf(m).forEach((meta, i) => wireViz(meta, i));
+    cleanupAnims();
+    animsOf(m).forEach((meta, i) => scheduleViz(meta, i));
     window.__activeAnims = activeAnims;
     window.__activeAnim = activeAnims[0] || null; // back-compat for resize/space
+  }
+
+  function cleanupAnims() {
+    lazyVizObservers.forEach((o) => o.disconnect());
+    lazyVizObservers = [];
+    activeAnims.forEach((a) => a.destroy());
+    activeAnims = [];
+    window.__activeAnim = null;
+    window.__activeAnims = [];
+  }
+
+  function scheduleViz(meta, i) {
+    const canvas = $("#viz-canvas-" + i);
+    const section = canvas && canvas.closest(".viz");
+    if (!canvas || !section) return;
+    let wired = false, io = null;
+    const wireOnce = () => {
+      if (wired) return;
+      wired = true;
+      if (io) io.disconnect();
+      wireViz(meta, i);
+      window.__activeAnims = activeAnims;
+      if (!window.__activeAnim) window.__activeAnim = activeAnims[0] || null;
+    };
+    if (i === 0 || !("IntersectionObserver" in window)) {
+      wireOnce();
+      return;
+    }
+    io = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting || e.intersectionRatio > 0)) wireOnce();
+    }, { rootMargin: "160px 0px" });
+    io.observe(section);
+    lazyVizObservers.push(io);
+    ["pointerdown", "focusin"].forEach((ev) =>
+      section.addEventListener(ev, wireOnce, { once: true }));
   }
 
   // Wire a single viz (canvas + controls + step indicator) by its index.
@@ -707,6 +742,8 @@
     if (!canvas || !factory) return;
     const anim = factory(canvas);
     activeAnims.push(anim);
+    window.__activeAnims = activeAnims;
+    if (!window.__activeAnim) window.__activeAnim = anim;
     const playBtn = $("#vc-play-" + i), scrub = $("#vc-scrub-" + i), cap = $("#viz-caption-" + i),
       stepsEl = $("#viz-steps-" + i), speedBtn = $("#vc-speed-" + i);
     const phases = anim.getPhases();
@@ -807,7 +844,7 @@
   }
   function route() {
     const r = currentRoute();
-    if (activeAnims.length) { activeAnims.forEach((a) => a.destroy()); activeAnims = []; window.__activeAnim = null; window.__activeAnims = []; }
+    cleanupAnims();
     if (r === "home" || !moduleById[r]) {
       if (r !== "home" && !moduleById[r]) location.hash = "#/home";
       renderHome();
