@@ -303,6 +303,20 @@ window.COURSE_EN.LESSONS = {
     { h: "Backpressure: let the queue push back",
       p: "The deepest idea here is *backpressure*: when a consumer cannot keep up, the right response is to slow the *producer*, not to buffer without limit. An unbounded queue or channel under sustained overload simply grows until it exhausts memory and the process is OOM-killed — it converts a throughput problem into a crash. A *bounded* buffered channel gives backpressure for free: once it is full, sends block (or, with a `select` default, can be shed), and that blocking propagates the slowness back to the producer so it stops taking on more. Bound every queue, treat 'queue full' as a signal to shed rather than grow, and combine it with deadlines so the slow path times out cleanly instead of hanging. A system that pushes back is a system that survives its worst day." },
   ],
+  m16: [
+    { h: "Concept: Redis is fast because it's in memory, and predictable because it's single-threaded",
+      p: "Two facts explain almost everything else in this module. First, Redis keeps its working data set in RAM, so a read or write is a memory access measured in microseconds, not a disk seek measured in milliseconds. Second, and less obviously, a single Redis instance executes commands ONE AT A TIME on one thread — your Go program can call it from a thousand goroutines at once, but Redis itself still processes those calls sequentially, one fully finishing before the next starts. That second fact is not a bottleneck to route around; it is the reason every individual Redis command is *atomic* by construction, with no locking required on your part. Everything from here on — caching, locks, rate limits — is really just different ways of using that one guarantee." },
+    { h: "How it works: the cache-aside read path",
+      p: "Cache-aside is the default way applications use Redis. On a read, you ask Redis for the key first. If it's there (a HIT), you return it immediately and the real database is never touched. If it's not there (a MISS — go-redis reports this as the sentinel error `redis.Nil`, not a crash), you fall through to the real source of truth, get the answer the slow way, and write it into Redis with a time-to-live before returning it. The next reader of that same key gets a HIT. Because Redis never holds the ONLY copy of the data, it is always safe to lose the cache outright — a restart, an eviction, a manual flush — the very next read just repopulates it from the database, one miss at a time." },
+    { h: "Why a TTL: a cache is allowed to be a LITTLE bit wrong, on purpose",
+      p: "Setting a 60-second TTL is an explicit decision that a cached value may lag the real one by up to 60 seconds, in exchange for the speed of not hitting the real database on every read. That trade is usually a good one. When it isn't — a price just changed and the next read must be exactly correct — invalidate the key immediately on write instead of waiting for the TTL: delete it the moment the source of truth changes, so the very next reader gets a clean miss and repopulates with the new value. TTL is the safety net underneath keys nobody remembers to invalidate; explicit deletion is the fast path for the handful that actually matter." },
+    { h: "Why SETNX is a distributed lock, not just a fancy write",
+      p: "`SET key value NX` means 'write this only if the key doesn't already exist,' and it succeeds or fails as ONE indivisible command. That matters because a lock built by hand — 'read the key, and if it's empty, write my name into it' — has a gap between the read and the write where two callers can both see it empty and both believe they got the lock. Redis's single-threaded execution closes that gap entirely: because no other command can run in the middle of a SETNX, the check and the write happen as one atomic step, so with five callers racing for the same key at the exact same instant, exactly one of them succeeds — every time, not just usually. Always give a lock its own TTL too, so a caller that crashes while holding it doesn't lock the resource forever." },
+    { h: "Why INCR is a rate limiter, not just a fancy counter",
+      p: "The identical guarantee that makes SETNX safe as a lock makes INCR safe as a counter: it atomically adds one and hands back the new total in a single round trip, so two simultaneous callers can never both read the same old value and both write the same new one, silently losing an increment. A fixed-window rate limiter is nothing more than INCR plus one EXPIRE call made only on the very first hit of a window: once the count crosses your limit inside that window, you reject; once the window's TTL elapses, the whole counter simply resets itself by disappearing." },
+    { h: "The failure mode to avoid: forgetting Redis is a cache, not the database",
+      p: "Every pitfall in this module comes from the same root mistake: treating Redis as more durable, more authoritative, or more coordinated than it actually is. Data that only ever lived in Redis vanishes on a flush or an eviction — if that would actually hurt, it belongs in a real database, with Redis only ever holding a disposable copy. A burst of keys expiring together (or one very hot key expiring) can send a stampede of simultaneous misses at your real database all at once — worth guarding against with staggered TTLs or a lock around the repopulation itself. And a lock or a counter built with a manual GET-then-SET, instead of SETNX or INCR, quietly reintroduces the exact race those atomic commands exist to eliminate." },
+  ],
 };
 
 /* =====================================================================
@@ -1801,6 +1815,112 @@ func (b *Breaker) Call(fn func() error) error {
 //   after cooldown -> <nil>             (probe let through, succeeded, breaker reset)`,
         lang: "go",
         why: "Call 3 never invoked fn() at all — that's the 'fail fast' property: once the breaker is sure the dependency is down, it stops wasting time and load on a call it already expects to fail.",
+      },
+    ],
+  },
+  m16: {
+    title: "From a plain Get/Set to a cache, a lock, and a rate limiter",
+    intro: "Four small, real programs against a real Redis: the simplest possible write with a TTL, a full cache-aside round trip, five goroutines racing for one lock, and an atomic counter that rejects the 6th request.",
+    steps: [
+      {
+        title: "Step 1 — Concept: every value can carry its own expiration",
+        concept: "A Redis client is just a connection. Set takes a TTL as its third argument — after that time elapses, Redis deletes the key on its own, with nothing else needed to make it happen.",
+        code: `rdb := redis.NewClient(&redis.Options{Addr: "localhost:6379"})
+ctx := context.Background()
+
+err := rdb.Set(ctx, "user:42:name", "Alice", 30*time.Second).Err()
+if err != nil {
+	panic(err)
+}
+
+val, err := rdb.Get(ctx, "user:42:name").Result()
+fmt.Println("user:42:name =", val) // user:42:name = Alice
+
+ttl, _ := rdb.TTL(ctx, "user:42:name").Result()
+fmt.Println("ttl remaining:", ttl) // ttl remaining: 30s`,
+        lang: "go",
+        why: "Attaching a TTL by default — even here, before any real caching pattern — means a key nobody remembers to clean up still can't live forever. It's the cheapest safety net in the whole module.",
+      },
+      {
+        title: "Step 2 — How it works: cache-aside end to end",
+        concept: "getPrice checks Redis first. redis.Nil (not a crash) means a miss, so it falls through to a deliberately slow 'database' call, caches the result, and returns it — the second call for the same key skips the slow path entirely.",
+        code: `func fetchPriceFromDB(sku string) (string, error) {
+	time.Sleep(50 * time.Millisecond) // pretend this is a slow query
+	return "$19.99", nil
+}
+
+func getPrice(ctx context.Context, rdb *redis.Client, sku string) (string, error) {
+	key := "price:" + sku
+	price, err := rdb.Get(ctx, key).Result()
+	if err == nil {
+		fmt.Println("cache HIT for", key)
+		return price, nil
+	}
+	if !errors.Is(err, redis.Nil) {
+		return "", err // a real Redis error, not just "missing"
+	}
+
+	fmt.Println("cache MISS for", key, "- querying source of truth")
+	price, err = fetchPriceFromDB(sku)
+	if err != nil {
+		return "", err
+	}
+	err = rdb.Set(ctx, key, price, 60*time.Second).Err()
+	return price, err
+}
+
+// p1, _ := getPrice(ctx, rdb, "sku-100")  // MISS, ~52ms
+// p2, _ := getPrice(ctx, rdb, "sku-100")  // HIT,  <1ms`,
+        lang: "go",
+        why: "Checking errors.Is(err, redis.Nil) specifically — instead of just 'err != nil' — is what keeps a normal cache miss from being treated as a Redis outage. Those are two very different problems and this is the line that tells them apart.",
+      },
+      {
+        title: "Step 3 — Why it's race-free: five callers, one SETNX, one winner",
+        concept: "Five goroutines call SetNX on the SAME key at the same time. Redis's single-threaded execution guarantees exactly one of them gets ok == true, no matter how the goroutines happen to be scheduled.",
+        code: `func tryAcquireLock(ctx context.Context, rdb *redis.Client, key, owner string, ttl time.Duration) bool {
+	ok, err := rdb.SetNX(ctx, key, owner, ttl).Result()
+	if err != nil {
+		panic(err)
+	}
+	return ok
+}
+
+// raced 5 goroutines (worker-1..worker-5) on "lock:invoice:9001":
+//   worker-1 -> lock already held, backing off
+//   worker-2 -> lock already held, backing off
+//   worker-3 -> acquired the lock
+//   worker-4 -> lock already held, backing off
+//   worker-5 -> lock already held, backing off
+//   redis confirms lock holder: worker-3
+// (run it again: a DIFFERENT worker wins — WHO wins is timing, THAT
+//  exactly one wins is guaranteed)`,
+        lang: "go",
+        why: "Running this several times and seeing a different winner each time is the point, not a bug: it proves the outcome is a genuine race, and that Redis's atomicity — not luck — is what still guarantees only one winner every single time.",
+      },
+      {
+        title: "Step 4 — Why it's race-free: INCR turns into a rate limiter",
+        concept: "allow atomically increments a per-key counter; the FIRST increment in a window also sets that key's expiration, so the counter resets itself once the window passes.",
+        code: `const rateLimit = 3 // max 3 requests per window, per key
+
+func allow(ctx context.Context, rdb *redis.Client, key string, window time.Duration) (bool, int64) {
+	count, err := rdb.Incr(ctx, key).Result()
+	if err != nil {
+		panic(err)
+	}
+	if count == 1 {
+		rdb.Expire(ctx, key, window) // first hit in this window starts the clock
+	}
+	return count <= rateLimit, count
+}
+
+// 5 requests against the same key, limit=3:
+//   request 1: allowed (count=1)
+//   request 2: allowed (count=2)
+//   request 3: allowed (count=3)
+//   request 4: rejected — 429 Too Many Requests (count=4)
+//   request 5: rejected — 429 Too Many Requests (count=5)`,
+        lang: "go",
+        why: "This is the same atomicity as SETNX, just counting instead of locking — Incr's single round trip is what stops two simultaneous requests from both reading count=2 and both writing count=3, which would silently let one extra request through.",
       },
     ],
   },
