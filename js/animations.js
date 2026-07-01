@@ -682,6 +682,41 @@
     "select waits on whichever is ready": "select ждёт тот канал, что готов",
     "select blocks on several channel operations at once and proceeds with the FIRST one that becomes ready — here, chA.": "select блокируется сразу на нескольких операциях с каналами и продолжает с ПЕРВОЙ, которая станет готова — здесь это chA.",
     "select is how one goroutine juggles many channels — combine it with a ctx.Done() case and you get clean timeouts and cancellation.": "select — это то, как одна горутина жонглирует множеством каналов; добавьте case с ctx.Done() и получите чистые таймауты и отмену.",
+
+    // redis-cache
+    "Redis · cache-aside lifecycle & the atomic lock": "Redis · жизненный цикл cache-aside и атомарная блокировка",
+    "client": "клиент",
+    "Redis": "Redis",
+    "database": "база данных",
+    "~50ms query": "запрос ~50мс",
+    "MISS": "MISS",
+    "TTL 60s": "TTL 60с",
+    "HIT ✓": "HIT ✓",
+    "database, uncached: ~50ms": "база данных, без кэша: ~50мс",
+    "Redis, cached: <1ms": "Redis, с кэшем: <1мс",
+    "TTL 60s → 0s": "TTL 60с → 0с",
+    "worker-": "воркер-",
+    " -> acquired the lock": " -> получил блокировку",
+    "everyone else -> lock already held, backing off": "все остальные -> блокировка уже занята, отступают",
+    // redis-cache — step captions
+    "Without a cache, every read hits the database directly": "Без кэша каждое чтение идёт прямо в базу данных",
+    "The client asks for a value and there is nowhere faster to check first — every single request pays the full cost of a real database query.": "Клиент запрашивает значение, и нет более быстрого места для проверки — каждый запрос платит полную цену настоящего запроса к базе данных.",
+    "This is the baseline we're about to beat. Nothing here is wrong, it's just slow — and 'slow, every time' is expensive once traffic grows.": "Это базовая линия, которую мы сейчас побьём. Здесь всё корректно, просто медленно — а «медленно каждый раз» становится дорого с ростом трафика.",
+    "First request: Redis is checked first — and it's a miss": "Первый запрос: сначала проверяется Redis — и это промах",
+    "The client's read now stops at Redis before anything else. The key isn't there yet, so go-redis returns the sentinel error redis.Nil — not a crash, just \"not cached yet.\"": "Теперь чтение клиента сначала останавливается в Redis. Ключа там пока нет, поэтому go-redis возвращает сигнальную ошибку redis.Nil — не сбой, просто «ещё не закэшировано».",
+    "Treating a miss as a normal, expected outcome — not an error to panic on — is what makes this pattern safe to use on every read, not just the lucky ones.": "Обращение с промахом как с нормальным, ожидаемым результатом — а не ошибкой, на которую нужно паниковать — делает этот паттерн безопасным для каждого чтения, а не только удачных.",
+    "The answer comes back — and gets cached with a TTL": "Ответ приходит — и кэшируется с TTL",
+    "The database returns the real value. Before handing it to the client, the code writes it into Redis with an expiration attached — e.g. 60 seconds.": "База данных возвращает настоящее значение. Перед тем как отдать его клиенту, код записывает его в Redis со сроком истечения — например, 60 секунд.",
+    "Attaching a TTL at write time is what bounds how wrong this cached copy is allowed to become. Nobody has to remember to clean it up later — Redis does it alone.": "Прикрепление TTL в момент записи ограничивает то, насколько неверной может стать эта закэшированная копия. Никому не нужно помнить о её очистке позже — Redis делает это сам.",
+    "Second request: cache hit — the database is never touched": "Второй запрос: попадание в кэш — база данных не тронута",
+    "The exact same key is requested again. This time Redis has it: the client gets an answer in well under a millisecond, and the database does nothing at all.": "Запрашивается тот же самый ключ. На этот раз он есть в Redis: клиент получает ответ значительно быстрее миллисекунды, а база данных вообще ничего не делает.",
+    "This is the entire payoff of cache-aside — the expensive path runs once per TTL window, no matter how many times the value is actually read in that window.": "Вот вся выгода cache-aside — дорогой путь выполняется один раз за окно TTL, независимо от того, сколько раз значение реально читается в этом окне.",
+    "The TTL runs out — and the next request is a miss again": "TTL истекает — и следующий запрос снова промах",
+    "60 seconds pass. Redis quietly deletes the key on its own. The next client to ask for it gets a miss, exactly like the very first request did.": "Проходит 60 секунд. Redis тихо удаляет ключ сам. Следующий клиент, запросивший его, получает промах — точно как самый первый запрос.",
+    "This is the cache-aside lifecycle closing the loop: hit, hit, hit… until the TTL ends, then one miss repopulates it and the cycle simply continues.": "Это цикл cache-aside, замыкающий петлю: попадание, попадание, попадание… пока не закончится TTL, затем один промах заново заполняет кэш, и цикл просто продолжается.",
+    "Atomic SETNX: five callers race, exactly one wins": "Атомарный SETNX: пять вызывающих сторон соревнуются, побеждает ровно одна",
+    "Five clients call SET … NX on the same lock key at the same instant. Because Redis executes one command at a time, exactly one of them creates the key and gets the lock — the other four fail immediately.": "Пять клиентов вызывают SET … NX на один и тот же ключ блокировки в один и тот же момент. Поскольку Redis выполняет по одной команде за раз, ровно один из них создаёт ключ и получает блокировку — остальные четыре немедленно проваливаются.",
+    "No extra coordination code was added anywhere. This atomicity is a free property of how Redis executes commands — it's what makes one Redis instance a correct distributed lock.": "Никакой дополнительный код координации не был добавлен нигде. Эта атомарность — бесплатное свойство того, как Redis выполняет команды — именно оно делает один инстанс Redis корректной распределённой блокировкой.",
   };
 
   function lang() { return (typeof window !== "undefined" && window.__LANG__) || "en"; }
@@ -3457,6 +3492,137 @@
       duration: 10.8,
       phases: STEPS.map((s) => ({ t: s.t, title: s.title, desc: s.desc, why: s.why })),
       render: stepRender(STEPS, 10.8, "channels · handshake, buffering & select"),
+    });
+  };
+
+  /* =================================================================== */
+  /* M16. REDIS CACHE-ASIDE & THE ATOMIC LOCK                            */
+  /* =================================================================== */
+  ANIM["redis-cache"] = (canvas) => {
+    function scene(ctx, c, u, w, h, cacheOn) {
+      const clientX = w * 0.13, cacheX = w / 2, dbX = w * 0.87, rowY = h * 0.24;
+      u.fillRR(ctx, clientX - 44, rowY - 20, 88, 40, 9, c.panel, c.line, 1.4);
+      u.text(ctx, "client", clientX, rowY + 6, { align: "center", color: c.text, size: 12.5 });
+      u.fillRR(ctx, cacheX - 52, rowY - 20, 104, 40, 9, cacheOn ? "rgba(206,50,98,0.14)" : c.panel, cacheOn ? c.accent : c.line, cacheOn ? 1.8 : 1.3);
+      u.text(ctx, "Redis", cacheX, rowY + 6, { align: "center", color: cacheOn ? c.accent : c.dim, size: 12.5, weight: 700 });
+      u.fillRR(ctx, dbX - 48, rowY - 20, 96, 40, 9, c.panel, c.line, 1.4);
+      u.text(ctx, "database", dbX, rowY + 6, { align: "center", color: c.text, size: 12.5 });
+      u.line(ctx, clientX + 44, rowY, cacheX - 52, rowY, c.line, 1.4, [3, 4]);
+      u.line(ctx, cacheX + 52, rowY, dbX - 48, rowY, c.line, 1.4, [3, 4]);
+      return { clientX, cacheX, dbX, rowY };
+    }
+    function ball(ctx, u, x, y, color, glow) { u.dot(ctx, x, y, 7, color, glow); }
+
+    const STEPS = [
+      {
+        t: 0,
+        title: "Without a cache, every read hits the database directly",
+        desc: "The client asks for a value and there is nowhere faster to check first — every single request pays the full cost of a real database query.",
+        why: "This is the baseline we're about to beat. Nothing here is wrong, it's just slow — and 'slow, every time' is expensive once traffic grows.",
+        draw(ctx, p, w, h, c, u) {
+          const { clientX, dbX, rowY } = scene(ctx, c, u, w, h, false);
+          const cyc = p % 0.6, half = 0.42;
+          const x = cyc < half ? u.lerp(clientX, dbX, cyc / half) : u.lerp(dbX, clientX, (cyc - half) / (0.6 - half));
+          ball(ctx, u, x, rowY, c.warn, "rgba(245,177,76,0.4)");
+          if (cyc > half * 0.8 && cyc < half) u.text(ctx, "~50ms query", dbX, rowY - 30, { align: "center", color: c.warn, size: 11.5, weight: 600 });
+        },
+      },
+      {
+        t: 2.4,
+        title: "First request: Redis is checked first — and it's a miss",
+        desc: "The client's read now stops at Redis before anything else. The key isn't there yet, so go-redis returns the sentinel error redis.Nil — not a crash, just \"not cached yet.\"",
+        why: "Treating a miss as a normal, expected outcome — not an error to panic on — is what makes this pattern safe to use on every read, not just the lucky ones.",
+        draw(ctx, p, w, h, c, u) {
+          const { clientX, cacheX, dbX, rowY } = scene(ctx, c, u, w, h, true);
+          const seg1 = u.clamp(p / 0.45, 0, 1), seg2 = u.clamp((p - 0.5) / 0.5, 0, 1);
+          if (seg1 > 0 && seg1 < 1) ball(ctx, u, u.lerp(clientX, cacheX, seg1), rowY, c.warn, "rgba(245,177,76,0.4)");
+          if (seg1 >= 1) u.badge(ctx, cacheX - 30, rowY - 52, "MISS", c.warn);
+          if (seg2 > 0) ball(ctx, u, u.lerp(cacheX, dbX, u.easeInOut(seg2)), rowY, c.warn, "rgba(245,177,76,0.4)");
+        },
+      },
+      {
+        t: 4.8,
+        title: "The answer comes back — and gets cached with a TTL",
+        desc: "The database returns the real value. Before handing it to the client, the code writes it into Redis with an expiration attached — e.g. 60 seconds.",
+        why: "Attaching a TTL at write time is what bounds how wrong this cached copy is allowed to become. Nobody has to remember to clean it up later — Redis does it alone.",
+        draw(ctx, p, w, h, c, u) {
+          const { clientX, cacheX, dbX, rowY } = scene(ctx, c, u, w, h, true);
+          const seg1 = u.clamp(p / 0.55, 0, 1), seg2 = u.clamp((p - 0.6) / 0.4, 0, 1);
+          if (seg1 > 0 && seg1 < 1) ball(ctx, u, u.lerp(dbX, cacheX, seg1), rowY, c.good, "rgba(58,210,159,0.4)");
+          if (seg1 >= 1) { u.fillRR(ctx, cacheX - 44, rowY + 26, 88, 22, 6, "rgba(58,210,159,0.16)", c.good, 1.4); u.text(ctx, "TTL 60s", cacheX, rowY + 41, { align: "center", color: c.good, size: 10.5, weight: 700, mono: true }); }
+          if (seg2 > 0) ball(ctx, u, u.lerp(cacheX, clientX, u.easeInOut(seg2)), rowY, c.good, "rgba(58,210,159,0.4)");
+        },
+      },
+      {
+        t: 7.2,
+        title: "Second request: cache hit — the database is never touched",
+        desc: "The exact same key is requested again. This time Redis has it: the client gets an answer in well under a millisecond, and the database does nothing at all.",
+        why: "This is the entire payoff of cache-aside — the expensive path runs once per TTL window, no matter how many times the value is actually read in that window.",
+        draw(ctx, p, w, h, c, u) {
+          const { clientX, cacheX, dbX, rowY } = scene(ctx, c, u, w, h, true);
+          u.fillRR(ctx, cacheX - 44, rowY + 26, 88, 22, 6, "rgba(58,210,159,0.16)", c.good, 1.4);
+          u.text(ctx, "TTL 60s", cacheX, rowY + 41, { align: "center", color: c.good, size: 10.5, weight: 700, mono: true });
+          const cyc = p % 0.5, half = 0.25;
+          const x = cyc < half ? u.lerp(clientX, cacheX, cyc / half) : u.lerp(cacheX, clientX, (cyc - half) / half);
+          ball(ctx, u, x, rowY, c.good, "rgba(58,210,159,0.4)");
+          u.badge(ctx, cacheX - 24, rowY - 52, "HIT ✓", c.good, "#06101f");
+          const by = rowY + 76, bw = w * 0.5, bx = w / 2 - bw / 2;
+          u.fillRR(ctx, bx, by, bw, 20, 5, "rgba(245,177,76,0.22)", c.warn, 1.2);
+          u.text(ctx, "database, uncached: ~50ms", bx + 8, by + 14, { color: c.warn, size: 10.5, mono: true });
+          u.fillRR(ctx, bx, by + 26, Math.max(6, bw * 0.02), 20, 5, "rgba(58,210,159,0.3)", c.good, 1.2);
+          u.text(ctx, "Redis, cached: <1ms", bx + Math.max(6, bw * 0.02) + 8, by + 40, { color: c.good, size: 10.5, mono: true });
+        },
+      },
+      {
+        t: 9.6,
+        title: "The TTL runs out — and the next request is a miss again",
+        desc: "60 seconds pass. Redis quietly deletes the key on its own. The next client to ask for it gets a miss, exactly like the very first request did.",
+        why: "This is the cache-aside lifecycle closing the loop: hit, hit, hit… until the TTL ends, then one miss repopulates it and the cycle simply continues.",
+        draw(ctx, p, w, h, c, u) {
+          const { clientX, cacheX, rowY } = scene(ctx, c, u, w, h, p < 0.5);
+          const fade = 1 - u.clamp(p / 0.45, 0, 1);
+          if (fade > 0.02) { ctx.globalAlpha = fade; u.fillRR(ctx, cacheX - 44, rowY + 26, 88, 22, 6, "rgba(58,210,159,0.16)", c.good, 1.4); u.text(ctx, "TTL 60s → 0s", cacheX, rowY + 41, { align: "center", color: c.good, size: 10.5, weight: 700, mono: true }); ctx.globalAlpha = 1; }
+          if (p > 0.55) {
+            const seg = u.clamp((p - 0.55) / 0.4, 0, 1);
+            ball(ctx, u, u.lerp(clientX, cacheX, seg), rowY, c.warn, "rgba(245,177,76,0.4)");
+            if (seg >= 1) u.badge(ctx, cacheX - 30, rowY - 52, "MISS", c.warn);
+          }
+        },
+      },
+      {
+        t: 12.0,
+        title: "Atomic SETNX: five callers race, exactly one wins",
+        desc: "Five clients call SET … NX on the same lock key at the same instant. Because Redis executes one command at a time, exactly one of them creates the key and gets the lock — the other four fail immediately.",
+        why: "No extra coordination code was added anywhere. This atomicity is a free property of how Redis executes commands — it's what makes one Redis instance a correct distributed lock.",
+        draw(ctx, p, w, h, c, u) {
+          const cacheX = w / 2, cacheY = h * 0.24;
+          u.fillRR(ctx, cacheX - 52, cacheY - 20, 104, 40, 9, "rgba(206,50,98,0.14)", c.accent, 1.8);
+          u.text(ctx, "Redis", cacheX, cacheY + 6, { align: "center", color: c.accent, size: 12.5, weight: 700 });
+          const n = 5, winner = 2, spread = Math.min(120, w * 0.32);
+          const seg = u.clamp(p / 0.6, 0, 1);
+          for (let i = 0; i < n; i++) {
+            const angle = -0.9 + (i / (n - 1)) * 1.8;
+            const sx = cacheX + Math.sin(angle) * spread, sy = cacheY + h * 0.42 + Math.cos(angle) * 26;
+            const x = u.lerp(sx, cacheX, u.easeInOut(seg) * 0.86), y = u.lerp(sy, cacheY + 30, u.easeInOut(seg) * 0.86);
+            const isWinner = i === winner;
+            const settled = seg >= 0.98;
+            const col = settled ? (isWinner ? c.good : c.bad) : c.dim;
+            ball(ctx, u, x, y, col, isWinner && settled ? "rgba(58,210,159,0.4)" : null);
+            if (settled) u.text(ctx, tr("worker-") + (i + 1), x, y + 18, { align: "center", color: col, size: 9.5, mono: true });
+          }
+          if (seg >= 0.98) {
+            const a = u.clamp((p - 0.7) / 0.3, 0, 1);
+            u.text(ctx, tr("worker-") + (winner + 1) + tr(" -> acquired the lock"), cacheX, cacheY - 40, { align: "center", color: c.good, size: 12.5, weight: 700, alpha: a });
+            u.text(ctx, "everyone else -> lock already held, backing off", cacheX, cacheY - 58, { align: "center", color: c.dim, size: 11, alpha: a });
+          }
+        },
+      },
+    ];
+
+    return makeTimeline(canvas, {
+      duration: 14.6,
+      phases: STEPS.map((s) => ({ t: s.t, title: s.title, desc: s.desc, why: s.why })),
+      render: stepRender(STEPS, 14.6, "Redis · cache-aside lifecycle & the atomic lock"),
     });
   };
 
