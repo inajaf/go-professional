@@ -224,14 +224,16 @@
 
   /* ------------------------------------------------------- sidebar */
   function renderSidebar() {
-    const filter = ($("#nav-filter") && $("#nav-filter").value || "").toLowerCase();
+    const filter = ($("#nav-filter") && $("#nav-filter").value || "").trim().toLowerCase();
     const cur = currentRoute();
+    let matches = 0;
     let html = `<a class="nav-home ${cur === "home" ? "active" : ""}" href="#/home">
       <span class="nav-home-ic">${ico("ship", 16)}</span> ${esc(UI.courseHome)}</a>`;
     PARTS.forEach((p) => {
       const mods = p.modules.map((id) => moduleById[id]);
       const visible = mods.filter((m) => !filter || (m.title + m.short + m.summary).toLowerCase().includes(filter));
       if (!visible.length) return;
+      matches += visible.length;
       const doneCount = mods.filter(moduleDone).length;
       html += `<div class="nav-part">
         <div class="nav-part-head"><span>${p.label} · ${p.title}</span><span class="nav-part-count">${doneCount}/${mods.length}</span></div>`;
@@ -245,13 +247,28 @@
       });
       html += "</div>";
     });
+    if (filter && matches === 0) {
+      html += `<div class="nav-empty">
+        <b>${esc(UI.noSearchResults)}</b>
+        <button class="btn ghost small" id="nav-clear">${esc(UI.clearFilter)}</button>
+      </div>`;
+    }
     $("#nav-list").innerHTML = html;
+    const clear = $("#nav-clear");
+    if (clear) clear.addEventListener("click", () => {
+      const input = $("#nav-filter");
+      if (input) input.value = "";
+      renderSidebar();
+      if (input) input.focus();
+    });
   }
 
   /* ---------------------------------------------------------- home */
   function renderHome() {
     const done = overallDone(), pct = done / MODULES.length;
-    const cont = state.last && moduleById[state.last] ? state.last : ORDERED[0].id;
+    const first = ORDERED[0];
+    const hasLast = state.last && moduleById[state.last];
+    const cont = hasLast ? state.last : first.id;
     const contM = moduleById[cont];
     const animationCount = new Set(MODULES.flatMap((m) => animsOf(m).map((a) => a.id))).size;
     let cards = "";
@@ -290,8 +307,8 @@
           <p class="hero-sub">${COURSE_META.subtitle}</p>
           <p class="hero-tag">${COURSE_META.tagline}</p>
           <div class="hero-cta">
-            <a class="btn primary" href="#/${cont}">${done ? esc(UI.continue) : esc(UI.start)} · ${contM.short} →</a>
-            <a class="btn ghost" href="#/${MODULES[0].id}">${esc(UI.viewFirstModule)}</a>
+            <a class="btn primary" href="#/${cont}">${hasLast ? esc(UI.continue) : esc(UI.start)} · ${contM.short} →</a>
+            <a class="btn ghost" href="#/${first.id}">${esc(UI.viewFirstModule)}</a>
           </div>
         </div>
         <div class="hero-ring">
@@ -310,6 +327,7 @@
         <div><b>${esc(UI.capstoneProject)}</b> ${esc(UI.capstoneTagline)}
         <b>${COURSE_META.capstone}</b>. ${esc(UI.capstoneFooter)}</div>
       </div>
+      <h2 class="sr-only">${esc(UI.courseModules)}</h2>
       ${cards}
       <section class="verify">
         <h3>${esc(UI.productionChecklist)}</h3>
@@ -318,6 +336,7 @@
       <footer class="foot">${esc(UI.footer)}</footer>
     `;
     $("#main").scrollTop = 0;
+    window.scrollTo(0, 0);
   }
   function highlightInline(s) {
     return esc(s).replace(/`([^`]+)`/g, '<code class="inl">$1</code>');
@@ -412,7 +431,7 @@
 
     $$(".assign-reveal").forEach((b) => b.addEventListener("click", () => {
       const exp = $(`.assign-exp[data-i="${b.dataset.i}"]`);
-      if (exp) { exp.hidden = !exp.hidden; b.textContent = exp.hidden ? "Explanation" : "Hide explanation"; }
+      if (exp) { exp.hidden = !exp.hidden; b.textContent = exp.hidden ? UI.explanation : UI.hideExplanation; }
     }));
 
     $$(".assign-check").forEach((b) => b.addEventListener("click", () => {
@@ -424,19 +443,19 @@
       if (a.type === "code" && res.details) {
         out.innerHTML = res.details.map((d) =>
           `<div class="chk ${d.ok ? "ok" : "no"}">${d.ok ? "✓" : "✗"} ${esc(d.msg)}</div>`).join("") +
-          `<div class="assign-verdict ${res.ok ? "ok" : "no"}">${res.ok ? "✓ All checks pass - nice." : "Not all checks pass yet - fix the ✗ items above."}</div>`;
+          `<div class="assign-verdict ${res.ok ? "ok" : "no"}">${esc(res.ok ? UI.allChecksPass : UI.notAllChecksPass)}</div>`;
       } else {
-        out.innerHTML = `<div class="assign-verdict ${res.ok ? "ok" : "no"}">${res.ok ? "✓ Correct!" : "✗ Not quite - try again, then hit Explanation."}</div>`;
+        out.innerHTML = `<div class="assign-verdict ${res.ok ? "ok" : "no"}">${esc(res.ok ? UI.correct : UI.notQuite)}</div>`;
       }
       if (res.ok) {
         solved[i] = true; card.classList.add("is-solved");
-        const st = card.querySelector(".assign-state"); if (st) st.textContent = "✓ solved";
+        const st = card.querySelector(".assign-state"); if (st) st.textContent = "✓ " + UI.solved;
         const exp = $(`.assign-exp[data-i="${i}"]`); if (exp) exp.hidden = false;
-        const rb = card.querySelector(".assign-reveal"); if (rb) rb.textContent = "Hide explanation";
+        const rb = card.querySelector(".assign-reveal"); if (rb) rb.textContent = UI.hideExplanation;
       } else { delete solved[i]; card.classList.remove("is-solved"); }
       save();
       const score = $("#assign-score");
-      if (score) score.textContent = list.reduce((n, _, k) => n + (solved[k] ? 1 : 0), 0) + "/" + list.length + " solved";
+      if (score) score.textContent = list.reduce((n, _, k) => n + (solved[k] ? 1 : 0), 0) + "/" + list.length + " " + UI.solved;
     }));
   }
 
@@ -603,6 +622,7 @@
         </nav>
       </article>`;
     $("#main").scrollTop = 0;
+    window.scrollTo(0, 0);
 
     wireModule(m);
     wireAssignments(m);
@@ -662,12 +682,12 @@
           <div class="viz-steps" id="viz-steps-${i}"></div>
           <div class="viz-caption" id="viz-caption-${i}">-</div>
           <div class="viz-controls">
-            <button class="vc-btn" id="vc-reset-${i}" title="${esc(UI.resetToStart)}">${ico("rotateCcw", 17)}</button>
-            <button class="vc-btn" id="vc-step-b-${i}" title="${esc(UI.nudgeBack)}">${ico("chevronLeft", 18)}</button>
-            <button class="vc-btn play" id="vc-play-${i}" title="${esc(UI.playPause)}">${ico("play", 17)}</button>
-            <button class="vc-btn" id="vc-step-f-${i}" title="${esc(UI.nudgeForward)}">${ico("chevronRight", 18)}</button>
-            <input type="range" id="vc-scrub-${i}" min="0" max="1000" value="0" aria-label="scrub" />
-            <button class="vc-btn speed" id="vc-speed-${i}" title="${esc(UI.playbackSpeed)}">0.4×</button>
+            <button class="vc-btn" id="vc-reset-${i}" title="${esc(UI.resetToStart)}" aria-label="${esc(UI.resetToStart)}">${ico("rotateCcw", 17)}</button>
+            <button class="vc-btn" id="vc-step-b-${i}" title="${esc(UI.nudgeBack)}" aria-label="${esc(UI.nudgeBack)}">${ico("chevronLeft", 18)}</button>
+            <button class="vc-btn play" id="vc-play-${i}" title="${esc(UI.playPause)}" aria-label="${esc(UI.playPause)}">${ico("play", 17)}</button>
+            <button class="vc-btn" id="vc-step-f-${i}" title="${esc(UI.nudgeForward)}" aria-label="${esc(UI.nudgeForward)}">${ico("chevronRight", 18)}</button>
+            <input type="range" id="vc-scrub-${i}" min="0" max="1000" value="0" aria-label="${esc(UI.scrubTimeline)}" />
+            <button class="vc-btn speed" id="vc-speed-${i}" title="${esc(UI.playbackSpeed)}" aria-label="${esc(UI.playbackSpeed)}">0.4×</button>
           </div>
         </section>`;
   }
@@ -806,6 +826,12 @@
     const tb = $("#theme-btn");
     if (tb) tb.innerHTML = state.theme === "dark" ? ico("moon", 17) : ico("sun", 17);
   }
+  function applyDocumentChrome() {
+    document.documentElement.lang = LANG;
+    document.title = UI.docTitle;
+    const meta = document.querySelector('meta[name="description"]');
+    if (meta) meta.setAttribute("content", UI.docDescription);
+  }
 
   /* -------------------------------------------------- keyboard nav */
   window.addEventListener("keydown", (e) => {
@@ -824,20 +850,23 @@
   function boot() {
     document.getElementById("app").innerHTML = `
       <header class="topbar">
-        <button class="nav-toggle" id="nav-toggle" aria-label="menu">${ico("menu", 18)}</button>
+        <button class="nav-toggle" id="nav-toggle" aria-label="${esc(UI.openMenu)}">${ico("menu", 18)}</button>
         <a class="brand" href="#/home">
           <span class="brand-mark">go</span>
           <span class="brand-text"><b>Hardcore Go</b><small>${esc(UI.brandSubtitle)}</small></span>
         </a>
         <div class="topbar-right">
           <div class="top-progress" id="top-progress"></div>
-          <button class="icon-btn lang-btn" id="lang-btn" title="${esc(UI.toggleLang)}">${LANG === "ru" ? "EN" : "RU"}</button>
-          <button class="icon-btn" id="theme-btn" title="${esc(UI.toggleTheme)}">${ico("moon", 17)}</button>
+          <button class="icon-btn lang-btn" id="lang-btn" title="${esc(UI.toggleLang)}" aria-label="${esc(UI.toggleLangAria)}">${LANG === "ru" ? "EN" : "RU"}</button>
+          <button class="icon-btn" id="theme-btn" title="${esc(UI.toggleTheme)}" aria-label="${esc(UI.toggleTheme)}">${ico("moon", 17)}</button>
         </div>
       </header>
       <div class="layout">
         <aside class="sidebar" id="sidebar">
-          <div class="nav-search"><input id="nav-filter" placeholder="${esc(UI.filterModules)}" /></div>
+          <div class="nav-search">
+            <label class="sr-only" for="nav-filter">${esc(UI.searchModulesLabel)}</label>
+            <input id="nav-filter" placeholder="${esc(UI.filterModules)}" aria-label="${esc(UI.searchModulesLabel)}" />
+          </div>
           <nav id="nav-list"></nav>
           <div class="sidebar-foot" id="sidebar-foot"></div>
         </aside>
@@ -845,6 +874,7 @@
       </div>
       <div class="nav-scrim" id="nav-scrim"></div>`;
 
+    applyDocumentChrome();
     applyTheme();
     $("#theme-btn").addEventListener("click", () => {
       state.theme = state.theme === "dark" ? "light" : "dark"; save(); applyTheme();
