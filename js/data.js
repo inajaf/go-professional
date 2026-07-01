@@ -10,53 +10,58 @@ const COURSE_META = {
   title: "Hardcore Go & Distributed Systems Engineering",
   subtitle: "Beginner Foundations → Senior / Staff / Principal",
   tagline:
-    "Start with the Go runtime fundamentals — the garbage collector, pprof, testing, concurrency — then build a zero-dependency, post-quantum-secure Distributed Financial Ledger on Go 1.24–1.26.",
+    "Start by writing idiomatic Go — goroutines, channels, errors, tests — then go under the runtime and the hardware, and build a zero-dependency, post-quantum-secure Distributed Financial Ledger on Go 1.24–1.26.",
   target: "go 1.26 (strictly enforced via CI)",
   capstone: "Distributed Financial Ledger",
 };
 
+/* Parts are ordered as a single beginner → principal ramp. The part `id`s
+   are stable opaque keys (part-0..part-5); the visible sequence comes from
+   this array's order and each part's `modules` list. Module display order,
+   sidebar order, and prev/next navigation are all derived from PARTS in
+   app.js, so a module's position is defined here, not by the MODULES array. */
 const PARTS = [
   {
     id: "part-0",
-    label: "Foundations",
-    title: "Go Runtime Foundations & Tooling",
-    level: "Beginner → Mid-Level",
-    modules: ["f1", "f2", "f3", "f4", "f5"],
+    label: "Part 1",
+    title: "Writing Idiomatic Go",
+    level: "Beginner",
+    modules: ["f4", "f5", "f3"],
   },
   {
     id: "part-1",
-    label: "Part 1",
-    title: "Foundations of Modern Idiomatic Go",
-    level: "Mid-Level Transition",
-    modules: ["m1", "m2"],
+    label: "Part 2",
+    title: "The Go Runtime",
+    level: "Beginner → Mid-Level",
+    modules: ["f1", "f2"],
   },
   {
     id: "part-2",
-    label: "Part 2",
-    title: "Advanced Concurrency & Systems Control",
-    level: "Senior Level",
-    modules: ["m3", "m4", "m5"],
+    label: "Part 3",
+    title: "Building Real Systems",
+    level: "Mid → Senior",
+    modules: ["m1", "m2", "m5"],
   },
   {
     id: "part-3",
-    label: "Part 3",
-    title: "Distributed Architectures & Hardware Sympathy",
-    level: "Staff / Principal Level",
-    modules: ["m6", "m7", "m8", "m9"],
+    label: "Part 4",
+    title: "Advanced Concurrency & Correctness",
+    level: "Senior",
+    modules: ["m13", "m4", "m3", "m7"],
   },
   {
     id: "part-4",
-    label: "Part 4",
-    title: "Under the Hood — How the Machine Really Runs Your Go",
-    level: "Deep Architecture",
-    modules: ["m10", "m11", "m12", "m13"],
+    label: "Part 5",
+    title: "Under the Hood — Hardware Sympathy",
+    level: "Staff · Deep Architecture",
+    modules: ["m10", "m11", "m12", "m8"],
   },
   {
     id: "part-5",
-    label: "Part 5",
-    title: "Running Go in Production",
-    level: "Production Operations",
-    modules: ["m14", "m15", "m16"],
+    label: "Part 6",
+    title: "Distributed Systems & Production",
+    level: "Staff / Principal",
+    modules: ["m6", "m14", "m15", "m16", "m9"],
   },
 ];
 
@@ -64,9 +69,9 @@ const MODULES = [
   /* ================================================================= F1 */
   {
     id: "f1",
-    code: "F1",
-    num: 1,
-    part: "part-0",
+    code: "R1",
+    num: 4,
+    part: "part-1",
     title: "How Go's Garbage Collector Works",
     short: "Garbage Collector",
     level: "Beginner",
@@ -193,9 +198,9 @@ b.Reset(); defer bufPool.Put(b)`,
   /* ================================================================= F2 */
   {
     id: "f2",
-    code: "F2",
-    num: 2,
-    part: "part-0",
+    code: "R2",
+    num: 5,
+    part: "part-1",
     title: "Profiling with pprof",
     short: "Profiling (pprof)",
     level: "Beginner",
@@ -325,6 +330,7 @@ defer pprof.StopCPUProfile()`,
     code: "F3",
     num: 3,
     part: "part-0",
+    /* Writing Tests — stays 3rd in Part 1 (Writing Idiomatic Go) */
     title: "Writing Tests in Go",
     short: "Writing Tests",
     level: "Beginner",
@@ -463,8 +469,8 @@ func TestExpiry(t *testing.T) {
   /* ================================================================= F4 */
   {
     id: "f4",
-    code: "F4",
-    num: 4,
+    code: "F1",
+    num: 1,
     part: "part-0",
     title: "Goroutines, Channels & Concurrency Patterns",
     short: "Goroutines & Channels",
@@ -481,6 +487,29 @@ func TestExpiry(t *testing.T) {
       blurb:
         "Jobs queue on a channel, several worker goroutines pull them concurrently (fan-out), process, and send results back onto a single channel (fan-in).",
     },
+    // This first module carries three visualizations, built up from the
+    // basics (spawning goroutines, channel mechanics) to the worker-pool
+    // pattern that combines them.
+    animations: [
+      {
+        id: "goroutine-spawn",
+        title: "Spawning Goroutines with go & WaitGroup",
+        blurb:
+          "Watch main launch six lightweight goroutines with `go`, run them concurrently, then wait for every one to finish with sync.WaitGroup before continuing.",
+      },
+      {
+        id: "channel-flow",
+        title: "Channels: Handshake, Buffering & select",
+        blurb:
+          "See how an unbuffered send blocks until a receiver meets it, how a buffered channel absorbs bursts until it's full, and how select proceeds with whichever channel is ready first.",
+      },
+      {
+        id: "worker-pool",
+        title: "Worker Pool: Fan-Out / Fan-In",
+        blurb:
+          "Jobs queue on a channel, several worker goroutines pull them concurrently (fan-out), process, and send results back onto a single channel (fan-in).",
+      },
+    ],
     concepts: [
       {
         title: "Goroutines: concurrency for almost free",
@@ -604,8 +633,8 @@ close(jobs)`,
   /* ================================================================= F5 */
   {
     id: "f5",
-    code: "F5",
-    num: 5,
+    code: "F2",
+    num: 2,
     part: "part-0",
     title: "Errors, Context & Project Layout",
     short: "Errors & Context",
@@ -737,9 +766,9 @@ func (e *ValidationError) Unwrap() error { return e.Err }`,
   /* ================================================================= M1 */
   {
     id: "m1",
-    code: "M1",
-    num: 1,
-    part: "part-1",
+    code: "S1",
+    num: 6,
+    part: "part-2",
     title: "Zero-Dependency Network Routing & Restricted IO",
     short: "Routing & Restricted IO",
     level: "Mid-Level",
@@ -859,9 +888,9 @@ tool (
   /* ================================================================= M2 */
   {
     id: "m2",
-    code: "M2",
-    num: 2,
-    part: "part-1",
+    code: "S2",
+    num: 7,
+    part: "part-2",
     title: "High-Performance Serialization & Memory Geometry",
     short: "Serialization & Memory",
     level: "Mid-Level",
@@ -977,9 +1006,9 @@ v := m["USD"] // ~1 cache line, no pointer chasing`,
   /* ================================================================= M3 */
   {
     id: "m3",
-    code: "M3",
-    num: 3,
-    part: "part-2",
+    code: "C3",
+    num: 11,
+    part: "part-3",
     title: "Object Lifecycles, Interning & Runtime Internals",
     short: "Lifecycles & Interning",
     level: "Senior",
@@ -1084,9 +1113,9 @@ for {
   /* ================================================================= M4 */
   {
     id: "m4",
-    code: "M4",
-    num: 4,
-    part: "part-2",
+    code: "C2",
+    num: 10,
+    part: "part-3",
     title: "Flake-Free Concurrency & Deterministic Testing",
     short: "Deterministic Testing",
     level: "Senior",
@@ -1187,8 +1216,8 @@ func TestTimeout(t *testing.T) {
   /* ================================================================= M5 */
   {
     id: "m5",
-    code: "M5",
-    num: 5,
+    code: "S3",
+    num: 8,
     part: "part-2",
     title: "Type-Safe Persistence Layers & Performance Testing",
     short: "Type-Safe Persistence",
@@ -1286,9 +1315,9 @@ row := pool.QueryRow(ctx, sql, id)`,
   /* ================================================================= M6 */
   {
     id: "m6",
-    code: "M6",
-    num: 6,
-    part: "part-3",
+    code: "D1",
+    num: 17,
+    part: "part-5",
     title: "Post-Quantum Microservice Defenses & Protocols",
     short: "Post-Quantum Defenses",
     level: "Staff",
@@ -1387,8 +1416,8 @@ func (n *LedgerNode) Merge(o *LedgerNode) *LedgerNode { /* ... */ }`,
   /* ================================================================= M7 */
   {
     id: "m7",
-    code: "M7",
-    num: 7,
+    code: "C4",
+    num: 12,
     part: "part-3",
     title: "Live Diagnostics, Profiling & Forensics",
     short: "Diagnostics & Forensics",
@@ -1488,9 +1517,9 @@ func TestNoLeak(t *testing.T) {
   /* ================================================================= M8 */
   {
     id: "m8",
-    code: "M8",
-    num: 8,
-    part: "part-3",
+    code: "H4",
+    num: 16,
+    part: "part-4",
     title: "Hardware Acceleration & Memory Scrubbing",
     short: "SIMD & Secure Memory",
     level: "Principal",
@@ -1585,9 +1614,9 @@ func sign(msg []byte) []byte {
   /* ================================================================= M9 */
   {
     id: "m9",
-    code: "M9",
-    num: 9,
-    part: "part-3",
+    code: "D5",
+    num: 21,
+    part: "part-5",
     title: "Production Governance & Automated Refactoring",
     short: "Governance & Rollout",
     level: "Principal",
@@ -1692,8 +1721,8 @@ Consequences: +1 RTT handshake cost; quantum-resistant confidentiality;
   /* ================================================================ M10 */
   {
     id: "m10",
-    code: "M10",
-    num: 10,
+    code: "H1",
+    num: 13,
     part: "part-4",
     title: "CPU Caches & the Memory Hierarchy",
     short: "Caches & Memory",
@@ -1829,8 +1858,8 @@ fmt.Println(unsafe.Sizeof(Bad{}), unsafe.Sizeof(Good{})) // 24 16`,
   /* ================================================================ M11 */
   {
     id: "m11",
-    code: "M11",
-    num: 11,
+    code: "H2",
+    num: 14,
     part: "part-4",
     title: "Inside the CPU: Pipelines & Branch Prediction",
     short: "Pipeline & Branches",
@@ -1967,8 +1996,8 @@ func sum(b []byte) (s uint64) {
   /* ================================================================ M12 */
   {
     id: "m12",
-    code: "M12",
-    num: 12,
+    code: "H3",
+    num: 15,
     part: "part-4",
     title: "The Scheduler Up Close: G-M-P, Netpoller & Preemption",
     short: "Go Scheduler",
@@ -2102,12 +2131,12 @@ go func() { for { /* pure CPU, no function calls */ } }()
   /* ================================================================ M13 */
   {
     id: "m13",
-    code: "M13",
-    num: 13,
-    part: "part-4",
+    code: "C1",
+    num: 9,
+    part: "part-3",
     title: "Atomics vs Mutexes vs Channels",
     short: "Synchronization",
-    level: "Deep Architecture",
+    level: "Senior",
     duration: "4 hrs",
     icon: "lock",
     summary:
@@ -2248,8 +2277,8 @@ close(done)`,
   /* ================================================================ M14 */
   {
     id: "m14",
-    code: "M14",
-    num: 14,
+    code: "D2",
+    num: 18,
     part: "part-5",
     title: "Observability: Logs, Metrics & Traces",
     short: "Observability",
@@ -2386,8 +2415,8 @@ func handle(w http.ResponseWriter, r *http.Request) {
   /* ================================================================ M15 */
   {
     id: "m15",
-    code: "M15",
-    num: 15,
+    code: "D3",
+    num: 19,
     part: "part-5",
     title: "Resilience: Timeouts, Retries, Circuit Breakers & Load Shedding",
     short: "Resilience",
@@ -2533,8 +2562,8 @@ default:                                 // queue full → shed, don't grow
   /* ================================================================ M16 */
   {
     id: "m16",
-    code: "M16",
-    num: 16,
+    code: "D4",
+    num: 20,
     part: "part-5",
     title: "Redis: Caching, Rate Limiting & Distributed Locks",
     short: "Redis",

@@ -627,6 +627,62 @@
     "The probe comes back healthy, so the breaker closes again and lets traffic flow normally. (Had it failed, the breaker would re-open and wait another cooldown.)": "Проба возвращается здоровой, поэтому автомат снова закрывается и пропускает трафик нормально. (Если бы она провалилась, автомат снова открылся бы и подождал ещё одно охлаждение.)",
     "This Closed → Open → Half-Open → Closed cycle is the whole pattern: protect the dependency when it's down, and self-heal automatically once it recovers — no human required.": "Этот цикл Closed → Open → Half-Open → Closed — весь паттерн целиком: защищать зависимость, когда она лежит, и автоматически самовосстанавливаться, когда она оживает — без участия человека.",
 
+    // goroutine-spawn (headers, canvas labels)
+    "goroutines · go spawns cheap concurrent work": "горутины · go запускает дешёвую конкурентную работу",
+    "main goroutine": "горутина main",
+    "run…": "идёт…",
+    "done ✓": "готово ✓",
+    "order is not guaranteed": "порядок не гарантирован",
+    "main resumes ✓": "main продолжает ✓",
+    // goroutine-spawn (per-step title/desc/why)
+    "Every program starts as one goroutine": "Любая программа начинается с одной горутины",
+    "A Go program begins with a single goroutine running main(). Nothing is concurrent yet.": "Программа на Go начинается с единственной горутины, выполняющей main(). Пока ничего конкурентного нет.",
+    "A goroutine is NOT an OS thread — it's a lightweight task (~2 KB stack) the Go runtime multiplexes onto a small pool of real threads.": "Горутина — это НЕ поток ОС, а лёгкая задача (стек ~2 КБ), которую рантайм Go мультиплексирует на небольшой пул реальных потоков.",
+    "go func() launches goroutines — almost free": "go func() запускает горутины — почти бесплатно",
+    "Each `go f()` starts a new goroutine that runs independently. Here main spawns six of them in a loop.": "Каждый `go f()` запускает новую горутину, работающую независимо. Здесь main порождает шесть из них в цикле.",
+    "Spawning costs a few KB and no syscall, so a server can keep hundreds of thousands of goroutines alive at once — unthinkable with OS threads.": "Запуск стоит несколько КБ и без syscall, поэтому сервер может держать сотни тысяч горутин одновременно — немыслимо для потоков ОС.",
+    "They all run concurrently": "Все они выполняются конкурентно",
+    "The six goroutines execute at the same time, interleaved across a handful of OS threads by the scheduler.": "Шесть горутин выполняются одновременно, чередуясь планировщиком на горстке потоков ОС.",
+    "You do NOT control the order they run in — assuming an order is the single most common concurrency bug in Go.": "Вы НЕ управляете порядком их выполнения — предположение о порядке — самая частая ошибка конкурентности в Go.",
+    "wg.Wait() blocks main until each Done()": "wg.Wait() блокирует main до каждого Done()",
+    "main parks on wg.Wait(). As every goroutine finishes it calls wg.Done(), dropping the counter one by one.": "main паркуется на wg.Wait(). Каждая горутина по завершении вызывает wg.Done(), уменьшая счётчик по одному.",
+    "Without a WaitGroup (or a channel) main could return early — and when main returns, the whole program exits, killing the other goroutines mid-work.": "Без WaitGroup (или канала) main мог бы завершиться раньше — а когда main возвращается, вся программа завершается, убивая остальные горутины на полпути.",
+    "All done → main resumes": "Все завершились → main продолжает",
+    "The counter hits zero, wg.Wait() returns, and main continues past it — now guaranteed every goroutine has finished.": "Счётчик достигает нуля, wg.Wait() возвращает управление, и main идёт дальше — теперь гарантировано, что каждая горутина завершилась.",
+    "WaitGroup is the simplest way to fan out a fixed set of goroutines and join back safely; for streaming results you'd reach for a channel instead.": "WaitGroup — простейший способ разветвить фиксированный набор горутин и безопасно дождаться их; для потоковых результатов лучше взять канал.",
+
+    // channel-flow (headers, canvas labels)
+    "channels · handshake, buffering & select": "каналы · рукопожатие, буферизация и select",
+    "sender": "отправитель",
+    "receiver": "получатель",
+    "ch  (unbuffered)": "ch  (небуферизованный)",
+    "⏸ send blocks — no receiver yet": "⏸ отправка блокируется — получателя ещё нет",
+    "✓ received — both goroutines proceed": "✓ получено — обе горутины продолжают",
+    "value crosses in one handshake (rendezvous)": "значение проходит за одно рукопожатие (рандеву)",
+    "buffered ch — cap 4": "буферизованный ch — cap 4",
+    "3 sends, buffer has room → sender never blocks": "3 отправки, в буфере есть место → отправитель не блокируется",
+    "ch <- v  ⏸ blocks (backpressure)": "ch <- v  ⏸ блокируется (обратное давление)",
+    "chA ● ready": "chA ● готов",
+    "chB ○ idle": "chB ○ простаивает",
+    "waiting…": "ожидание…",
+    "runs whichever case is ready first": "выполняет тот case, что готов первым",
+    // channel-flow (per-step title/desc/why)
+    "Unbuffered channel: the sender waits": "Небуферизованный канал: отправитель ждёт",
+    "A goroutine runs `ch <- v` on an unbuffered channel. With no one receiving yet, the send simply blocks.": "Горутина выполняет `ch <- v` на небуферизованном канале. Пока никто не принимает, отправка просто блокируется.",
+    "An unbuffered channel has zero storage — a send can't complete until another goroutine is ready to receive. Blocking IS the synchronization.": "У небуферизованного канала нет хранилища — отправка не завершится, пока другая горутина не будет готова принять. Блокировка И ЕСТЬ синхронизация.",
+    "Receiver arrives → a single handshake": "Получатель приходит → одно рукопожатие",
+    "Another goroutine runs `v := <-ch`. The value crosses and BOTH goroutines unblock at the same instant.": "Другая горутина выполняет `v := <-ch`. Значение проходит, и ОБЕ горутины разблокируются в один и тот же момент.",
+    "This rendezvous is a guarantee: after the handshake, the sender knows the value was received — no lost messages, no polling.": "Это рандеву — гарантия: после рукопожатия отправитель знает, что значение получено — без потерянных сообщений и без опроса.",
+    "A buffered channel holds values": "Буферизованный канал хранит значения",
+    "make(chan T, 4) gives the channel a buffer. Sends succeed immediately while there's free space — the sender doesn't wait.": "make(chan T, 4) даёт каналу буфер. Отправки проходят сразу, пока есть свободное место — отправитель не ждёт.",
+    "A buffer decouples sender and receiver timing: bursts of work can queue up instead of forcing a lock-step handshake every time.": "Буфер разделяет тайминг отправителя и получателя: всплески работы могут ставиться в очередь вместо жёсткого рукопожатия каждый раз.",
+    "Buffer full → the next send blocks": "Буфер полон → следующая отправка блокируется",
+    "Once all 4 slots are occupied, the 5th `ch <- v` blocks until a receiver frees a slot. This is natural backpressure.": "Когда все 4 слота заняты, 5-й `ch <- v` блокируется, пока получатель не освободит слот. Это естественное обратное давление.",
+    "Backpressure is a feature: a fast producer is forced to slow to the consumer's pace instead of exhausting memory with an unbounded queue.": "Обратное давление — это преимущество: быстрый производитель вынужден замедлиться до темпа потребителя вместо того, чтобы исчерпать память неограниченной очередью.",
+    "select waits on whichever is ready": "select ждёт тот канал, что готов",
+    "select blocks on several channel operations at once and proceeds with the FIRST one that becomes ready — here, chA.": "select блокируется сразу на нескольких операциях с каналами и продолжает с ПЕРВОЙ, которая станет готова — здесь это chA.",
+    "select is how one goroutine juggles many channels — combine it with a ctx.Done() case and you get clean timeouts and cancellation.": "select — это то, как одна горутина жонглирует множеством каналов; добавьте case с ctx.Done() и получите чистые таймауты и отмену.",
+
     // redis-cache
     "Redis · cache-aside lifecycle & the atomic lock": "Redis · жизненный цикл cache-aside и атомарная блокировка",
     "client": "клиент",
@@ -674,6 +730,11 @@
   const lerp = (a, b, t) => a + (b - a) * t;
   const easeInOut = (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
   const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+  // overshoot ease — for playful pop-in scale effects (badges, arrivals, "aha" moments)
+  const easeOutBack = (t) => {
+    const c1 = 1.70158, c3 = c1 + 1;
+    return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+  };
   const seg = (t, a, b, ease) => {
     const p = clamp((t - a) / (b - a), 0, 1);
     return ease ? ease(p) : p;
@@ -747,6 +808,74 @@
     });
   }
 
+  /* ------------------------------------------------------------ "juice"
+     A small toolkit of playful, purely time-of-p-driven effects so the
+     climax of a step (a hit, a commit, a trip, a resume) gets a visible
+     flourish instead of just a color swap. Everything here is a pure
+     function of its progress argument — safe to scrub/seek/replay,
+     exactly like the rest of this deterministic timeline engine. */
+
+  // expanding "ping" ring — one clean pulse announcing "this just happened".
+  // p: 0..1 local progress since the triggering moment (call within(...) at the call site).
+  function ring(ctx, x, y, color, p, opts = {}) {
+    const p2 = clamp(p, 0, 1);
+    const r = lerp(opts.from || 6, opts.to || 34, easeOut(p2));
+    ctx.save();
+    ctx.globalAlpha = (1 - p2) * (opts.alpha ?? 0.85);
+    ctx.strokeStyle = color; ctx.lineWidth = opts.lw || 2;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.stroke();
+    ctx.restore();
+  }
+
+  // deterministic particle burst — small dots flying outward from (x,y), fading out.
+  // No Math.random(): angles/radii come from a fixed, seeded-looking pattern so
+  // scrubbing back and forth always redraws the exact same burst.
+  function burst(ctx, x, y, color, p, n = 10) {
+    const p2 = clamp(p, 0, 1);
+    if (p2 <= 0) return;
+    const grow = easeOut(p2);
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2 + Math.sin(i * 12.9898) * 0.35;
+      const rMax = 26 + (i % 3) * 10;
+      const r = grow * rMax;
+      const px = x + Math.cos(a) * r, py = y + Math.sin(a) * r;
+      const sz = lerp(2.6, 0.6, p2);
+      ctx.save();
+      ctx.globalAlpha = (1 - p2) * 0.9;
+      ctx.fillStyle = color;
+      ctx.beginPath(); ctx.arc(px, py, Math.max(0.4, sz), 0, 7); ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  // a breathing halo behind "the thing to look at right now" — draws attention
+  // without stealing focus. t: continuous global time (seconds), any float works.
+  function glowPulse(ctx, x, y, r, color, t) {
+    const k = 0.55 + 0.45 * Math.sin(t * 2.4);
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r * (1.6 + 0.3 * k));
+    g.addColorStop(0, color); g.addColorStop(1, "transparent");
+    ctx.save();
+    ctx.globalAlpha = 0.35 + 0.25 * k;
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(x, y, r * (1.6 + 0.3 * k), 0, 7); ctx.fill();
+    ctx.restore();
+  }
+
+  // a directional connector with marching-ants motion — makes "this is where
+  // data/control is flowing, in this direction" immediately legible.
+  // t: continuous global time (seconds); pass the same t already given to render().
+  function flow(ctx, x1, y1, x2, y2, color, lw, t) {
+    ctx.save();
+    ctx.strokeStyle = color; ctx.lineWidth = lw || 2;
+    ctx.setLineDash([6, 7]);
+    ctx.lineDashOffset = -(t * 26) % 13;
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    ctx.restore();
+  }
+
+  // scale factor for a pop-in entrance (badges, nodes, arrivals) — 0..1 local progress.
+  function pop(p) { return clamp(easeOutBack(clamp(p, 0, 1)), 0, 1.15); }
+
   /* ----------------------------------------------- step-by-step render
      Turns an array of STEPS (each its own isolated draw(ctx,p,w,h,c,u,info))
      into a single render(ctx,t,w,h,c,u) for makeTimeline: exactly one step's
@@ -762,6 +891,7 @@
       const p = clamp((t - startT) / Math.max(0.0001, endT - startT), 0, 1);
       text(ctx, tr("STEP ") + (i + 1) + "/" + steps.length + tr("  ·  ") + tr(steps[i].title), 24, 50,
         { color: c.purple, size: 11.5, weight: 700, mono: true });
+      u.t = t; // continuous global time, for ambient motion (flow/glowPulse) inside step draws
       steps[i].draw(ctx, p, w, h, c, u, { index: i, total: steps.length, title: steps[i].title });
     };
   }
@@ -794,8 +924,9 @@
       ctx.clearRect(0, 0, w, h);
       ctx.fillStyle = th.bg; ctx.fillRect(0, 0, w, h);
       def.render(ctx, t, w, h, th, {
-        seg, within, lerp, clamp, easeInOut, easeOut,
+        seg, within, lerp, clamp, easeInOut, easeOut, easeOutBack,
         rr, fillRR, text, line, arrow, dot, badge, legend,
+        ring, burst, glowPulse, flow, pop,
       });
       if (frameCb) {
         const i = phaseAt(t);
@@ -870,6 +1001,10 @@
         if (col === "grey") { fill = "rgba(245,177,76,.85)"; stroke = c.warn; fg = "#1c1406"; }
         if (col === "black") { fill = "rgba(0,173,216,.9)"; stroke = c.go; fg = "#04121c"; }
         if (n.g && sweepA === 0 && marking && frontier >= 4) stroke = c.bad;
+        // grey = "actively being scanned right now" — a soft breathing halo pulls the eye there.
+        if (col === "grey") u.glowPulse(ctx, x, y, R, "rgba(245,177,76,.55)", u.t || 0);
+        // sweeping a garbage node reclaims it — a small dissolving puff instead of just fading.
+        if (n.g && sweepA > 0 && sweepA < 1) u.burst(ctx, x, y, c.dim, sweepA, 7);
         ctx.globalAlpha = gone ? 1 - sweepA : 1;
         if (n.root) {
           u.fillRR(ctx, x - 26, y - 13, 52, 26, 7, fill === c.panel ? "rgba(0,173,216,.9)" : fill, c.go, 2);
@@ -993,8 +1128,10 @@
         draw(ctx, p, w, h, c, u) {
           const cx0 = w / 2;
           u.text(ctx, "sampler", cx0, h * 0.18, { align: "center", color: c.warn, size: 13, weight: 700 });
-          const blink = Math.sin(p * 40) > 0;
+          const cyc = (p * 40) % (Math.PI * 2);
+          const blink = Math.sin(cyc) > 0;
           u.dot(ctx, cx0 + 60, h * 0.18 - 5, 6, blink ? c.warn : c.dim, blink ? "rgba(245,177,76,.5)" : null);
+          if (blink) u.ring(ctx, cx0 + 60, h * 0.18 - 5, c.warn, cyc / Math.PI, { from: 5, to: 20, lw: 1.6 });
           const pathI = Math.floor(p * 12) % paths.length;
           const path = paths[pathI];
           path.forEach((name, i) => {
@@ -1023,10 +1160,16 @@
         desc: "reflectWalk is the widest leaf frame: roughly 40% of all CPU samples landed inside it. The tall, narrow stacks next to it barely register.",
         why: "Optimizing the widest box gives the biggest win for the least effort — optimizing a narrow box can't help much even if you make it instant.",
         draw(ctx, p, w, h, c, u) {
-          const { x0 } = drawFlame(ctx, c, u, w, h, 1, true);
+          // pre-compute geometry from the same constants drawFlame uses, so the glow sits BEHIND the box
+          const x0g = 24, plotWg = w - 48, rowHg = 34, bottomYg = h - 50;
+          const hotYg = bottomYg - 3 * (rowHg + 5), hotWg = 0.4 * plotWg;
+          u.glowPulse(ctx, x0g + hotWg / 2, hotYg + rowHg / 2, rowHg, "rgba(255,107,107,.5)", u.t || 0);
+          drawFlame(ctx, c, u, w, h, 1, true);
+          const x0 = x0g;
+          if (p < 0.5) u.burst(ctx, x0g + hotWg / 2, hotYg + rowHg / 2, c.bad, u.easeOut(u.clamp(p / 0.5, 0, 1)), 9);
           const a = u.clamp(p / 0.4, 0, 1);
-          u.fillRR(ctx, x0, 32, 320, 32, 8, "rgba(255,107,107,.12)", c.bad, 1.6);
-          u.text(ctx, "▲ reflectWalk ≈ 40% of CPU — optimize here first", x0 + 12, 53, { color: c.bad, size: 12, weight: 700, alpha: a });
+          u.fillRR(ctx, x0, 64, 340, 32, 8, "rgba(255,107,107,.12)", c.bad, 1.6);
+          u.text(ctx, "▲ reflectWalk ≈ 40% of CPU — optimize here first", x0 + 12, 85, { color: c.bad, size: 12, weight: 700, alpha: a });
         },
       },
     ];
@@ -1117,6 +1260,8 @@
             u.fillRR(ctx, rx, rowY, w * 0.3, 36, 9, "rgba(58,210,159,.1)", c.good, 1.8);
             u.text(ctx, tr("got ") + (cs.a + cs.b) + tr(" == want ") + cs.want, rx + 10, rowY + 16, { color: c.text, size: 11, mono: true });
             u.text(ctx, "✓ PASS", rx + w * 0.3 - 14, rowY + 28, { align: "right", color: c.good, size: 12.5, weight: 700 });
+            const pass = u.clamp((p - 0.6) / 0.25, 0, 1);
+            u.ring(ctx, rx + w * 0.3 - 20, rowY + 24, c.good, pass, { from: 4, to: 22, lw: 1.8 });
           }
         },
       },
@@ -1142,6 +1287,7 @@
         why: "A fast, table-driven suite is cheap enough to run on every save, which is what makes 'catch it immediately' realistic instead of aspirational.",
         draw(ctx, p, w, h, c, u) {
           const a = u.clamp(p / 0.3, 0, 1);
+          if (p < 0.5) u.burst(ctx, w / 2, h * 0.4 + 20, c.good, u.easeOut(u.clamp(p / 0.5, 0, 1)), 12);
           u.fillRR(ctx, w / 2 - 180, h * 0.4, 360, 40, 10, "rgba(58,210,159,.1)", c.good, 1.8);
           u.text(ctx, "ok   4/4 passed   ·   coverage 100%", w / 2, h * 0.4 + 26, { align: "center", color: c.good, size: 14, weight: 700, mono: true, alpha: a });
           u.text(ctx, "go test -race -cover ./...", w / 2, h * 0.4 + 70, { align: "center", color: c.dim, size: 12, mono: true, alpha: a });
@@ -1209,6 +1355,7 @@
           const wx = w / 2 - 75, wTop = h * 0.18, wSp = 90, wW = 150, wH = 56;
           for (let k = 0; k < 3; k++) {
             const prog = u.clamp((p - k * 0.08) / 0.7, 0, 1);
+            u.glowPulse(ctx, wx + wW / 2, wTop + k * wSp + wH / 2, wH * 0.6, "rgba(0,173,216,.35)", (u.t || 0) + k);
             u.fillRR(ctx, wx, wTop + k * wSp, wW, wH, 11, "rgba(0,173,216,.14)", c.go, 2.2);
             u.text(ctx, tr("worker ") + (k + 1), wx + wW / 2, wTop + k * wSp + 24, { align: "center", color: c.go, size: 12.5, weight: 700, mono: true });
             u.text(ctx, "busy…", wx + wW / 2, wTop + k * wSp + 42, { align: "center", color: c.go, size: 11, mono: true });
@@ -1241,6 +1388,7 @@
         why: "No locks, no shared mutable state, no manual bookkeeping — the channel's blocking send/receive IS the synchronization.",
         draw(ctx, p, w, h, c, u) {
           const a = u.clamp(p / 0.3, 0, 1);
+          if (p < 0.45) u.burst(ctx, w / 2, h * 0.36 + 22, c.good, u.easeOut(u.clamp(p / 0.45, 0, 1)), 12);
           u.fillRR(ctx, w / 2 - 170, h * 0.36, 340, 44, 10, "rgba(58,210,159,.1)", c.good, 1.8);
           u.text(ctx, "processed: 6 / 6", w / 2, h * 0.36 + 28, { align: "center", color: c.good, size: 15, weight: 700, mono: true, alpha: a });
           u.text(ctx, "no locks · no shared mutable state", w / 2, h * 0.36 + 70, { align: "center", color: c.dim, size: 12.5, alpha: a });
@@ -1339,6 +1487,7 @@
           edges.forEach((e) => {
             const a = nodes[e[0]], b = nodes[e[1]];
             const localp = u.clamp(wave - (b.d - 1), 0, 1);
+            if (wave >= b.d) u.flow(ctx, N(a.x), M(a.y) + 16, N(b.x), M(b.y) - 16, "rgba(255,107,107,.7)", 2, u.t || 0);
             if (wave >= a.d && localp > 0 && localp < 1) u.dot(ctx, u.lerp(N(a.x), N(b.x), localp), u.lerp(M(a.y) + 16, M(b.y) - 16, localp), 5, c.bad, "rgba(255,107,107,.5)");
           });
         },
@@ -1350,6 +1499,10 @@
         why: "This is the payoff this whole module (and M7's leak detector) cares about: a goroutine that never learns its work is unwanted is a goroutine that never exits.",
         draw(ctx, p, w, h, c, u) {
           drawTree(ctx, c, u, w, h, 2, () => true);
+          if (p < 0.5) {
+            const N = (fx) => 24 + fx * (w - 48), M = (fy) => 64 + fy * (h - 120);
+            ["g1", "g2", "g3", "g4"].forEach((k) => u.burst(ctx, N(nodes[k].x), M(nodes[k].y), c.good, u.easeOut(u.clamp(p / 0.5, 0, 1)), 6));
+          }
           u.text(ctx, "✓ every goroutine returned — no leaks", w / 2, h - 16, { align: "center", color: c.good, size: 13, weight: 700, alpha: u.clamp(p / 0.3, 0, 1) });
         },
       },
@@ -1424,6 +1577,7 @@
         draw(ctx, p, w, h, c, u) {
           drawTrie(ctx, c, u, w, h, 4, h * 0.32);
           const a = u.clamp(p / 0.4, 0, 1);
+          if (p < 0.4) u.burst(ctx, w / 2, h * 0.62 + 10, c.good, u.easeOut(u.clamp(p / 0.4, 0, 1)), 8);
           u.badge(ctx, w / 2 - 36, h * 0.62, "200 OK", c.good, "#06101f");
         },
       },
@@ -1459,6 +1613,7 @@
           if (p > 0.6) {
             u.line(ctx, jx, jy + 8, jx, jy + jh - 8, c.bad, 3 + Math.sin(p * 60) * 1.2);
             u.text(ctx, "✗ blocked at the boundary", jx + jw / 2, jy + jh + 28, { align: "center", color: c.bad, size: 12.5, weight: 700 });
+            u.ring(ctx, jx, jy + jh / 2, c.bad, u.clamp((p - 0.6) / 0.3, 0, 1), { from: 4, to: 30, lw: 2 });
           }
         },
       },
@@ -1476,7 +1631,10 @@
           const px = u.lerp(jx - 170, jx + jw / 2, u.clamp(p / 0.6, 0, 1));
           u.dot(ctx, px, jy + jh / 2 + 20, 7, c.good, "rgba(58,210,159,.5)");
           u.text(ctx, 'root.Open("config.json")', px, jy + jh / 2 + 20 - 22, { align: "center", color: c.good, size: 11.5, mono: true });
-          if (p > 0.65) u.text(ctx, "✓ ok", jx + jw / 2, jy + jh + 28, { align: "center", color: c.good, size: 13, weight: 700 });
+          if (p > 0.65) {
+            u.text(ctx, "✓ ok", jx + jw / 2, jy + jh + 28, { align: "center", color: c.good, size: 13, weight: 700 });
+            u.ring(ctx, jx + jw / 2, jy + jh + 22, c.good, u.clamp((p - 0.65) / 0.3, 0, 1), { from: 3, to: 20, lw: 1.6 });
+          }
         },
       },
     ];
@@ -1558,6 +1716,7 @@
           for (let i = 0; i < 8; i++) {
             const isHit = ctrl[i] === "USD", x = sx + i * cellW;
             const matched = isHit && p > 0.6;
+            if (matched) u.ring(ctx, x + (cellW - 6) / 2, cy + 20, c.good, u.clamp((p - 0.6) / 0.3, 0, 1), { from: 4, to: 28, lw: 1.8 });
             u.fillRR(ctx, x, cy, cellW - 6, 40, 6, matched ? "rgba(58,210,159,0.22)" : "rgba(0,173,216,0.16)", matched ? c.good : c.go, 1.8);
             u.text(ctx, ctrl[i], x + (cellW - 6) / 2, cy + 26, { align: "center", color: c.text, size: 12, mono: true, weight: 600 });
           }
@@ -1574,6 +1733,7 @@
         why: "This is why the Swiss Table redesign matters in practice: hot map lookups in a request path get measurably faster purely from this layout change — no code changes required.",
         draw(ctx, p, w, h, c, u) {
           const a = u.clamp(p / 0.4, 0, 1);
+          if (p < 0.35) u.burst(ctx, w / 2, h * 0.3 + 20, c.good, u.easeOut(u.clamp(p / 0.35, 0, 1)), 10);
           u.fillRR(ctx, w / 2 - 140, h * 0.3, 280, 40, 9, "rgba(58,210,159,0.16)", c.good, 1.8);
           u.text(ctx, '"USD" → match ✓', w / 2, h * 0.3 + 26, { align: "center", color: c.good, size: 14, weight: 700, mono: true, alpha: a });
           const rows = [["legacy map", "up to 5 cache lines", c.bad], ["Swiss Table", "1 cache line", c.good]];
@@ -1668,6 +1828,7 @@
         draw(ctx, p, w, h, c, u) {
           const { cx, midY } = scene(ctx, c, u, w, h, 1, "rgba(107,124,153,0.15)", c.dim, 1);
           const flash = 0.5 + 0.5 * Math.sin(p * 24);
+          if (p < 0.3) u.ring(ctx, cx, midY + 72, c.good, u.easeOut(u.clamp(p / 0.3, 0, 1)), { from: 4, to: 40, lw: 2 });
           u.fillRR(ctx, cx - 110, midY + 56, 220, 32, 8, "rgba(58,210,159," + (0.12 + 0.14 * flash) + ")", c.good, 2);
           u.text(ctx, "AddCleanup ▶ syscall.Close(7)", cx, midY + 77, { align: "center", color: c.good, size: 13, weight: 700, mono: true });
         },
@@ -1680,7 +1841,10 @@
         draw(ctx, p, w, h, c, u) {
           const fade = 1 - u.clamp(p / 0.5, 0, 1);
           scene(ctx, c, u, w, h, fade, "rgba(107,124,153,0.15)", c.dim, Math.max(0.15, fade));
-          if (p > 0.45) u.text(ctx, "✓ fd closed · parent span freed", w / 2, h * 0.46 + 80, { align: "center", color: c.good, size: 13.5, weight: 700, alpha: u.clamp((p - 0.45) / 0.3, 0, 1) });
+          if (p > 0.45) {
+            u.text(ctx, "✓ fd closed · parent span freed", w / 2, h * 0.46 + 80, { align: "center", color: c.good, size: 13.5, weight: 700, alpha: u.clamp((p - 0.45) / 0.3, 0, 1) });
+            if (p < 0.7) u.burst(ctx, w / 2, h * 0.46 + 74, c.good, u.easeOut(u.clamp((p - 0.45) / 0.25, 0, 1)), 9);
+          }
         },
       },
     ];
@@ -1787,6 +1951,7 @@
           clocks(ctx, c, u, w, "0.002", bubbleVal);
           const { bx, by, bw, bh } = bubbleBox(ctx, c, u, w, h);
           const a = 0.5 + 0.5 * Math.sin(p * 26);
+          if (p < 0.6) u.ring(ctx, w - 90, 60, c.go, u.clamp(p / 0.6, 0, 1), { from: 6, to: 46, lw: 2.4 });
           u.text(ctx, "⏩ fake clock advances 5s instantly", bx + bw / 2, by + bh - 16, { align: "center", color: c.go, size: 13, weight: 700, alpha: 0.6 + 0.4 * a });
         },
       },
@@ -1817,6 +1982,7 @@
         draw(ctx, p, w, h, c, u) {
           clocks(ctx, c, u, w, "0.002", "5.000");
           const { bx, by, bw, bh } = bubbleBox(ctx, c, u, w, h);
+          if (p < 0.4) u.burst(ctx, bx + bw / 2, by + bh - 24, c.good, u.easeOut(u.clamp(p / 0.4, 0, 1)), 10);
           u.text(ctx, "✓ deterministic — no time.Sleep, no CI flake", bx + bw / 2, by + bh - 16, { align: "center", color: c.good, size: 13, weight: 700, alpha: u.clamp(p / 0.3, 0, 1) });
         },
       },
@@ -1909,7 +2075,10 @@
         why: "The lock is held for the shortest time that's still correct: exactly as long as T1's transaction is open, no longer.",
         draw(ctx, p, w, h, c, u) {
           accounts(ctx, c, u, w, h, "400", "400", u.clamp(p / 0.4, 0, 1) < 1);
-          if (p > 0.15) u.badge(ctx, w / 2 - 36, h * 0.4, "COMMIT ✓", c.good);
+          if (p > 0.15) {
+            u.badge(ctx, w / 2 - 36, h * 0.4, "COMMIT ✓", c.good);
+            if (p < 0.5) u.burst(ctx, w / 2, h * 0.4 + 10, c.good, u.easeOut(u.clamp((p - 0.15) / 0.35, 0, 1)), 8);
+          }
         },
       },
       {
@@ -1921,6 +2090,7 @@
           accounts(ctx, c, u, w, h, "400", "400", false);
           const a = u.clamp(p / 0.4, 0, 1);
           u.text(ctx, "Σ = $800  ✓ invariant held", w / 2, h * 0.86, { align: "center", color: c.good, size: 14, weight: 700, mono: true, alpha: a });
+          if (p < 0.35) u.ring(ctx, w / 2, h * 0.86 - 6, c.good, u.clamp(p / 0.35, 0, 1), { from: 4, to: 34, lw: 2 });
         },
       },
     ];
@@ -2002,6 +2172,7 @@
           const cracked = p > 0.5;
           u.text(ctx, "X25519 classical key", x, h * 0.26, { color: c.dim, size: 12 });
           for (let i = 0; i < 30; i++) { const ang = i * 0.6, r2 = 30 + (i % 4) * 7; u.dot(ctx, x + colW * 0.3 + Math.cos(ang) * r2, h * 0.42 + Math.sin(ang) * r2 * 0.6, 2.4, cracked ? c.bad : c.accent); }
+          if (cracked && p < 0.75) u.burst(ctx, x + colW * 0.75, h * 0.42, c.bad, u.easeOut(u.clamp((p - 0.5) / 0.25, 0, 1)), 10);
           drawLock(ctx, x + colW * 0.75, h * 0.42, cracked ? c.bad : c.warn, !cracked, u);
           u.text(ctx, cracked ? "broken by Shor's algorithm" : "still classically secure", x + colW * 0.75, h * 0.42 + 56, { align: "center", color: cracked ? c.bad : c.warn, size: 12.5, weight: 700 });
         },
@@ -2020,6 +2191,7 @@
             if ((i * rows + j) / (cols * rows) > reveal) continue;
             u.dot(ctx, gx + i * sp + (j % 2) * 6, gy + j * sp, 2.4, c.go);
           }
+          u.glowPulse(ctx, x + colW * 0.78, h * 0.42, 22, "rgba(58,210,159,.4)", u.t || 0);
           drawLock(ctx, x + colW * 0.78, h * 0.42, c.good, true, u);
           u.text(ctx, "quantum-resistant — stays secret", x + colW * 0.78, h * 0.42 + 56, { align: "center", color: c.good, size: 12.5, weight: 700, alpha: u.clamp(p / 0.6, 0, 1) });
         },
@@ -2111,7 +2283,8 @@
         desc: "G2 dispatch is the actual problem: it never sends on results, and its context had no deadline to force it to give up and move on.",
         why: "Localizing to ONE goroutine and ONE missing send turns 'the program hangs sometimes' into a fix you can make in one line.",
         draw(ctx, p, w, h, c, u) {
-          drawGraph(ctx, c, u, w, { leakEdge: true, blocked: true, rootFound: true, pulseT: p * 10 });
+          const N = drawGraph(ctx, c, u, w, { leakEdge: true, blocked: true, rootFound: true, pulseT: p * 10 });
+          if (p < 0.35) { const g2 = N("g2"); u.ring(ctx, g2.x, g2.y, c.accent, u.clamp(p / 0.35, 0, 1), { from: 4, to: 40, lw: 2.2 }); }
           const a = u.clamp(p / 0.3, 0, 1);
           u.fillRR(ctx, w * 0.1, h * 0.78, w * 0.8, 70, 12, "rgba(206,50,98,0.08)", c.accent, 1.8);
           u.text(ctx, "ROOT CAUSE", w * 0.1 + 18, h * 0.78 + 22, { color: c.accent, size: 12, weight: 800, alpha: a });
@@ -2196,6 +2369,7 @@
             const ra = u.clamp((p - i * 0.2) / 0.3, 0, 1);
             if (ra <= 0) return;
             const y = h * 0.36 + i * 56;
+            if (i === 1 && ra > 0 && ra < 0.6) u.ring(ctx, w * 0.8 - 60, y + 21, c.go, ra / 0.6, { from: 4, to: 26, lw: 1.8 });
             u.fillRR(ctx, w * 0.2, y, w * 0.6, 42, 9, c.panel, r[2], 1.6);
             u.text(ctx, r[0], w * 0.2 + 18, y + 27, { color: c.text, size: 13, alpha: ra });
             u.text(ctx, r[1], w * 0.8 - 18, y + 27, { align: "right", color: r[2], size: 14, weight: 700, mono: true, alpha: ra });
@@ -2224,6 +2398,7 @@
         why: "This connects directly back to M10: contiguous memory is what makes both a SIMD loop AND a GC sweep fast — the hardware always rewards sequential access.",
         draw(ctx, p, w, h, c, u) {
           const a = u.clamp(p / 0.4, 0, 1);
+          if (p < 0.3) u.burst(ctx, w / 2, h * 0.42 - 8, c.good, u.easeOut(u.clamp(p / 0.3, 0, 1)), 10);
           u.text(ctx, "✓ contiguous spans → cache-friendly, parallel sweep", w / 2, h * 0.42, { align: "center", color: c.good, size: 14, weight: 700, alpha: a });
           u.text(ctx, "vs scattered object-by-object marking in the legacy GC", w / 2, h * 0.42 + 32, { align: "center", color: c.dim, size: 12.5, alpha: a });
         },
@@ -2265,7 +2440,7 @@
         if (traffic) {
           const fromX = lbx + 70, fromY = lby + 38, toX = x + podW / 2, toY = slotY;
           if (isReady) {
-            u.line(ctx, fromX, fromY, toX, toY, "rgba(58,210,159,0.25)", 1.4);
+            u.flow(ctx, fromX, fromY, toX, toY, "rgba(58,210,159,0.4)", 1.6, animT);
             for (let d = 0; d < 3; d++) { const phase = (animT * 0.6 + d / 3 + i * 0.13) % 1; u.dot(ctx, u.lerp(fromX, toX, phase), u.lerp(fromY, toY, phase), 3, c.good); }
           } else if (st.status !== "empty") u.line(ctx, fromX, fromY, toX, toY, c.line, 1, [3, 4]);
         }
@@ -2300,7 +2475,10 @@
         why: "This is the gate that makes rollouts safe: 'started' and 'ready to serve' are different states, and only the second one earns traffic.",
         draw(ctx, p, w, h, c, u) {
           pods(ctx, c, u, w, [{ ver: "v1", status: "ready" }, { ver: "v1", status: "ready" }, { ver: "v1", status: "ready" }, { ver: "v2", status: "ready" }], true, p * 10);
-          if (p > 0.3) u.text(ctx, "probe ✓", w - 90, h0 + 130 + 80, { align: "center", color: c.good, size: 11, mono: true, weight: 600 });
+          if (p > 0.3) {
+            u.text(ctx, "probe ✓", w - 90, h0 + 130 + 80, { align: "center", color: c.good, size: 11, mono: true, weight: 600 });
+            if (p < 0.6) u.ring(ctx, w - 90, h0 + 130 + 32, c.good, u.clamp((p - 0.3) / 0.3, 0, 1), { from: 4, to: 30, lw: 2 });
+          }
         },
       },
       {
@@ -2431,6 +2609,7 @@
           drawLevels(ctx, c, u, w, filled);
           const dotY = u.lerp(rowY(3), rowY(0), ascendP);
           u.dot(ctx, leftX + 26, dotY, 7, c.good, "rgba(58,210,159,0.4)");
+          if (ascendP >= 1 && p < 0.95) u.ring(ctx, leftX + maxW0(w) * 0.94 + 46, rowY(3) + rowH / 2, c.good, u.clamp((p - 0.85) / 0.1, 0, 1), { from: 4, to: 26, lw: 2 });
           u.badge(ctx, leftX + maxW0(w) * 0.94 + 16, rowY(3) + rowH / 2 - 10, "HIT ✓", c.good, "#06101f");
           u.text(ctx, "↑ the 64-byte line travels back up, filling each cache as it passes", leftX, rowY(0) - 18, { color: c.good, size: 12, weight: 600, alpha: u.clamp(ascendP * 2, 0, 1) });
         },
@@ -2446,7 +2625,8 @@
           const cells = 8, cw = Math.min(64, (w - fx * 2 - 7 * 10) / cells), ch2 = 46;
           const filledN = Math.floor(u.clamp(p / 0.7, 0, 1) * cells);
           for (let i = 0; i < cells; i++) {
-            const x = fx + i * (cw + 10), y = fy + 22, on = i < filledN, isFirst = i === 0;
+            const x = fx + i * (cw + 10), y = fy + 22, on = i < filledN, isFirst = i === 0, justArrived = on && i === filledN - 1;
+            if (justArrived) u.glowPulse(ctx, x + cw / 2, y + ch2 / 2, ch2 * 0.5, isFirst ? "rgba(206,50,98,.5)" : "rgba(0,173,216,.5)", u.t || 0);
             u.fillRR(ctx, x, y, cw, ch2, 7, on ? (isFirst ? "rgba(206,50,98,0.30)" : "rgba(0,173,216,0.30)") : c.panel, on ? (isFirst ? c.accent : c.go) : c.line, 1.6);
             if (on) u.text(ctx, isFirst ? "asked" : "free", x + cw / 2, y + ch2 / 2 + 4, { align: "center", color: c.text, size: 10.5, weight: 600 });
           }
@@ -2570,6 +2750,7 @@
         why: "Correctness comes first: the CPU cannot let wrong-path work touch real registers or memory, so it must be found and discarded immediately.",
         draw(ctx, p, w, h, c, u) {
           drawTrack(ctx, c, u, w, trackTop);
+          if (p < 0.3) { const sw = slotW(w); u.burst(ctx, x0 + 2 * (sw + gap) + sw / 2, trackTop + slotH / 2, c.bad, u.easeOut(u.clamp(p / 0.3, 0, 1)), 9); }
           chip(ctx, c, u, w, trackTop, 2, "I5 ✗", "rgba(255,107,107,0.30)", c.bad, c.bad);
           const fade = 1 - u.clamp(p, 0, 1) * 0.85;
           chip(ctx, c, u, w, trackTop, 1.6, "I6", "rgba(255,107,107,0.22)", c.bad, c.bad, fade);
@@ -2587,6 +2768,7 @@
           const pos = u.clamp(p, 0, 1) * 4.8;
           chip(ctx, c, u, w, trackTop, pos, "I6′", "rgba(58,210,159,0.30)", c.good, c.text);
           if (pos > 1) chip(ctx, c, u, w, trackTop, pos - 1, "I7′", "rgba(58,210,159,0.30)", c.good, c.text);
+          if (pos >= 1 && p < 0.65) u.burst(ctx, x0, trackTop - 34, c.good, u.easeOut(u.clamp((p - 0.55) / 0.1, 0, 1)), 7);
           u.text(ctx, pos < 1 ? "bubble — refetching the correct path" : "back to full speed", x0, trackTop - 26, { color: pos < 1 ? c.warn : c.good, size: 13, weight: 600 });
         },
       },
@@ -2666,6 +2848,7 @@
           if (p < 0.45) u.text(ctx, "P2 is empty — P1 still has work", w / 2, 168, { align: "center", color: c.warn, size: 13, weight: 600 });
           else {
             u.text(ctx, "stealing half of P1's queue →", w / 2, 168, { align: "center", color: c.purple, size: 13, weight: 600 });
+            u.flow(ctx, x1 + 40, 82, x2 - 40, 82, "rgba(169,139,255,.55)", 2, u.t || 0);
             for (let k = 0; k < 3; k++) {
               const fp = u.clamp(stealP * 1.3 - k * 0.12, 0, 1);
               if (fp <= 0 || fp >= 1) continue;
@@ -2709,7 +2892,10 @@
             u.line(ctx, px, 150, px, 190, c.line, 1.4, [3, 4]);
             const drained = Math.min(4, Math.floor(a * 5));
             queueRow(ctx, c, u, px, 70, 4 - drained, 8);
-            if (a > 0.6) u.text(ctx, "P3's goroutines resume on M4", px, 240, { align: "center", color: c.good, size: 13, weight: 600 });
+            if (a > 0.6) {
+              u.text(ctx, "P3's goroutines resume on M4", px, 240, { align: "center", color: c.good, size: 13, weight: 600 });
+              if (a < 0.85) u.burst(ctx, px, 190, c.good, u.easeOut(u.clamp((a - 0.6) / 0.25, 0, 1)), 8);
+            }
           } else {
             queueRow(ctx, c, u, px, 70, 4, 8);
           }
@@ -2760,6 +2946,7 @@
           u.text(ctx, "n", cx0, valY + 7, { align: "center", color: c.go, size: 18, weight: 700, mono: true });
           const cyc = p % 0.5, half = 0.35;
           const gx = cyc < half ? u.lerp(cx0 + 170, cx0 + 60, cyc / half) : cx0 + 60;
+          if (cyc >= half) u.ring(ctx, gx, valY, c.good, (cyc - half) / (0.5 - half), { from: 4, to: 26, lw: 1.8 });
           u.dot(ctx, gx, valY, 8, cyc >= half ? c.good : c.warn, "rgba(0,173,216,0.3)");
           u.text(ctx, cyc >= half ? "CAS ✓ — swapped in" : "compute n+1…", gx, valY - 26, { align: "center", color: cyc >= half ? c.good : c.warn, size: 12, weight: 700 });
           u.text(ctx, "atomic.Int64 — every update is one CPU instruction, never a wait", cx0, h * 0.7, { align: "center", color: c.dim, size: 12.5 });
@@ -2779,6 +2966,7 @@
           for (let k = 0; k < 3; k++) {
             const inside = k === slot;
             const qx = inside ? cx0 : cx0 + 130 + ((k - slot + 3) % 3) * 46;
+            if (inside) u.glowPulse(ctx, qx, lockY + 80, 14, "rgba(245,177,76,.45)", u.t || 0);
             u.dot(ctx, qx, lockY + 80, 9, inside ? c.warn : c.dim, inside ? "rgba(245,177,76,0.4)" : null);
             u.text(ctx, labels[k], qx, lockY + 60, { align: "center", color: inside ? c.warn : c.dim, size: 11 });
           }
@@ -2796,7 +2984,7 @@
           u.text(ctx, "producer", prodX, py + 6, { align: "center", color: c.text, size: 12.5 });
           u.fillRR(ctx, consX - 50, py - 20, 100, 40, 10, c.panel, c.purple, 1.8);
           u.text(ctx, "consumer", consX, py + 6, { align: "center", color: c.text, size: 12.5 });
-          u.line(ctx, prodX + 50, py, consX - 50, py, c.line, 1.6);
+          u.flow(ctx, prodX + 50, py, consX - 50, py, "rgba(169,139,255,.45)", 1.8, u.t || 0);
           const cyc = p % 0.9, frac = u.clamp(cyc / 0.65, 0, 1);
           u.dot(ctx, u.lerp(prodX + 56, consX - 56, frac), py, 8, c.purple, "rgba(169,139,255,0.4)");
           u.text(ctx, frac < 1 ? "value (and ownership) in transit →" : "consumer now owns it exclusively", w / 2, py + 60, { align: "center", color: c.purple, size: 12.5, weight: 600 });
@@ -2861,6 +3049,7 @@
           const legs = [[0, 0.34, ax, bx], [0.34, 0.66, bx, cx2], [0.66, 1, cx2, bx]];
           let x = ax;
           legs.forEach(([a, b, x1, x2]) => { if (p >= a) x = p < b ? u.lerp(x1, x2, u.seg(p, a, b)) : x2; });
+          u.glowPulse(ctx, x, svcY + svcH / 2, 12, "rgba(206,50,98,.5)", u.t || 0);
           u.dot(ctx, x, svcY + svcH / 2, 7, c.accent, "rgba(206,50,98,0.4)");
         },
       },
@@ -2928,6 +3117,7 @@
         why: "Without a shared ID, the three pillars are three disconnected views. With it, they become one investigation: alert → trace → root cause.",
         draw(ctx, p, w, h, c, u) {
           const cx0 = w / 2;
+          if (p < 0.25) u.burst(ctx, cx0, h * 0.18 + 10, c.accent, u.easeOut(u.clamp(p / 0.25, 0, 1)), 9);
           u.badge(ctx, cx0 - 70, h * 0.18, "trace_id=7f3a91", "rgba(206,50,98,0.18)", c.accent);
           const items = [
             ["metric", "requests_total{...} ⏤ p99 0.21s", c.go],
@@ -3009,6 +3199,7 @@
           const cyc = p % 0.4, half = 0.18;
           const x = cyc < half ? u.lerp(clientX, breakerX, cyc / half) : u.lerp(breakerX, clientX, (cyc - half) / half);
           call(ctx, u, x, callY, c.bad, false);
+          if (p < 0.2) u.burst(ctx, breakerX, callY, c.bad, u.easeOut(u.clamp(p / 0.2, 0, 1)), 10);
           u.text(ctx, "OPEN — bounced at the breaker", breakerX, h * 0.5, { align: "center", color: c.bad, size: 14, weight: 700 });
         },
       },
@@ -3055,6 +3246,7 @@
           u.text(ctx, "trip on failures", (nodes[0].x + nodes[1].x) / 2, nodes[0].y - 16, { align: "center", color: c.dim, size: 10.5 });
           u.text(ctx, "cooldown elapses", (nodes[1].x + nodes[2].x) / 2, nodes[1].y - 16, { align: "center", color: c.dim, size: 10.5 });
           u.text(ctx, "probe succeeds ✓", (nodes[0].x + nodes[2].x) / 2, nodes[0].y + 54, { align: "center", color: c.good, size: 11, weight: 700, alpha: a });
+          if (a >= 1 && p < 0.85) u.ring(ctx, nodes[0].x, nodes[0].y, c.good, u.clamp((p - 0.6) / 0.25, 0, 1), { from: 6, to: 44, lw: 2.2 });
           nodes.forEach((n) => {
             const on = n.name === "CLOSED";
             u.fillRR(ctx, n.x - 58, n.y - 20, 116, 40, 10, on ? "rgba(58,210,159,0.20)" : c.panel, on ? c.good : c.line, on ? 2.2 : 1.4);
@@ -3068,6 +3260,238 @@
       duration: 13.4,
       phases: STEPS.map((s) => ({ t: s.t, title: s.title, desc: s.desc, why: s.why })),
       render: stepRender(STEPS, 13.4, "circuit breaker · fail fast, recover automatically"),
+    });
+  };
+
+  /* =================================================================== */
+  /* F1 (extra). GOROUTINES — go SPAWNS CHEAP CONCURRENT WORK            */
+  /* =================================================================== */
+  ANIM["goroutine-spawn"] = (canvas) => {
+    const N = 6;
+    const grid = (w, h) => {
+      const cols = 3, gw = 76, gh = 46, gapX = 34, gapY = 26;
+      const totalW = cols * gw + (cols - 1) * gapX;
+      return { cols, gw, gh, gapX, gapY, x0: (w - totalW) / 2, y0: h * 0.47 };
+    };
+    const cellPos = (g, w, h) => {
+      const G = grid(w, h), r = Math.floor(g / G.cols), cc = g % G.cols;
+      return { x: G.x0 + cc * (G.gw + G.gapX), y: G.y0 + r * (G.gh + G.gapY), gw: G.gw, gh: G.gh };
+    };
+    function mainBox(ctx, c, u, w, h, label, active) {
+      const mw = 170, mh = 44, mx = w / 2 - mw / 2, my = h * 0.21;
+      u.fillRR(ctx, mx, my, mw, mh, 10, active ? "rgba(0,173,216,0.16)" : c.panel, c.go, active ? 2.2 : 1.5);
+      u.text(ctx, label, mx + mw / 2, my + 27, { align: "center", color: c.go, size: 12.5, weight: 700, mono: true });
+      return { mx, my, mw, mh };
+    }
+    function wgBadge(ctx, c, u, w, h, remaining) {
+      const bx = w - 140, by = h * 0.21;
+      u.fillRR(ctx, bx, by, 116, 44, 10, c.panel, remaining > 0 ? c.warn : c.good, 1.8);
+      u.text(ctx, "WaitGroup", bx + 58, by + 17, { align: "center", color: c.dim, size: 10 });
+      u.text(ctx, tr("wg: ") + remaining, bx + 58, by + 35, { align: "center", color: remaining > 0 ? c.warn : c.good, size: 14, weight: 700, mono: true });
+    }
+    function cell(ctx, c, u, g, w, h, state, scale) {
+      const pc = cellPos(g, w, h), cx = pc.x + pc.gw / 2, cy = pc.y + pc.gh / 2;
+      let fill = c.panel, stroke = c.line, fg = c.dim, sub = "";
+      if (state === "running") { fill = "rgba(169,139,255,0.18)"; stroke = c.purple; fg = c.text; sub = "run…"; u.glowPulse(ctx, cx, cy, pc.gh * 0.62, "rgba(169,139,255,.35)", (u.t || 0) + g * 0.7); }
+      if (state === "done") { fill = "rgba(58,210,159,0.18)"; stroke = c.good; fg = c.good; sub = "done ✓"; }
+      const s = scale == null ? 1 : scale;
+      ctx.save(); ctx.translate(cx, cy); ctx.scale(s, s); ctx.translate(-cx, -cy);
+      u.fillRR(ctx, pc.x, pc.y, pc.gw, pc.gh, 9, fill, stroke, 1.8);
+      u.text(ctx, "G" + (g + 1), cx, cy - 2, { align: "center", color: fg, size: 12, weight: 700, mono: true });
+      if (sub) u.text(ctx, sub, cx, cy + 14, { align: "center", color: fg, size: 9.5, mono: true });
+      ctx.restore();
+      return { cx, cy };
+    }
+
+    const STEPS = [
+      {
+        t: 0,
+        title: "Every program starts as one goroutine",
+        desc: "A Go program begins with a single goroutine running main(). Nothing is concurrent yet.",
+        why: "A goroutine is NOT an OS thread — it's a lightweight task (~2 KB stack) the Go runtime multiplexes onto a small pool of real threads.",
+        draw(ctx, p, w, h, c, u) {
+          mainBox(ctx, c, u, w, h, "main goroutine", true);
+          u.text(ctx, "func main() { … }", w / 2, h * 0.5, { align: "center", color: c.dim, size: 14, mono: true, alpha: u.clamp(p / 0.4, 0, 1) });
+        },
+      },
+      {
+        t: 2.0,
+        title: "go func() launches goroutines — almost free",
+        desc: "Each `go f()` starts a new goroutine that runs independently. Here main spawns six of them in a loop.",
+        why: "Spawning costs a few KB and no syscall, so a server can keep hundreds of thousands of goroutines alive at once — unthinkable with OS threads.",
+        draw(ctx, p, w, h, c, u) {
+          const M = mainBox(ctx, c, u, w, h, "main goroutine", true);
+          const shown = u.clamp(p, 0, 1);
+          wgBadge(ctx, c, u, w, h, Math.min(N, Math.floor(shown * (N + 0.6))));
+          u.text(ctx, "for i := 0; i < 6; i++ { go work(i) }", w / 2, h * 0.37, { align: "center", color: c.purple, size: 12.5, mono: true, weight: 600 });
+          for (let g = 0; g < N; g++) {
+            const a = u.clamp((p - g * 0.12) / 0.28, 0, 1);
+            if (a <= 0) continue;
+            const pc = cellPos(g, w, h);
+            u.line(ctx, w / 2, M.my + 44, pc.x + pc.gw / 2, pc.y, c.line, 1.2, [3, 4]);
+            cell(ctx, c, u, g, w, h, "running", u.pop(a));
+          }
+        },
+      },
+      {
+        t: 4.2,
+        title: "They all run concurrently",
+        desc: "The six goroutines execute at the same time, interleaved across a handful of OS threads by the scheduler.",
+        why: "You do NOT control the order they run in — assuming an order is the single most common concurrency bug in Go.",
+        draw(ctx, p, w, h, c, u) {
+          mainBox(ctx, c, u, w, h, "main goroutine", true);
+          wgBadge(ctx, c, u, w, h, N);
+          for (let g = 0; g < N; g++) cell(ctx, c, u, g, w, h, "running", 1);
+          u.text(ctx, "order is not guaranteed", w / 2, h * 0.9, { align: "center", color: c.dim, size: 12.5, alpha: u.clamp(p / 0.4, 0, 1) });
+        },
+      },
+      {
+        t: 6.4,
+        title: "wg.Wait() blocks main until each Done()",
+        desc: "main parks on wg.Wait(). As every goroutine finishes it calls wg.Done(), dropping the counter one by one.",
+        why: "Without a WaitGroup (or a channel) main could return early — and when main returns, the whole program exits, killing the other goroutines mid-work.",
+        draw(ctx, p, w, h, c, u) {
+          mainBox(ctx, c, u, w, h, "main ⏸ wg.Wait()", false);
+          const prog = u.clamp(p, 0, 1) * (N + 0.5), done = Math.min(N, Math.floor(prog));
+          wgBadge(ctx, c, u, w, h, N - done);
+          for (let g = 0; g < N; g++) {
+            const st = g < done ? "done" : "running";
+            const pos = cell(ctx, c, u, g, w, h, st, 1);
+            if (g === done - 1) u.ring(ctx, pos.cx, pos.cy, c.good, u.clamp(prog - done, 0, 1), { from: 6, to: 30, lw: 1.8 });
+          }
+        },
+      },
+      {
+        t: 8.8,
+        title: "All done → main resumes",
+        desc: "The counter hits zero, wg.Wait() returns, and main continues past it — now guaranteed every goroutine has finished.",
+        why: "WaitGroup is the simplest way to fan out a fixed set of goroutines and join back safely; for streaming results you'd reach for a channel instead.",
+        draw(ctx, p, w, h, c, u) {
+          const M = mainBox(ctx, c, u, w, h, "main resumes ✓", true);
+          wgBadge(ctx, c, u, w, h, 0);
+          for (let g = 0; g < N; g++) cell(ctx, c, u, g, w, h, "done", 1);
+          if (p < 0.5) u.burst(ctx, M.mx + M.mw / 2, M.my + 22, c.good, u.easeOut(u.clamp(p / 0.5, 0, 1)), 12);
+        },
+      },
+    ];
+
+    return makeTimeline(canvas, {
+      duration: 10.8,
+      phases: STEPS.map((s) => ({ t: s.t, title: s.title, desc: s.desc, why: s.why })),
+      render: stepRender(STEPS, 10.8, "goroutines · go spawns cheap concurrent work"),
+    });
+  };
+
+  /* =================================================================== */
+  /* F1 (extra). CHANNELS — HANDSHAKE, BUFFERING & SELECT                */
+  /* =================================================================== */
+  ANIM["channel-flow"] = (canvas) => {
+    function actor(ctx, c, u, x, y, label, color, active) {
+      u.fillRR(ctx, x - 58, y - 22, 116, 44, 10, active ? "rgba(0,173,216,0.12)" : c.panel, color, active ? 2.2 : 1.5);
+      u.text(ctx, label, x, y + 4, { align: "center", color: color, size: 12.5, weight: 700, mono: true });
+    }
+    function slots(ctx, c, u, w, y, cap, filled) {
+      const sw = 46, gap = 8, totalW = cap * sw + (cap - 1) * gap, sx = (w - totalW) / 2;
+      for (let k = 0; k < cap; k++) {
+        const x = sx + k * (sw + gap), on = k < filled;
+        u.fillRR(ctx, x, y, sw, 38, 7, on ? "rgba(0,173,216,0.22)" : c.panel, on ? c.go : c.line, on ? 2 : 1.4);
+        if (on) u.text(ctx, "v", x + sw / 2, y + 24, { align: "center", color: c.goSoft, size: 13, weight: 700, mono: true });
+      }
+      return { sx, sw, gap, totalW };
+    }
+
+    const STEPS = [
+      {
+        t: 0,
+        title: "Unbuffered channel: the sender waits",
+        desc: "A goroutine runs `ch <- v` on an unbuffered channel. With no one receiving yet, the send simply blocks.",
+        why: "An unbuffered channel has zero storage — a send can't complete until another goroutine is ready to receive. Blocking IS the synchronization.",
+        draw(ctx, p, w, h, c, u) {
+          const sx = w * 0.17, rx = w * 0.83, my = h * 0.42;
+          actor(ctx, c, u, sx, my, "sender", c.go, true);
+          actor(ctx, c, u, rx, my, "receiver", c.dim, false);
+          u.text(ctx, "ch  (unbuffered)", w / 2, my - 44, { align: "center", color: c.dim, size: 12 });
+          u.line(ctx, sx + 58, my, rx - 58, my, c.line, 1.6, [4, 5]);
+          const jitter = 20 * (0.5 + 0.5 * Math.sin((u.t || 0) * 6));
+          u.dot(ctx, sx + 58 + jitter, my, 7, c.warn, "rgba(245,177,76,.4)");
+          u.text(ctx, "ch <- v", sx, my - 40, { align: "center", color: c.go, size: 11, mono: true });
+          u.text(ctx, "⏸ send blocks — no receiver yet", w / 2, my + 58, { align: "center", color: c.warn, size: 13, weight: 700, alpha: u.clamp(p / 0.3, 0, 1) });
+        },
+      },
+      {
+        t: 2.2,
+        title: "Receiver arrives → a single handshake",
+        desc: "Another goroutine runs `v := <-ch`. The value crosses and BOTH goroutines unblock at the same instant.",
+        why: "This rendezvous is a guarantee: after the handshake, the sender knows the value was received — no lost messages, no polling.",
+        draw(ctx, p, w, h, c, u) {
+          const sx = w * 0.17, rx = w * 0.83, my = h * 0.42;
+          actor(ctx, c, u, sx, my, "sender", c.go, true);
+          actor(ctx, c, u, rx, my, "receiver", c.go, true);
+          u.line(ctx, sx + 58, my, rx - 58, my, c.line, 1.6, [4, 5]);
+          u.text(ctx, "v := <-ch", rx, my - 40, { align: "center", color: c.go, size: 11, mono: true });
+          const frac = u.clamp(p / 0.7, 0, 1), vx = u.lerp(sx + 58, rx - 58, u.easeInOut(frac));
+          u.dot(ctx, vx, my, 7, c.go, "rgba(0,173,216,.4)");
+          if (frac >= 1) {
+            u.ring(ctx, rx - 58, my, c.good, u.clamp((p - 0.7) / 0.3, 0, 1), { from: 5, to: 28, lw: 2 });
+            u.text(ctx, "✓ received — both goroutines proceed", w / 2, my + 58, { align: "center", color: c.good, size: 13, weight: 700 });
+          } else {
+            u.text(ctx, "value crosses in one handshake (rendezvous)", w / 2, my + 58, { align: "center", color: c.dim, size: 12.5 });
+          }
+        },
+      },
+      {
+        t: 4.4,
+        title: "A buffered channel holds values",
+        desc: "make(chan T, 4) gives the channel a buffer. Sends succeed immediately while there's free space — the sender doesn't wait.",
+        why: "A buffer decouples sender and receiver timing: bursts of work can queue up instead of forcing a lock-step handshake every time.",
+        draw(ctx, p, w, h, c, u) {
+          const my = h * 0.44;
+          u.text(ctx, "buffered ch — cap 4", w / 2, my - 30, { align: "center", color: c.dim, size: 12 });
+          const filled = Math.min(3, Math.floor(u.clamp(p / 0.85, 0, 1) * 3 + 0.001));
+          slots(ctx, c, u, w, my, 4, filled);
+          u.text(ctx, "ch <- v   (×3)", w / 2, my - 48, { align: "center", color: c.go, size: 11, mono: true });
+          u.text(ctx, "3 sends, buffer has room → sender never blocks", w / 2, my + 66, { align: "center", color: c.good, size: 13, weight: 700, alpha: u.clamp((p - 0.5) / 0.3, 0, 1) });
+        },
+      },
+      {
+        t: 6.6,
+        title: "Buffer full → the next send blocks",
+        desc: "Once all 4 slots are occupied, the 5th `ch <- v` blocks until a receiver frees a slot. This is natural backpressure.",
+        why: "Backpressure is a feature: a fast producer is forced to slow to the consumer's pace instead of exhausting memory with an unbounded queue.",
+        draw(ctx, p, w, h, c, u) {
+          const my = h * 0.44;
+          u.text(ctx, "buffered ch — cap 4", w / 2, my - 30, { align: "center", color: c.dim, size: 12 });
+          const g = slots(ctx, c, u, w, my, 4, 4);
+          const jitter = 16 * (0.5 + 0.5 * Math.sin((u.t || 0) * 6));
+          u.dot(ctx, g.sx + g.totalW + 22 + jitter, my + 19, 7, c.warn, "rgba(245,177,76,.4)");
+          u.text(ctx, "ch <- v  ⏸ blocks (backpressure)", w / 2, my + 66, { align: "center", color: c.warn, size: 13, weight: 700, alpha: u.clamp(p / 0.3, 0, 1) });
+        },
+      },
+      {
+        t: 8.8,
+        title: "select waits on whichever is ready",
+        desc: "select blocks on several channel operations at once and proceeds with the FIRST one that becomes ready — here, chA.",
+        why: "select is how one goroutine juggles many channels — combine it with a ctx.Done() case and you get clean timeouts and cancellation.",
+        draw(ctx, p, w, h, c, u) {
+          const selx = w / 2, sely = h * 0.5, chAx = w * 0.16, chAy = h * 0.3, chBx = w * 0.16, chBy = h * 0.7;
+          const chosen = p > 0.4;
+          actor(ctx, c, u, chAx, chAy, "chA ● ready", c.go, true);
+          actor(ctx, c, u, chBx, chBy, "chB ○ idle", c.dim, false);
+          u.flow(ctx, chAx + 58, chAy, selx - 74, sely - 14, chosen ? c.go : c.line, chosen ? 2 : 1.4, u.t || 0);
+          u.line(ctx, chBx + 58, chBy, selx - 74, sely + 14, c.line, 1.4, [4, 5]);
+          u.fillRR(ctx, selx - 74, sely - 32, 148, 64, 12, "rgba(0,173,216,0.08)", c.go, 2);
+          u.text(ctx, "select { }", selx, sely - 6, { align: "center", color: c.go, size: 14, weight: 700, mono: true });
+          u.text(ctx, chosen ? "→ case v := <-chA" : "waiting…", selx, sely + 16, { align: "center", color: chosen ? c.good : c.dim, size: 11.5, mono: true, weight: 600 });
+          if (chosen) u.ring(ctx, selx, sely, c.good, u.clamp((p - 0.4) / 0.35, 0, 1), { from: 8, to: 46, lw: 2 });
+          u.text(ctx, "runs whichever case is ready first", w / 2, h * 0.92, { align: "center", color: c.dim, size: 12.5 });
+        },
+      },
+    ];
+
+    return makeTimeline(canvas, {
+      duration: 10.8,
+      phases: STEPS.map((s) => ({ t: s.t, title: s.title, desc: s.desc, why: s.why })),
+      render: stepRender(STEPS, 10.8, "channels · handshake, buffering & select"),
     });
   };
 
@@ -3206,6 +3630,8 @@
   window.ANIMATIONS = ANIM;
   window.CANVAS_RU = CANVAS_RU; // reused by app.js to translate step title/desc/why captions
   window.addEventListener("resize", () => {
-    if (window.__activeAnim && window.__activeAnim.resize) window.__activeAnim.resize();
+    // Resize every active player (a module page may show several at once).
+    const list = window.__activeAnims || (window.__activeAnim ? [window.__activeAnim] : []);
+    list.forEach((a) => { if (a && a.resize) a.resize(); });
   });
 })();
