@@ -127,6 +127,7 @@ a { color: inherit; text-decoration: none; }
 .icon-btn { background: var(--surface-2); border: 1px solid var(--border); color: var(--text);
   width: 36px; height: 36px; border-radius: 9px; cursor: pointer; font-size: 16px; transition: .2s; }
 .icon-btn:hover { border-color: var(--go); color: var(--go); }
+.lang-btn { width: 40px; font: 700 11px var(--mono); letter-spacing: .3px; }
 .nav-toggle { display: none; background: none; border: none; color: var(--text); font-size: 22px; cursor: pointer; }
 
 .layout { flex: 1; display: grid; grid-template-columns: 290px 1fr; align-items: start; }
@@ -323,9 +324,11 @@ section, .module > * { animation: rise .5s var(--ease) both; }
 .viz-caption {
   margin: 12px 18px 0; padding: 10px 14px; border-radius: 10px; min-height: 40px;
   background: var(--surface-2); border: 1px solid var(--border-soft);
-  font-size: 13.5px; color: var(--text); display: flex; align-items: center;
+  font-size: 13.5px; color: var(--text); display: flex; flex-direction: column; gap: 6px; justify-content: center;
   border-left: 3px solid var(--go);
 }
+.viz-why { display: block; font-size: 12.5px; color: var(--warn); }
+.viz-why b { color: var(--warn); }
 .viz-controls { display: flex; align-items: center; gap: 9px; padding: 14px 18px 18px; }
 .vc-btn { width: 38px; height: 38px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--border);
   color: var(--text); cursor: pointer; font-size: 14px; display: grid; place-items: center; transition: .18s; }
@@ -515,6 +518,21 @@ section, .module > * { animation: rise .5s var(--ease) both; }
 .lesson-sec p:last-of-type { margin-bottom: 0; }
 .lesson-sec .code { margin-top: 12px; max-width: 78ch; }
 .lesson-sec p .inl { font-size: 12.5px; }
+
+/* ------------------------------------------------------ worked example */
+.worked-example .block-h { justify-content: flex-start; }
+.we-intro { margin: -6px 0 16px; color: var(--text-2); font-size: 14px; max-width: 80ch; }
+.we-steps { display: flex; flex-direction: column; gap: 14px; }
+.we-step { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 18px 22px; }
+.we-step-head { display: flex; align-items: center; gap: 11px; margin-bottom: 8px; }
+.we-step-head h4 { margin: 0; font-size: 15.5px; letter-spacing: -.2px; color: var(--text); }
+.we-n { flex: none; width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center;
+  background: color-mix(in srgb, var(--purple) 18%, transparent); color: var(--purple); font: 700 12px var(--mono); }
+.we-concept { margin: 0 0 4px; color: var(--text-2); font-size: 14px; line-height: 1.6; max-width: 78ch; }
+.we-step .code { margin: 12px 0; max-width: 78ch; }
+.we-why { margin: 10px 0 0; padding: 9px 13px; border-radius: var(--radius-sm); background: rgba(245, 177, 76, .07);
+  border-left: 3px solid var(--warn); font-size: 13px; color: var(--warn); line-height: 1.55; max-width: 78ch; }
+.we-why b { color: var(--warn); }
 
 /* --------------------------------------------------------- glossary */
 .glossary { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }

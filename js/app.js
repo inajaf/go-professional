@@ -4,14 +4,10 @@
    ===================================================================== */
 (function () {
   "use strict";
-  const { COURSE_META, PARTS, MODULES, VERIFICATION, ASSIGNMENTS, GLOSSARY } = window.COURSE;
-  const LESSONS = window.COURSE.LESSONS || {};
-  const moduleById = Object.fromEntries(MODULES.map((m) => [m.id, m]));
-  const partById = Object.fromEntries(PARTS.map((p) => [p.id, p]));
 
   /* ------------------------------------------------------- persistence */
   const LS = "gocourse:v1";
-  const defaults = { checks: {}, notes: {}, theme: "dark", last: null, started: {}, answers: {}, solved: {} };
+  const defaults = { checks: {}, notes: {}, theme: "dark", last: null, started: {}, answers: {}, solved: {}, lang: "en" };
   let state = load();
   function load() {
     try {
@@ -23,6 +19,73 @@
     clearTimeout(saveTimer);
     saveTimer = setTimeout(() => localStorage.setItem(LS, JSON.stringify(state)), 120);
   }
+  // Use this instead of save() right before anything that reloads/navigates away —
+  // save() debounces the write by 120ms, so a reload fired right after save() can
+  // beat the pending write and silently discard the change (this is exactly what
+  // broke the language switcher: state.lang flipped in memory but never hit
+  // localStorage before location.reload() reset it).
+  function saveNow() {
+    clearTimeout(saveTimer);
+    localStorage.setItem(LS, JSON.stringify(state));
+  }
+
+  /* ---------------------------------------------------------- language
+     COURSE_RU is allowed to be PARTIAL: translation is filled in module by
+     module. mergeCourse overlays whatever RU has onto the EN base, so any
+     not-yet-translated field/module falls back to English instead of
+     crashing or rendering blank. */
+  function mergeModule(em, rm) {
+    if (!rm) return em;
+    const out = Object.assign({}, em, rm);
+    if (rm.animation) out.animation = Object.assign({}, em.animation, rm.animation);
+    if (rm.ai) out.ai = Object.assign({}, em.ai, rm.ai);
+    if (rm.capstone) out.capstone = Object.assign({}, em.capstone, rm.capstone);
+    if (rm.practice) {
+      out.practice = Object.assign({}, em.practice, rm.practice);
+      if (rm.practice.steps) out.practice.steps = rm.practice.steps;
+    }
+    if (rm.concepts) {
+      out.concepts = em.concepts.map((ec, i) => rm.concepts[i] ? Object.assign({}, ec, rm.concepts[i]) : ec);
+    }
+    return out;
+  }
+  function mergeCourse(en, ru) {
+    if (!ru) return en;
+    const out = Object.assign({}, en, ru);
+    out.MODULES = en.MODULES.map((em) => {
+      const rm = (ru.MODULES || []).find((x) => x.id === em.id);
+      return mergeModule(em, rm);
+    });
+    ["GLOSSARY", "ASSIGNMENTS", "LESSONS"].forEach((key) => {
+      out[key] = Object.assign({}, en[key] || {}, ru[key] || {});
+    });
+    // WORKED_EXAMPLES: deep-merge per module, then per step, so a
+    // translated step (title/concept/why) keeps its EN code/lang —
+    // the RU file never needs to repeat the (unchanged) Go source.
+    const enWE = en.WORKED_EXAMPLES || {}, ruWE = ru.WORKED_EXAMPLES || {};
+    out.WORKED_EXAMPLES = {};
+    Object.keys(enWE).forEach((id) => {
+      const eex = enWE[id], rex = ruWE[id];
+      if (!rex) { out.WORKED_EXAMPLES[id] = eex; return; }
+      const merged = Object.assign({}, eex, rex);
+      if (rex.steps) merged.steps = eex.steps.map((es, i) => rex.steps[i] ? Object.assign({}, es, rex.steps[i]) : es);
+      out.WORKED_EXAMPLES[id] = merged;
+    });
+    return out;
+  }
+  const LANG = (state.lang === "ru" && window.COURSE_RU) ? "ru" : "en";
+  window.__LANG__ = LANG; // read by animations.js to pick translated canvas text
+  const COURSE = LANG === "ru" ? mergeCourse(window.COURSE_EN, window.COURSE_RU) : window.COURSE_EN;
+  const UI = (window.UI_STRINGS && window.UI_STRINGS[LANG]) || window.UI_STRINGS.en;
+  // animation step title/desc/why captions are translated via the same exact-string
+  // dictionary animations.js uses for canvas text (window.CANVAS_RU) — see AGENTS.md.
+  function trCap(s) { return (LANG === "ru" && window.CANVAS_RU && window.CANVAS_RU[s]) || s; }
+
+  const { COURSE_META, PARTS, MODULES, VERIFICATION, ASSIGNMENTS, GLOSSARY } = COURSE;
+  const LESSONS = COURSE.LESSONS || {};
+  const WORKED_EXAMPLES = COURSE.WORKED_EXAMPLES || {};
+  const moduleById = Object.fromEntries(MODULES.map((m) => [m.id, m]));
+  const partById = Object.fromEntries(PARTS.map((p) => [p.id, p]));
 
   function checksFor(m) {
     if (!state.checks[m.id]) state.checks[m.id] = m.checklist.map(() => false);
@@ -41,7 +104,7 @@
   const esc = (s) =>
     s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   function copy(txt, btn) {
-    const done = () => { if (btn) { const o = btn.textContent; btn.textContent = "copied ✓"; btn.classList.add("ok"); setTimeout(() => { btn.textContent = o; btn.classList.remove("ok"); }, 1300); } };
+    const done = () => { if (btn) { const o = btn.textContent; btn.textContent = UI.copied; btn.classList.add("ok"); setTimeout(() => { btn.textContent = o; btn.classList.remove("ok"); }, 1300); } };
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(txt).then(done).catch(() => fallback(txt, done));
     } else fallback(txt, done);
@@ -94,7 +157,7 @@
     const label = lang === "sql" ? "sql" : "go";
     return `<div class="code">
       <div class="code-head"><span class="code-lang">${label}</span>
-      <button class="copy-btn" data-copy="${esc(code)}">copy</button></div>
+      <button class="copy-btn" data-copy="${esc(code)}">${esc(UI.copy)}</button></div>
       <pre><code>${highlight(code, lang)}</code></pre></div>`;
   }
 
@@ -111,6 +174,9 @@
     ship: "M3 14l9-4 9 4-2 6H5l-2-6zM12 10V4M8 7h8M12 20v-4",
     share: "M2 12a3 3 0 106 0 3 3 0 10-6 0M16 5a3 3 0 106 0 3 3 0 10-6 0M16 19a3 3 0 106 0 3 3 0 10-6 0M7.5 10.8 16.4 6.4M7.5 13.2 16.4 17.6",
     git: "M6 3a3 3 0 106 0 3 3 0 10-6 0M6 21a3 3 0 106 0 3 3 0 10-6 0M9 6v9M18 9a3 3 0 106 0 3 3 0 10-6 0M21 12c0 4-3 6-12 6",
+    lock: "M6 11h12v10H6zM9 11V7a3 3 0 016 0v4M12 15v3",
+    gauge: "M4 16a8 8 0 0116 0M12 16l4.5-5M12 16a1.4 1.4 0 100 .1M7 16h.01M17 16h.01",
+    bolt: "M13 2L4 14h6l-1 8 9-12h-6l1-8z",
   };
   const ico = (name, size = 18) =>
     `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${(ICONS[name] || "")
@@ -133,7 +199,7 @@
     const filter = ($("#nav-filter") && $("#nav-filter").value || "").toLowerCase();
     const cur = currentRoute();
     let html = `<a class="nav-home ${cur === "home" ? "active" : ""}" href="#/home">
-      <span class="nav-home-ic">${ico("ship", 16)}</span> Course Home</a>`;
+      <span class="nav-home-ic">${ico("ship", 16)}</span> ${esc(UI.courseHome)}</a>`;
     PARTS.forEach((p) => {
       const mods = p.modules.map((id) => moduleById[id]);
       const visible = mods.filter((m) => !filter || (m.title + m.short + m.summary).toLowerCase().includes(filter));
@@ -196,32 +262,32 @@
           <p class="hero-sub">${COURSE_META.subtitle}</p>
           <p class="hero-tag">${COURSE_META.tagline}</p>
           <div class="hero-cta">
-            <a class="btn primary" href="#/${cont}">${done ? "Continue" : "Start"} · ${contM.short} →</a>
-            <a class="btn ghost" href="#/${MODULES[0].id}">View first module</a>
+            <a class="btn primary" href="#/${cont}">${done ? esc(UI.continue) : esc(UI.start)} · ${contM.short} →</a>
+            <a class="btn ghost" href="#/${MODULES[0].id}">${esc(UI.viewFirstModule)}</a>
           </div>
         </div>
         <div class="hero-ring">
           <div class="ring-wrap">${ring(pct)}
-            <div class="ring-center"><span class="ring-pct">${Math.round(pct * 100)}%</span><span class="ring-lbl">${done}/${MODULES.length} modules</span></div>
+            <div class="ring-center"><span class="ring-pct">${Math.round(pct * 100)}%</span><span class="ring-lbl">${done}/${MODULES.length} ${esc(UI.modules)}</span></div>
           </div>
           <div class="hero-stats">
-            <div><b>${MODULES.length}</b><span>modules</span></div>
-            <div><b>${PARTS.length}</b><span>tracks</span></div>
-            <div><b>${animationCount}</b><span>animations</span></div>
+            <div><b>${MODULES.length}</b><span>${esc(UI.modules)}</span></div>
+            <div><b>${PARTS.length}</b><span>${esc(UI.tracks)}</span></div>
+            <div><b>${animationCount}</b><span>${esc(UI.animations)}</span></div>
           </div>
         </div>
       </section>
       <div class="capstone-banner">
         <span class="cap-ico">🏦</span>
-        <div><b>Capstone project</b> — every module builds one system: a
-        <b>${COURSE_META.capstone}</b>. Zero-dependency, high-throughput, post-quantum secure.</div>
+        <div><b>${esc(UI.capstoneProject)}</b> ${esc(UI.capstoneTagline)}
+        <b>${COURSE_META.capstone}</b>. ${esc(UI.capstoneFooter)}</div>
       </div>
       ${cards}
       <section class="verify">
-        <h3>Production Verification Checklist</h3>
+        <h3>${esc(UI.productionChecklist)}</h3>
         <table class="verify-table"><tbody>${verRows}</tbody></table>
       </section>
-      <footer class="foot">Local course · progress saved in your browser (localStorage) · no server, no tracking.</footer>
+      <footer class="foot">${esc(UI.footer)}</footer>
     `;
     $("#main").scrollTop = 0;
   }
@@ -230,7 +296,7 @@
   }
 
   /* ----------------------------------------------------- assignments */
-  const ASSIGN_LABELS = { mcq: "Multiple choice", blank: "Fill in the blank", predict: "Predict the output", code: "Write code" };
+  const ASSIGN_LABELS = { mcq: UI.mcq, blank: UI.blank, predict: UI.predict, code: UI.code };
   const normAns = (s) => String(s == null ? "" : s).trim().replace(/\s+/g, " ").toLowerCase();
   function solvedFor(mid) { if (!state.solved[mid]) state.solved[mid] = {}; return state.solved[mid]; }
   function answersFor(mid) { if (!state.answers[mid]) state.answers[mid] = {}; return state.answers[mid]; }
@@ -268,31 +334,31 @@
         input = `<div class="opts">${a.options.map((o, oi) =>
           `<label class="opt"><input type="radio" name="q-${m.id}-${i}" value="${oi}" ${String(v) === String(oi) ? "checked" : ""}><span>${esc(o)}</span></label>`).join("")}</div>`;
       } else if (a.type === "code") {
-        input = `<textarea class="assign-code" data-i="${i}" spellcheck="false" placeholder="// write your Go here">${esc(v != null ? v : (a.starter || ""))}</textarea>`;
+        input = `<textarea class="assign-code" data-i="${i}" spellcheck="false" placeholder="${esc(UI.writeGoHere)}">${esc(v != null ? v : (a.starter || ""))}</textarea>`;
       } else {
-        input = `<input class="assign-input" type="text" data-i="${i}" autocomplete="off" spellcheck="false" placeholder="your answer…" value="${esc(v != null ? v : "")}">`;
+        input = `<input class="assign-input" type="text" data-i="${i}" autocomplete="off" spellcheck="false" placeholder="${esc(UI.yourAnswer)}" value="${esc(v != null ? v : "")}">`;
       }
       return `<div class="assign ${solved[i] ? "is-solved" : ""}" data-i="${i}">
         <div class="assign-head">
           <span class="assign-n">${i + 1}</span>
           <span class="assign-kind">${ASSIGN_LABELS[a.type] || ""}</span>
-          <span class="assign-state">${solved[i] ? "✓ solved" : ""}</span>
+          <span class="assign-state">${solved[i] ? "✓ " + UI.solved : ""}</span>
         </div>
         <p class="assign-q">${esc(a.prompt)}</p>
         ${a.code ? codeBlock(a.code, a.lang || "go") : ""}
         ${input}
         <div class="assign-foot">
-          <button class="btn primary small assign-check" data-i="${i}">Check answer</button>
-          <button class="btn ghost small assign-reveal" data-i="${i}">Explanation</button>
+          <button class="btn primary small assign-check" data-i="${i}">${esc(UI.checkAnswer)}</button>
+          <button class="btn ghost small assign-reveal" data-i="${i}">${esc(UI.explanation)}</button>
         </div>
         <div class="assign-out" data-i="${i}"></div>
         <div class="assign-exp" data-i="${i}" hidden>${esc(a.explain || "")}</div>
       </div>`;
     }).join("");
     return `<section class="block">
-      <h2 class="block-h">Assignments
-        <span class="assign-score" id="assign-score">${solvedCount}/${list.length} solved</span></h2>
-      <p class="assign-intro">Answer below — checked instantly in your browser. Multiple-choice and fill-in-the-blank are graded exactly; “write code” tasks are checked structurally (rule by rule), not compiled.</p>
+      <h2 class="block-h">${esc(UI.assignments)}
+        <span class="assign-score" id="assign-score">${solvedCount}/${list.length} ${esc(UI.solved)}</span></h2>
+      <p class="assign-intro">${esc(UI.answerIntro)}</p>
       <div class="assigns">${cards}</div>
     </section>`;
   }
@@ -376,16 +442,16 @@
 
     const plainHtml = m.plain
       ? `<section class="plain"><span class="plain-ic">💡</span>
-           <div><span class="plain-k">In plain terms</span><p>${esc(m.plain)}</p></div></section>`
+           <div><span class="plain-k">${esc(UI.inPlainTerms)}</span><p>${esc(m.plain)}</p></div></section>`
       : "";
     const rightCard = m.capstone
       ? `<section class="card cap-card">
            <h3><span class="dot-cap"></span>${m.capstone.title}</h3>
            <p>${esc(m.capstone.body)}</p>
-           <div class="cap-tag">Ledger build · ${m.code}</div>
+           <div class="cap-tag">${esc(UI.ledgerBuild)} · ${m.code}</div>
          </section>`
       : `<section class="card practice-card">
-           <h3><span class="dot-practice"></span>${(m.practice && m.practice.title) || "Try it yourself"}</h3>
+           <h3><span class="dot-practice"></span>${(m.practice && m.practice.title) || esc(UI.tryItYourself)}</h3>
            <p>${esc((m.practice && m.practice.body) || "")}</p>
            <ol class="practice-steps">${((m.practice && m.practice.steps) || []).map((s) => `<li>${esc(s)}</li>`).join("")}</ol>
          </section>`;
@@ -394,8 +460,8 @@
     const lesson = LESSONS[m.id] || [];
     const lessonHtml = lesson.length
       ? `<section class="block lesson">
-           <h2 class="block-h">Deep dive — the bigger picture
-             <span class="lesson-meta">${lesson.length} sections · ~${Math.max(6, Math.round(lesson.length * 2.5))} min read</span></h2>
+           <h2 class="block-h">${esc(UI.deepDive)}
+             <span class="lesson-meta">${lesson.length} ${esc(UI.sections)} · ~${Math.max(6, Math.round(lesson.length * 2.5))} ${esc(UI.minRead)}</span></h2>
            <div class="lesson-body">${lesson.map((s, i) => `
              <div class="lesson-sec">
                <h4><span class="ls-n">${i + 1}</span>${esc(s.h)}</h4>
@@ -405,10 +471,26 @@
          </section>`
       : "";
 
+    const example = WORKED_EXAMPLES[m.id];
+    const exampleHtml = example
+      ? `<section class="block worked-example">
+           <h2 class="block-h">${esc(UI.workedExample)}
+             <span class="lesson-meta">${example.steps.length} ${esc(UI.steps)} · ${esc(UI.runnableGo)}</span></h2>
+           <p class="we-intro">${highlightInline(example.title)} — ${esc(example.intro)}</p>
+           <div class="we-steps">${example.steps.map((s, i) => `
+             <div class="we-step">
+               <div class="we-step-head"><span class="we-n">${i + 1}</span><h4>${esc(s.title)}</h4></div>
+               <p class="we-concept">${highlightInline(s.concept)}</p>
+               ${s.code ? codeBlock(s.code, s.lang || "go") : ""}
+               <p class="we-why"><b>${esc(UI.why)}</b> ${highlightInline(s.why)}</p>
+             </div>`).join("")}</div>
+         </section>`
+      : "";
+
     const terms = (GLOSSARY && GLOSSARY[m.id]) || [];
     const glossaryHtml = terms.length
       ? `<section class="block">
-           <h2 class="block-h">Key terms</h2>
+           <h2 class="block-h">${esc(UI.keyTerms)}</h2>
            <div class="glossary">${terms.map((t) =>
              `<div class="gterm"><span class="gt">${esc(t[0])}</span><span class="gd">${esc(t[1])}</span></div>`).join("")}</div>
          </section>`
@@ -417,15 +499,15 @@
     $("#main").innerHTML = `
       <article class="module">
         <div class="mod-breadcrumb">
-          <a href="#/home">Home</a> <span>/</span>
+          <a href="#/home">${esc(UI.home)}</a> <span>/</span>
           <span>${part.label} · ${part.title}</span> <span>/</span>
-          <span class="bc-cur">${m.code} · Module ${m.num}</span>
+          <span class="bc-cur">${m.code} · ${esc(UI.moduleWord)} ${m.num}</span>
         </div>
         <header class="mod-header">
           <div class="mod-h-ic">${ico(m.icon, 26)}</div>
           <div>
             <div class="mod-h-meta"><span class="chip">${m.level}</span><span class="chip ghost">${m.duration}</span>
-              ${moduleDone(m) ? '<span class="chip done-chip">✓ complete</span>' : ""}</div>
+              ${moduleDone(m) ? `<span class="chip done-chip">✓ ${esc(UI.complete)}</span>` : ""}</div>
             <h1>${m.title}</h1>
             <p>${m.summary}</p>
           </div>
@@ -435,7 +517,7 @@
 
         <section class="viz card">
           <div class="viz-head">
-            <div><span class="viz-tag">🎬 Interactive Visualization · step-by-step</span>
+            <div><span class="viz-tag">${esc(UI.interactiveViz)}</span>
               <h2>${m.animation.title}</h2></div>
           </div>
           <p class="viz-blurb">${m.animation.blurb}</p>
@@ -445,19 +527,21 @@
           <div class="viz-steps" id="viz-steps"></div>
           <div class="viz-caption" id="viz-caption">—</div>
           <div class="viz-controls">
-            <button class="vc-btn" id="vc-reset" title="Reset to start">⟲</button>
-            <button class="vc-btn" id="vc-step-b" title="Nudge back">⟨</button>
-            <button class="vc-btn play" id="vc-play" title="Play / pause (space)">▶</button>
-            <button class="vc-btn" id="vc-step-f" title="Nudge forward">⟩</button>
+            <button class="vc-btn" id="vc-reset" title="${esc(UI.resetToStart)}">⟲</button>
+            <button class="vc-btn" id="vc-step-b" title="${esc(UI.nudgeBack)}">⟨</button>
+            <button class="vc-btn play" id="vc-play" title="${esc(UI.playPause)}">▶</button>
+            <button class="vc-btn" id="vc-step-f" title="${esc(UI.nudgeForward)}">⟩</button>
             <input type="range" id="vc-scrub" min="0" max="1000" value="0" aria-label="scrub" />
-            <button class="vc-btn speed" id="vc-speed" title="Playback speed">0.75×</button>
+            <button class="vc-btn speed" id="vc-speed" title="${esc(UI.playbackSpeed)}">0.75×</button>
           </div>
         </section>
 
         ${lessonHtml}
 
+        ${exampleHtml}
+
         <section class="block">
-          <h2 class="block-h">Core Engineering Concepts</h2>
+          <h2 class="block-h">${esc(UI.coreConcepts)}</h2>
           <div class="concepts">${concepts}</div>
         </section>
 
@@ -468,22 +552,22 @@
             <h3><span class="dot-ai"></span>${m.ai.title}</h3>
             <p>${m.ai.body}</p>
             <div class="prompt">
-              <div class="prompt-head"><span class="prompt-k">📋 Ready-made prompt — paste into Claude or Cursor</span>
-                <button class="copy-btn small" data-copy="${esc(m.ai.prompt)}">Copy prompt</button></div>
+              <div class="prompt-head"><span class="prompt-k">${esc(UI.readyPrompt)}</span>
+                <button class="copy-btn small" data-copy="${esc(m.ai.prompt)}">${esc(UI.copyPrompt)}</button></div>
               <p class="prompt-body">${esc(m.ai.prompt)}</p>
             </div>
-            <p class="prompt-note">Copy this and paste it into an AI assistant (Claude, Cursor, …) to run the AI-assisted workflow for this topic on <em>your own</em> code.</p>
+            <p class="prompt-note">${esc(UI.promptNote)} <em>${esc(UI.promptNoteEm)}</em> ${esc(UI.promptNoteEnd)}</p>
           </section>
           ${rightCard}
         </div>
 
         <section class="two-col">
           <div class="card pitfalls-card">
-            <h3><span class="ic-pill warn">⚠</span> Common pitfalls</h3>
+            <h3><span class="ic-pill warn">⚠</span> ${esc(UI.commonPitfalls)}</h3>
             <ul class="pitfalls">${pitfallsHtml}</ul>
           </div>
           <div class="card takeaways-card">
-            <h3><span class="ic-pill key">🔑</span> Key takeaways</h3>
+            <h3><span class="ic-pill key">🔑</span> ${esc(UI.keyTakeaways)}</h3>
             <ul class="takeaways">${takeawaysHtml}</ul>
           </div>
         </section>
@@ -492,21 +576,21 @@
 
         <section class="two-col">
           <div class="card">
-            <h3>Mastery checklist</h3>
+            <h3>${esc(UI.masteryChecklist)}</h3>
             <ul class="checklist">${checklist}</ul>
-            <button class="btn ghost small" id="toggle-all">${moduleDone(m) ? "Reset module" : "Mark all complete"}</button>
+            <button class="btn ghost small" id="toggle-all">${moduleDone(m) ? esc(UI.resetModule) : esc(UI.markAllComplete)}</button>
           </div>
           <div class="card">
-            <h3>Your notes</h3>
-            <textarea id="notes" class="notes" placeholder="Jot insights, gotchas, links… (saved locally)">${esc(state.notes[m.id] || "")}</textarea>
+            <h3>${esc(UI.yourNotes)}</h3>
+            <textarea id="notes" class="notes" placeholder="${esc(UI.notesPlaceholder)}">${esc(state.notes[m.id] || "")}</textarea>
             <span class="notes-status" id="notes-status"></span>
           </div>
         </section>
 
         <nav class="mod-nav">
           ${prev ? `<a class="btn ghost" href="#/${prev.id}">← ${prev.short}</a>` : '<span></span>'}
-          <a class="btn ghost" href="#/home">All modules</a>
-          ${next ? `<a class="btn primary" href="#/${next.id}">${next.short} →</a>` : '<a class="btn primary" href="#/home">Finish ✓</a>'}
+          <a class="btn ghost" href="#/home">${esc(UI.allModules)}</a>
+          ${next ? `<a class="btn primary" href="#/${next.id}">${next.short} →</a>` : `<a class="btn primary" href="#/home">${esc(UI.finish)}</a>`}
         </nav>
       </article>`;
     $("#main").scrollTop = 0;
@@ -539,7 +623,7 @@
     const ta = $("#notes"), st = $("#notes-status");
     ta.addEventListener("input", () => {
       state.notes[m.id] = ta.value; save();
-      st.textContent = "saved ✓"; clearTimeout(ta._t);
+      st.textContent = UI.saved; clearTimeout(ta._t);
       ta._t = setTimeout(() => (st.textContent = ""), 1000);
     });
     // copy buttons
@@ -563,9 +647,9 @@
     // build the step indicator: a clickable dot per phase + current step label
     stepsEl.innerHTML =
       `<div class="steps-dots">${phases.map((p, i) =>
-        `<button class="step-dot" data-i="${i}" title="${esc(p.title)}"><b>${i + 1}</b><span>${esc(p.title)}</span></button>`).join("")}</div>
+        `<button class="step-dot" data-i="${i}" title="${esc(trCap(p.title))}"><b>${i + 1}</b><span>${esc(trCap(p.title))}</span></button>`).join("")}</div>
        <div class="steps-now"><span class="steps-badge" id="steps-badge">Step 1 / ${phases.length}</span>
-       <span class="steps-title" id="steps-title">${esc(phases[0].title)}</span></div>`;
+       <span class="steps-title" id="steps-title">${esc(trCap(phases[0].title))}</span></div>`;
     const dots = $$(".step-dot", stepsEl);
     const sBadge = $("#steps-badge"), sTitle = $("#steps-title");
 
@@ -576,9 +660,10 @@
     anim.onFrame((p, ph) => {
       if (!dragging) scrub.value = Math.round(p * 1000);
       if (ph) {
-        cap.textContent = ph.desc;
-        sBadge.textContent = "Step " + (ph.index + 1) + " / " + ph.total;
-        sTitle.textContent = ph.title;
+        cap.innerHTML = esc(trCap(ph.desc)) +
+          (ph.why ? `<span class="viz-why"><b>${esc(UI.why)}</b> ${esc(trCap(ph.why))}</span>` : "");
+        sBadge.textContent = UI.step + " " + (ph.index + 1) + " / " + ph.total;
+        sTitle.textContent = trCap(ph.title);
         dots.forEach((d, i) => {
           d.classList.toggle("active", i === ph.index);
           d.classList.toggle("done", i < ph.index);
@@ -653,16 +738,17 @@
         <button class="nav-toggle" id="nav-toggle" aria-label="menu">☰</button>
         <a class="brand" href="#/home">
           <span class="brand-mark">go</span>
-          <span class="brand-text"><b>Hardcore Go</b><small>Distributed Systems Engineering</small></span>
+          <span class="brand-text"><b>Hardcore Go</b><small>${esc(UI.brandSubtitle)}</small></span>
         </a>
         <div class="topbar-right">
           <div class="top-progress" id="top-progress"></div>
-          <button class="icon-btn" id="theme-btn" title="Toggle theme">☾</button>
+          <button class="icon-btn lang-btn" id="lang-btn" title="${esc(UI.toggleLang)}">${LANG === "ru" ? "EN" : "RU"}</button>
+          <button class="icon-btn" id="theme-btn" title="${esc(UI.toggleTheme)}">☾</button>
         </div>
       </header>
       <div class="layout">
         <aside class="sidebar" id="sidebar">
-          <div class="nav-search"><input id="nav-filter" placeholder="Filter modules…" /></div>
+          <div class="nav-search"><input id="nav-filter" placeholder="${esc(UI.filterModules)}" /></div>
           <nav id="nav-list"></nav>
           <div class="sidebar-foot" id="sidebar-foot"></div>
         </aside>
@@ -674,6 +760,10 @@
     $("#theme-btn").addEventListener("click", () => {
       state.theme = state.theme === "dark" ? "light" : "dark"; save(); applyTheme();
       if (activeAnim) activeAnim.render();
+    });
+    $("#lang-btn").addEventListener("click", () => {
+      state.lang = LANG === "ru" ? "en" : "ru"; saveNow();
+      location.reload();
     });
     $("#nav-toggle").addEventListener("click", () => document.body.classList.toggle("nav-open"));
     $("#nav-scrim").addEventListener("click", () => document.body.classList.remove("nav-open"));
@@ -689,7 +779,7 @@
     if (tp) tp.innerHTML = `<span class="tp-bar"><span style="width:${pct}%"></span></span><span class="tp-num">${pct}%</span>`;
     const sf = $("#sidebar-foot");
     if (sf) sf.innerHTML = `<div class="sf-ring">${ring(done / MODULES.length, 54, 5)}</div>
-      <div><b>${done}/${MODULES.length}</b><span>modules complete</span></div>`;
+      <div><b>${done}/${MODULES.length}</b><span>${esc(UI.modulesComplete)}</span></div>`;
   }
 
   if (document.readyState === "loading")

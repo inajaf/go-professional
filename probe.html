@@ -1,0 +1,14 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{margin:0;background:#0b1220}</style></head>
+<body>
+<canvas id="c" style="width:1200px;height:460px"></canvas>
+<script src="js/data.js"></script>
+<script src="js/lessons.js"></script>
+<script src="js/animations.js"></script>
+<script>
+  const canvas = document.getElementById('c');
+  const id = new URLSearchParams(location.search).get('anim') || 'cache-hierarchy';
+  const p = parseFloat(new URLSearchParams(location.search).get('p') || '0.4');
+  const api = window.ANIMATIONS[id](canvas);
+  api.seek(p);
+</script>
+</body></html>
