@@ -31,7 +31,7 @@
 
   /* --------------------------------------------------- i18n (canvas text)
      Every label/badge/caption drawn on the canvas is looked up here by its
-     exact English string when the page language is Russian — the 20
+     exact English string when the page language is Russian - the 20
      animations' draw() functions never change, they just keep calling
      u.text(ctx, "some string", ...) and the translation happens centrally.
      Dynamic (interpolated) strings are translated at their call sites
@@ -71,7 +71,7 @@
     "sampler": "сэмплер",
     "samples captured: ": "собрано сэмплов: ",
     "width = share of samples in that function": "ширина = доля сэмплов в этой функции",
-    "▲ reflectWalk ≈ 40% of CPU — optimize here first": "▲ reflectWalk ≈ 40% CPU — оптимизировать в первую очередь",
+    "▲ reflectWalk ≈ 40% of CPU - optimize here first": "▲ reflectWalk ≈ 40% CPU - оптимизировать в первую очередь",
     // test-runner
     "got ": "получено ",
     " == want ": " == ожидалось ",
@@ -87,7 +87,7 @@
     "running ●": "выполняется ●",
     // error-context
     "ctx.Done() ✓": "ctx.Done() ✓",
-    "✓ every goroutine returned — no leaks": "✓ все горутины завершились — утечек нет",
+    "✓ every goroutine returned - no leaks": "✓ все горутины завершились - утечек нет",
     // mux-trie
     "✓ ok": "✓ ок",
     "✗ blocked at the boundary": "✗ заблокировано на границе",
@@ -95,7 +95,7 @@
     "cache miss ✗": "промах кэша ✗",
     "match ✓": "совпадение ✓",
     "separate cache lines touched so far: ": "отдельных кэш-линий затронуто: ",
-    "control bytes — one cache line:": "контрольные байты — одна кэш-линия:",
+    "control bytes - one cache line:": "контрольные байты - одна кэш-линия:",
     "↓ one instruction, all 8 lanes compared in parallel": "↓ одна инструкция, все 8 ячеек сравниваются параллельно",
     // cleanup-seq
     "stack root": "корень стека",
@@ -112,7 +112,7 @@
     "⏸ blocked +": "⏸ заблокирован +",
     "synctest.Wait → all parked ✓": "synctest.Wait → все припаркованы ✓",
     "⏩ fake clock advances 5s instantly": "⏩ фальшивые часы мгновенно переводятся на 5с",
-    "✓ deterministic — no time.Sleep, no CI flake": "✓ детерминировано — без time.Sleep, без нестабильности CI",
+    "✓ deterministic - no time.Sleep, no CI flake": "✓ детерминировано - без time.Sleep, без нестабильности CI",
     // sql-txn
     "PostgreSQL · accounts": "PostgreSQL · счета",
     "acct ": "счёт ",
@@ -129,7 +129,7 @@
     // pqc-lattice
     "Alice": "Алиса",
     "Bob": "Боб",
-    "harvester — recording ciphertext from both channels": "перехватчик — записывает шифротекст с обоих каналов",
+    "harvester - recording ciphertext from both channels": "перехватчик - записывает шифротекст с обоих каналов",
     "ct": "шт",
     "stored, waiting for a future quantum computer": "сохранено, в ожидании будущего квантового компьютера",
     "quantum computer online": "квантовый компьютер запущен",
@@ -138,21 +138,21 @@
     "broken by Shor's algorithm": "взломан алгоритмом Шора",
     "still classically secure": "всё ещё классически защищён",
     "ML-KEM-768 lattice key": "решёточный ключ ML-KEM-768",
-    "quantum-resistant — stays secret": "квантовоустойчив — остаётся секретным",
+    "quantum-resistant - stays secret": "квантовоустойчив - остаётся секретным",
     // leak-graph
     "blocked": "заблокирован",
     "missing": "отсутствует",
     "⏸ blocked on <-results": "⏸ заблокирован на <-results",
     "ROOT CAUSE": "КОРНЕВАЯ ПРИЧИНА",
-    "G2 dispatch never sends on results ch — context had no deadline.": "G2 dispatch никогда не отправляет в канал results — у контекста не было дедлайна.",
+    "G2 dispatch never sends on results ch - context had no deadline.": "G2 dispatch никогда не отправляет в канал results - у контекста не было дедлайна.",
     // simd-gc
     "scalar loop": "скалярный цикл",
     "SIMD loop": "цикл SIMD",
     "vs": "против",
     "SIMD vector loop": "векторный цикл SIMD",
-    "scalar — 1 element / cycle": "скаляр — 1 элемент / такт",
+    "scalar - 1 element / cycle": "скаляр - 1 элемент / такт",
     "cycles: ": "тактов: ",
-    "SIMD — 16 elements / cycle": "SIMD — 16 элементов / такт",
+    "SIMD - 16 elements / cycle": "SIMD - 16 элементов / такт",
     "↓ each lane loads + processes 16 elements together": "↓ каждая дорожка загружает и обрабатывает 16 элементов разом",
     "32 cycles": "32 такта",
     "2 cycles": "2 такта",
@@ -180,7 +180,7 @@
     "free": "бесплатно",
     "latency per read:": "задержка на чтение:",
     "1st read · ~100 ns (RAM)": "1-е чтение · ~100 нс (RAM)",
-    "next 7 · ~1 ns each (L1) — ~100× faster": "следующие 7 · ~1 нс каждое (L1) — ~в 100× быстрее",
+    "next 7 · ~1 ns each (L1) - ~100× faster": "следующие 7 · ~1 нс каждое (L1) - ~в 100× быстрее",
     // cpu-pipeline
     "Fetch": "Fetch (выборка)",
     "Decode": "Decode (декодирование)",
@@ -191,33 +191,33 @@
     "outcome unknown until Execute": "исход неизвестен до стадии Execute",
     "predictor guesses: “taken” → speculatively fetching I6, I7": "предсказатель угадывает: «переход» → спекулятивная выборка I6, I7",
     "wrong guess → I6, I7 must be discarded": "неверная догадка → I6, I7 нужно отбросить",
-    "bubble — refetching the correct path": "пузырь — повторная выборка верного пути",
+    "bubble - refetching the correct path": "пузырь - повторная выборка верного пути",
     "back to full speed": "снова на полной скорости",
-    "pipe full — overlapping instructions": "конвейер полон — инструкции перекрываются",
+    "pipe full - overlapping instructions": "конвейер полон - инструкции перекрываются",
     "✓ retiring this cycle": "✓ завершается в этом такте",
     // gmp-scheduler
-    "G — goroutine: cheap work to run": "G — горутина: дешёвая работа для выполнения",
-    "P — processor: a queue + the right to run Go code": "P — процессор: очередь + право выполнять Go-код",
-    "M — OS thread: what the kernel actually schedules": "M — поток ОС: то, что реально планирует ядро",
+    "G - goroutine: cheap work to run": "G - горутина: дешёвая работа для выполнения",
+    "P - processor: a queue + the right to run Go code": "P - процессор: очередь + право выполнять Go-код",
+    "M - OS thread: what the kernel actually schedules": "M - поток ОС: то, что реально планирует ядро",
     "→ running on M1": "→ выполняется на M1",
     " queued on P1": " в очереди на P1",
     " queued": " в очереди",
-    "P2 is empty — P1 still has work": "P2 пуст — у P1 ещё есть работа",
+    "P2 is empty - P1 still has work": "P2 пуст - у P1 ещё есть работа",
     "stealing half of P1's queue →": "кража половины очереди P1 →",
-    "4 queued — going nowhere while M3 is stuck": "4 в очереди — никуда не движутся, пока M3 застрял",
-    "M3 — blocked in syscall": "M3 — заблокирован в syscall",
+    "4 queued - going nowhere while M3 is stuck": "4 в очереди - никуда не движутся, пока M3 застрял",
+    "M3 - blocked in syscall": "M3 - заблокирован в syscall",
     "M3": "M3",
     "P3's other goroutines are stuck behind it": "остальные горутины P3 застряли позади",
-    "M3 — still blocked": "M3 — всё ещё заблокирован",
+    "M3 - still blocked": "M3 - всё ещё заблокирован",
     "M4 (fresh)": "M4 (новый)",
     "P3's goroutines resume on M4": "горутины P3 продолжают на M4",
     // sync-primitives
     "goroutine A": "горутина A",
     "goroutine B": "горутина B",
-    "both read n, both compute n+1, both write — one increment vanishes": "обе читают n, обе вычисляют n+1, обе пишут — один инкремент пропадает",
+    "both read n, both compute n+1, both write - one increment vanishes": "обе читают n, обе вычисляют n+1, обе пишут - один инкремент пропадает",
     "compute n+1…": "вычисление n+1…",
-    "CAS ✓ — swapped in": "CAS ✓ — подменено",
-    "atomic.Int64 — every update is one CPU instruction, never a wait": "atomic.Int64 — каждое обновление — одна инструкция CPU, без ожидания",
+    "CAS ✓ - swapped in": "CAS ✓ - подменено",
+    "atomic.Int64 - every update is one CPU instruction, never a wait": "atomic.Int64 - каждое обновление - одна инструкция CPU, без ожидания",
     "waiting goroutines queue up; only the lock holder touches shared state": "ожидающие горутины встают в очередь; только держатель блокировки трогает общее состояние",
     "producer": "производитель",
     "consumer": "потребитель",
@@ -231,8 +231,8 @@
     "→ channel": "→ channel",
     // three-pillars
     "Service ": "Сервис ",
-    "Service A — root span": "Сервис A — корневой span",
-    "Service B — child span": "Сервис B — дочерний span",
+    "Service A - root span": "Сервис A - корневой span",
+    "Service B - child span": "Сервис B - дочерний span",
     "request_duration_seconds  p99 ≈ 0.21s": "request_duration_seconds  p99 ≈ 0.21с",
     "metric": "метрика",
     "trace": "трейс",
@@ -246,11 +246,11 @@
     "failures: 0 / 5": "сбоев: 0 / 5",
     "failures: ": "сбоев: ",
     "threshold reached →": "порог достигнут →",
-    "OPEN — bounced at the breaker": "OPEN — отбито автоматом",
+    "OPEN - bounced at the breaker": "OPEN - отбито автоматом",
     "cooldown: ": "охлаждение: ",
     "s remaining": "с осталось",
     "all calls still fail instantly": "все вызовы по-прежнему мгновенно проваливаются",
-    "HALF-OPEN — one probe call": "HALF-OPEN — один пробный вызов",
+    "HALF-OPEN - one probe call": "HALF-OPEN - один пробный вызов",
     "trip on failures": "срабатывание по сбоям",
     "cooldown elapses": "охлаждение истекло",
     "probe succeeds ✓": "проба успешна ✓",
@@ -264,368 +264,368 @@
        same exact-string lookup as the canvas text above. */
 
     // gc-mark-sweep
-    "The heap is a graph of objects": "Куча — это граф объектов",
+    "The heap is a graph of objects": "Куча - это граф объектов",
     "Two roots (global variables / goroutine stacks) point into a web of objects. Some objects (right side) aren't pointed to by anything reachable from a root.": "Два корня (глобальные переменные / стеки горутин) указывают на сеть объектов. На некоторые объекты (справа) не ссылается ничего, достижимое из корня.",
-    "The collector's whole job is to tell live objects apart from dead ones — and 'reachable from a root' is the only definition of 'live' it needs.": "Вся работа сборщика — отличить живые объекты от мёртвых, а «достижим из корня» — единственное определение «живого», которое ему нужно.",
+    "The collector's whole job is to tell live objects apart from dead ones - and 'reachable from a root' is the only definition of 'live' it needs.": "Вся работа сборщика - отличить живые объекты от мёртвых, а «достижим из корня» - единственное определение «живого», которое ему нужно.",
     "Start at the roots, mark them black": "Начинаем с корней, помечаем их чёрным",
-    "Marking begins at the roots — they're live by definition. Whatever they directly point to turns grey: 'reachable, but not yet scanned.'": "Пометка начинается с корней — они живы по определению. Всё, на что они указывают напрямую, становится серым: «достижимо, но пока не просканировано».",
+    "Marking begins at the roots - they're live by definition. Whatever they directly point to turns grey: 'reachable, but not yet scanned.'": "Пометка начинается с корней - они живы по определению. Всё, на что они указывают напрямую, становится серым: «достижимо, но пока не просканировано».",
     "Starting only from roots guarantees you never mark something live unless there's an actual chain of pointers reaching it.": "Старт только от корней гарантирует, что вы никогда не помечаете что-то живым, если к нему нет реальной цепочки указателей.",
     "Scan grey → black, level by level": "Сканируем серые → чёрные, уровень за уровнем",
     "Each grey object gets scanned: it turns black ('done'), and anything IT points to turns grey in turn. The reachable wave spreads outward through the graph.": "Каждый серый объект сканируется: он становится чёрным («готово»), а всё, на что ОН указывает, в свою очередь становится серым. Волна достижимости расходится по графу.",
-    "This is why it's called tri-color: grey is the 'in-progress' frontier that guarantees every reachable object eventually gets scanned exactly once.": "Поэтому это называется трёхцветной пометкой: серый — это фронт «в процессе», который гарантирует, что каждый достижимый объект будет просканирован ровно один раз.",
+    "This is why it's called tri-color: grey is the 'in-progress' frontier that guarantees every reachable object eventually gets scanned exactly once.": "Поэтому это называется трёхцветной пометкой: серый - это фронт «в процессе», который гарантирует, что каждый достижимый объект будет просканирован ровно один раз.",
     "White = dead": "Белый = мёртв",
-    "Once no grey objects remain, the wave is finished. Everything still white — including the cluster on the right — was never touched, because nothing live points to it.": "Когда серых объектов не остаётся, волна завершена. Всё, что осталось белым — включая кластер справа — не было тронуто вовсе, потому что на него не указывает ничего живого.",
+    "Once no grey objects remain, the wave is finished. Everything still white - including the cluster on the right - was never touched, because nothing live points to it.": "Когда серых объектов не остаётся, волна завершена. Всё, что осталось белым - включая кластер справа - не было тронуто вовсе, потому что на него не указывает ничего живого.",
     "This is the proof of garbage: not 'looks unused', but 'provably unreachable from any root.'": "Это и есть доказательство мусора: не «выглядит неиспользуемым», а «доказуемо недостижим из любого корня».",
     "Sweep: reclaim the white objects": "Сборка: освобождаем белые объекты",
     "The collector walks the heap one more time and frees every object still marked white. Black (live) objects are never touched.": "Сборщик проходит по куче ещё раз и освобождает каждый объект, всё ещё помеченный белым. Чёрные (живые) объекты не трогаются.",
-    "Marking and sweeping are kept as separate passes so the collector never frees something while it might still be mid-scan — correctness over speed.": "Пометка и сборка — раздельные проходы, чтобы сборщик никогда не освобождал то, что ещё может быть в процессе сканирования — корректность важнее скорости.",
+    "Marking and sweeping are kept as separate passes so the collector never frees something while it might still be mid-scan - correctness over speed.": "Пометка и сборка - раздельные проходы, чтобы сборщик никогда не освобождал то, что ещё может быть в процессе сканирования - корректность важнее скорости.",
 
     // pprof-flame
-    "The program runs — a call tree": "Программа выполняется — дерево вызовов",
-    "A request flows main → handleRequest → a handful of child functions. Some of those calls are cheap, some are expensive — but just reading the code, you can't tell which.": "Запрос идёт main → handleRequest → несколько дочерних функций. Некоторые вызовы дешёвые, некоторые дорогие — но просто читая код, не понять, какие именно.",
-    "Without measurement, optimization is guessing. Profiling replaces guessing with evidence.": "Без измерений оптимизация — это гадание. Профилирование заменяет гадание доказательствами.",
+    "The program runs - a call tree": "Программа выполняется - дерево вызовов",
+    "A request flows main → handleRequest → a handful of child functions. Some of those calls are cheap, some are expensive - but just reading the code, you can't tell which.": "Запрос идёт main → handleRequest → несколько дочерних функций. Некоторые вызовы дешёвые, некоторые дорогие - но просто читая код, не понять, какие именно.",
+    "Without measurement, optimization is guessing. Profiling replaces guessing with evidence.": "Без измерений оптимизация - это гадание. Профилирование заменяет гадание доказательствами.",
     "The sampler ticks ~100×/second": "Сэмплер срабатывает ~100 раз/секунду",
     "Rather than instrument every call, pprof just peeks at whatever stack is CURRENTLY running, many times a second, and records it.": "Вместо инструментирования каждого вызова pprof просто подсматривает, какой стек ВЫПОЛНЯЕТСЯ прямо сейчас, много раз в секунду, и записывает это.",
-    "Sampling is statistical, not exhaustive — that's exactly what makes it cheap enough to run in production without slowing the program down.": "Сэмплирование статистическое, а не исчерпывающее — именно это делает его достаточно дешёвым, чтобы работать в продакшене без замедления программы.",
+    "Sampling is statistical, not exhaustive - that's exactly what makes it cheap enough to run in production without slowing the program down.": "Сэмплирование статистическое, а не исчерпывающее - именно это делает его достаточно дешёвым, чтобы работать в продакшене без замедления программы.",
     "Samples aggregate into a flame graph": "Сэмплы складываются в flame-граф",
-    "Every captured stack stacks its frames into bars — a box sits inside its caller, and the more samples landed in a function, the WIDER its box grows.": "Каждый захваченный стек складывает свои фреймы в полосы — блок лежит внутри вызвавшего его блока, и чем больше сэмплов попало в функцию, тем ШИРЕ становится её блок.",
-    "Width directly encodes time spent, so the visual shape of the graph IS the measurement — no separate legend to decode.": "Ширина напрямую кодирует затраченное время, поэтому визуальная форма графа И ЕСТЬ измерение — не нужна отдельная легенда для расшифровки.",
-    "Find the widest box — that's the hotspot": "Найдите самый широкий блок — это и есть горячая точка",
-    "reflectWalk is the widest leaf frame: roughly 40% of all CPU samples landed inside it. The tall, narrow stacks next to it barely register.": "reflectWalk — самый широкий листовой фрейм: примерно 40% всех сэмплов CPU попали именно в него. Высокие узкие стеки рядом почти незаметны.",
-    "Optimizing the widest box gives the biggest win for the least effort — optimizing a narrow box can't help much even if you make it instant.": "Оптимизация самого широкого блока даёт наибольший выигрыш при наименьших усилиях — оптимизация узкого блока не поможет много, даже если сделать его мгновенным.",
+    "Every captured stack stacks its frames into bars - a box sits inside its caller, and the more samples landed in a function, the WIDER its box grows.": "Каждый захваченный стек складывает свои фреймы в полосы - блок лежит внутри вызвавшего его блока, и чем больше сэмплов попало в функцию, тем ШИРЕ становится её блок.",
+    "Width directly encodes time spent, so the visual shape of the graph IS the measurement - no separate legend to decode.": "Ширина напрямую кодирует затраченное время, поэтому визуальная форма графа И ЕСТЬ измерение - не нужна отдельная легенда для расшифровки.",
+    "Find the widest box - that's the hotspot": "Найдите самый широкий блок - это и есть горячая точка",
+    "reflectWalk is the widest leaf frame: roughly 40% of all CPU samples landed inside it. The tall, narrow stacks next to it barely register.": "reflectWalk - самый широкий листовой фрейм: примерно 40% всех сэмплов CPU попали именно в него. Высокие узкие стеки рядом почти незаметны.",
+    "Optimizing the widest box gives the biggest win for the least effort - optimizing a narrow box can't help much even if you make it instant.": "Оптимизация самого широкого блока даёт наибольший выигрыш при наименьших усилиях - оптимизация узкого блока не поможет много, даже если сделать его мгновенным.",
 
     // test-runner
     "A table of cases": "Таблица случаев",
-    "Each row is one input pair plus the expected (want) result for the SAME function, Add(a, b).": "Каждая строка — это одна пара входных данных плюс ожидаемый (want) результат для ОДНОЙ и той же функции Add(a, b).",
-    "Separating 'what to test' (the table) from 'how to test it' (one shared piece of logic) means adding a new case is just adding a row — no new code.": "Разделение «что тестировать» (таблица) и «как тестировать» (одна общая логика) означает, что добавление нового случая — это просто новая строка, без нового кода.",
+    "Each row is one input pair plus the expected (want) result for the SAME function, Add(a, b).": "Каждая строка - это одна пара входных данных плюс ожидаемый (want) результат для ОДНОЙ и той же функции Add(a, b).",
+    "Separating 'what to test' (the table) from 'how to test it' (one shared piece of logic) means adding a new case is just adding a row - no new code.": "Разделение «что тестировать» (таблица) и «как тестировать» (одна общая логика) означает, что добавление нового случая - это просто новая строка, без нового кода.",
     "go test runs each case as an isolated subtest": "go test запускает каждый случай как изолированный подтест",
-    "t.Run wraps each row as its own named subtest — go test -run TestAdd/negatives can target just one, and one failing case never stops the others from running.": "t.Run оборачивает каждую строку в собственный именованный подтест — go test -run TestAdd/negatives может нацелиться на один из них, и один провалившийся случай никогда не останавливает выполнение остальных.",
+    "t.Run wraps each row as its own named subtest - go test -run TestAdd/negatives can target just one, and one failing case never stops the others from running.": "t.Run оборачивает каждую строку в собственный именованный подтест - go test -run TestAdd/negatives может нацелиться на один из них, и один провалившийся случай никогда не останавливает выполнение остальных.",
     "Isolation means a single bad case gives you a precise failure (\"TestAdd/negatives\"), not a vague \"something in TestAdd broke.\"": "Изоляция означает, что один плохой случай даёт точный отказ («TestAdd/negatives»), а не смутное «что-то в TestAdd сломалось».",
     "Inputs flow into the function": "Входные данные попадают в функцию",
     "For the active case, a(=2) and b(=3) are passed into Add(a, b), which computes a+b.": "Для активного случая a(=2) и b(=3) передаются в Add(a, b), которая вычисляет a+b.",
-    "The function under test never knows it's being tested through a table — it just gets called like normal code, which is why this pattern adds no production complexity.": "Тестируемая функция никогда не знает, что её тестируют через таблицу — её просто вызывают как обычный код, поэтому этот паттерн не добавляет сложности в продакшен-код.",
+    "The function under test never knows it's being tested through a table - it just gets called like normal code, which is why this pattern adds no production complexity.": "Тестируемая функция никогда не знает, что её тестируют через таблицу - её просто вызывают как обычный код, поэтому этот паттерн не добавляет сложности в продакшен-код.",
     "Compare got vs want": "Сравниваем got и want",
     "The function returns got = 5. The test compares it to want = 5 from the table row. Equal → the case passes.": "Функция возвращает got = 5. Тест сравнивает его с want = 5 из строки таблицы. Равны → случай пройден.",
-    "The comparison — not the function — is what decides pass/fail. A mismatch fails loudly with both values printed, so you see exactly what diverged.": "Именно сравнение — а не функция — решает пройден тест или нет. Несовпадение громко проваливает тест с выводом обоих значений, так что видно, что именно разошлось.",
+    "The comparison - not the function - is what decides pass/fail. A mismatch fails loudly with both values printed, so you see exactly what diverged.": "Именно сравнение - а не функция - решает пройден тест или нет. Несовпадение громко проваливает тест с выводом обоих значений, так что видно, что именно разошлось.",
     "The same flow runs for every case": "Тот же процесс повторяется для каждого случая",
     "go test repeats exactly this input → function → compare flow for each remaining row, fully independently.": "go test повторяет ровно этот процесс вход → функция → сравнение для каждой оставшейся строки, полностью независимо.",
-    "This is the payoff: one test function plus N table rows covers N scenarios — no copy-pasted test functions to maintain.": "Вот и выигрыш: одна тестовая функция плюс N строк таблицы покрывают N сценариев — не нужно поддерживать скопипащенные тестовые функции.",
+    "This is the payoff: one test function plus N table rows covers N scenarios - no copy-pasted test functions to maintain.": "Вот и выигрыш: одна тестовая функция плюс N строк таблицы покрывают N сценариев - не нужно поддерживать скопипащенные тестовые функции.",
     "Summary": "Итог",
-    "go test reports one line: how many passed, and coverage. Run it constantly — `go test -race -cover ./...` — so a regression is caught the moment it's introduced.": "go test выводит одну строку: сколько пройдено и покрытие. Запускайте его постоянно — `go test -race -cover ./...` — чтобы регрессия ловилась в момент появления.",
-    "A fast, table-driven suite is cheap enough to run on every save, which is what makes 'catch it immediately' realistic instead of aspirational.": "Быстрый табличный набор тестов достаточно дёшев, чтобы запускать его при каждом сохранении — именно это делает «поймать сразу» реальностью, а не мечтой.",
+    "go test reports one line: how many passed, and coverage. Run it constantly - `go test -race -cover ./...` - so a regression is caught the moment it's introduced.": "go test выводит одну строку: сколько пройдено и покрытие. Запускайте его постоянно - `go test -race -cover ./...` - чтобы регрессия ловилась в момент появления.",
+    "A fast, table-driven suite is cheap enough to run on every save, which is what makes 'catch it immediately' realistic instead of aspirational.": "Быстрый табличный набор тестов достаточно дёшев, чтобы запускать его при каждом сохранении - именно это делает «поймать сразу» реальностью, а не мечтой.",
 
     // worker-pool
     "Six jobs wait on a buffered channel": "Шесть задач ждут в буферизованном канале",
-    "Work items sit in a channel, ready to be picked up. Nothing is processing yet — this is just a queue.": "Единицы работы лежат в канале, готовые быть подхваченными. Пока ничего не обрабатывается — это просто очередь.",
+    "Work items sit in a channel, ready to be picked up. Nothing is processing yet - this is just a queue.": "Единицы работы лежат в канале, готовые быть подхваченными. Пока ничего не обрабатывается - это просто очередь.",
     "A channel decouples producing work from consuming it: the producer doesn't need to know or care how many workers exist.": "Канал разделяет производство работы и её потребление: производителю не нужно знать или заботиться о том, сколько воркеров существует.",
     "Three workers pull from the SAME channel": "Три воркера читают из ОДНОГО канала",
-    "Each worker goroutine independently calls `job := <-jobs` in a loop. The channel itself decides which worker gets which job — no coordination code needed.": "Каждая горутина-воркер независимо вызывает `job := <-jobs` в цикле. Сам канал решает, какому воркеру какая задача достанется — код координации не нужен.",
-    "This is fan-out: identical workers competing for jobs on one channel is enough to spread work across goroutines safely.": "Это fan-out: одинаковые воркеры, конкурирующие за задачи в одном канале — этого достаточно, чтобы безопасно распределить работу между горутинами.",
+    "Each worker goroutine independently calls `job := <-jobs` in a loop. The channel itself decides which worker gets which job - no coordination code needed.": "Каждая горутина-воркер независимо вызывает `job := <-jobs` в цикле. Сам канал решает, какому воркеру какая задача достанется - код координации не нужен.",
+    "This is fan-out: identical workers competing for jobs on one channel is enough to spread work across goroutines safely.": "Это fan-out: одинаковые воркеры, конкурирующие за задачи в одном канале - этого достаточно, чтобы безопасно распределить работу между горутинами.",
     "Up to three jobs process at once": "До трёх задач обрабатываются одновременно",
-    "Each busy worker is running its own job concurrently — never more than 3 in flight, because there are only 3 workers.": "Каждый занятый воркер конкурентно выполняет свою задачу — никогда больше 3 одновременно, потому что воркеров всего 3.",
-    "The number of workers is a deliberate dial: it caps concurrency so you don't overwhelm downstream resources, while still getting real parallelism.": "Количество воркеров — это осознанная настройка: она ограничивает конкурентность, чтобы не перегрузить внешние ресурсы, но при этом даёт реальный параллелизм.",
+    "Each busy worker is running its own job concurrently - never more than 3 in flight, because there are only 3 workers.": "Каждый занятый воркер конкурентно выполняет свою задачу - никогда больше 3 одновременно, потому что воркеров всего 3.",
+    "The number of workers is a deliberate dial: it caps concurrency so you don't overwhelm downstream resources, while still getting real parallelism.": "Количество воркеров - это осознанная настройка: она ограничивает конкурентность, чтобы не перегрузить внешние ресурсы, но при этом даёт реальный параллелизм.",
     "Fan-in: every worker sends to ONE results channel": "Fan-in: каждый воркер пишет в ОДИН канал результатов",
-    "When a worker finishes, it sends its result to a shared results channel — the same channel every other worker also writes to.": "Когда воркер заканчивает, он отправляет результат в общий канал результатов — тот же канал, в который пишут и все остальные воркеры.",
-    "The collector reading results doesn't need to know which worker produced what, or even how many workers there are — fan-in merges them for free.": "Сборщику, читающему результаты, не нужно знать, какой воркер что произвёл, или даже сколько воркеров существует — fan-in объединяет их бесплатно.",
+    "When a worker finishes, it sends its result to a shared results channel - the same channel every other worker also writes to.": "Когда воркер заканчивает, он отправляет результат в общий канал результатов - тот же канал, в который пишут и все остальные воркеры.",
+    "The collector reading results doesn't need to know which worker produced what, or even how many workers there are - fan-in merges them for free.": "Сборщику, читающему результаты, не нужно знать, какой воркер что произвёл, или даже сколько воркеров существует - fan-in объединяет их бесплатно.",
     "Drained: every job ran exactly once": "Опустошено: каждая задача выполнена ровно один раз",
     "All six jobs were processed, never more than three at a time, and the results all merged onto one channel for the collector.": "Все шесть задач обработаны, никогда больше трёх одновременно, и все результаты слились в один канал для сборщика.",
-    "No locks, no shared mutable state, no manual bookkeeping — the channel's blocking send/receive IS the synchronization.": "Без блокировок, без общего изменяемого состояния, без ручного учёта — блокирующая отправка/приём канала И ЕСТЬ синхронизация.",
+    "No locks, no shared mutable state, no manual bookkeeping - the channel's blocking send/receive IS the synchronization.": "Без блокировок, без общего изменяемого состояния, без ручного учёта - блокирующая отправка/приём канала И ЕСТЬ синхронизация.",
 
     // error-context
     "A request creates a root context": "Запрос создаёт корневой контекст",
-    "Every cancellation tree starts from one context at the top — typically derived from the incoming request.": "Каждое дерево отмены начинается с одного контекста на вершине — обычно производного от входящего запроса.",
-    "Having ONE source of truth for 'should this request keep going' is what makes it possible to cancel an entire call tree with a single action later.": "Наличие ОДНОГО источника истины для «должен ли этот запрос продолжаться» — вот что позже позволяет отменить всё дерево вызовов одним действием.",
+    "Every cancellation tree starts from one context at the top - typically derived from the incoming request.": "Каждое дерево отмены начинается с одного контекста на вершине - обычно производного от входящего запроса.",
+    "Having ONE source of truth for 'should this request keep going' is what makes it possible to cancel an entire call tree with a single action later.": "Наличие ОДНОГО источника истины для «должен ли этот запрос продолжаться» - вот что позже позволяет отменить всё дерево вызовов одним действием.",
     "Children derive their own contexts": "Дети создают собственные производные контексты",
-    "Each branch derives a child context — WithCancel, WithTimeout — rather than creating an unrelated one from scratch.": "Каждая ветвь создаёт производный дочерний контекст — WithCancel, WithTimeout — а не создаёт несвязанный с нуля.",
-    "Deriving (not creating fresh) is what wires the child to the parent: cancel the parent, and every derived child is automatically cancelled too.": "Именно наследование (а не создание с нуля) связывает потомка с родителем: отмените родителя — и каждый производный потомок автоматически тоже отменится.",
+    "Each branch derives a child context - WithCancel, WithTimeout - rather than creating an unrelated one from scratch.": "Каждая ветвь создаёт производный дочерний контекст - WithCancel, WithTimeout - а не создаёт несвязанный с нуля.",
+    "Deriving (not creating fresh) is what wires the child to the parent: cancel the parent, and every derived child is automatically cancelled too.": "Именно наследование (а не создание с нуля) связывает потомка с родителем: отмените родителя - и каждый производный потомок автоматически тоже отменится.",
     "Goroutines attach at the leaves": "Горутины прикрепляются на листьях",
-    "Worker goroutines hold the leaf contexts and do real work — an HTTP call, a DB query — while watching ctx.Done() for a cancellation signal.": "Горутины-воркеры держат листовые контексты и выполняют реальную работу — HTTP-вызов, запрос к БД — при этом следя за ctx.Done() на сигнал отмены.",
+    "Worker goroutines hold the leaf contexts and do real work - an HTTP call, a DB query - while watching ctx.Done() for a cancellation signal.": "Горутины-воркеры держат листовые контексты и выполняют реальную работу - HTTP-вызов, запрос к БД - при этом следя за ctx.Done() на сигнал отмены.",
     "This is the realistic shape of a Go service: a deep tree of derived contexts with actual work happening only at the edges.": "Это реалистичная форма Go-сервиса: глубокое дерево производных контекстов, где реальная работа происходит только на краях.",
     "The deadline fires at the root": "Дедлайн срабатывает в корне",
-    "2 seconds elapse (or someone calls the root's cancel() function) — the root's Done() channel closes.": "Проходит 2 секунды (или кто-то вызывает функцию cancel() корня) — канал Done() корня закрывается.",
-    "Only the root needs to know WHY the request is ending (timeout, client disconnect, explicit cancel) — everything below just reacts to one signal.": "Только корню нужно знать, ПОЧЕМУ запрос завершается (таймаут, отключение клиента, явная отмена) — всё, что ниже, просто реагирует на один сигнал.",
+    "2 seconds elapse (or someone calls the root's cancel() function) - the root's Done() channel closes.": "Проходит 2 секунды (или кто-то вызывает функцию cancel() корня) - канал Done() корня закрывается.",
+    "Only the root needs to know WHY the request is ending (timeout, client disconnect, explicit cancel) - everything below just reacts to one signal.": "Только корню нужно знать, ПОЧЕМУ запрос завершается (таймаут, отключение клиента, явная отмена) - всё, что ниже, просто реагирует на один сигнал.",
     "Cancellation propagates down every edge": "Отмена распространяется по каждому ребру",
-    "The signal flows from root to children to grandchildren — each derived context's Done() closes in turn, depth by depth.": "Сигнал идёт от корня к детям, затем к внукам — Done() каждого производного контекста закрывается по очереди, уровень за уровнем.",
-    "This is automatic precisely BECAUSE children were derived, not created independently — there's no manual fan-out code that has to remember every goroutine.": "Это происходит автоматически именно ПОТОМУ, что дети были производными, а не созданными независимо — нет ручного кода fan-out, который должен помнить каждую горутину.",
-    "Clean shutdown — no goroutine leak": "Чистое завершение — утечек горутин нет",
+    "The signal flows from root to children to grandchildren - each derived context's Done() closes in turn, depth by depth.": "Сигнал идёт от корня к детям, затем к внукам - Done() каждого производного контекста закрывается по очереди, уровень за уровнем.",
+    "This is automatic precisely BECAUSE children were derived, not created independently - there's no manual fan-out code that has to remember every goroutine.": "Это происходит автоматически именно ПОТОМУ, что дети были производными, а не созданными независимо - нет ручного кода fan-out, который должен помнить каждую горутину.",
+    "Clean shutdown - no goroutine leak": "Чистое завершение - утечек горутин нет",
     "Cancellation reached every descendant. Every worker observed ctx.Done() closing and returned.": "Отмена достигла каждого потомка. Каждый воркер увидел закрытие ctx.Done() и завершился.",
-    "This is the payoff this whole module (and M7's leak detector) cares about: a goroutine that never learns its work is unwanted is a goroutine that never exits.": "Вот в чём выигрыш всего этого модуля (и детектора утечек из M7): горутина, которая никогда не узнаёт, что её работа не нужна — это горутина, которая никогда не завершится.",
+    "This is the payoff this whole module (and M7's leak detector) cares about: a goroutine that never learns its work is unwanted is a goroutine that never exits.": "Вот в чём выигрыш всего этого модуля (и детектора утечек из M7): горутина, которая никогда не узнаёт, что её работа не нужна - это горутина, которая никогда не завершится.",
 
     // mux-trie
     "A request arrives": "Приходит запрос",
     "GET /api/v1/ledger/42 enters Go's native net/http router.": "GET /api/v1/ledger/42 попадает во встроенный роутер net/http.",
-    "The router's only job is mapping this one string to the right handler, fast — everything in this module is about how it does that without regular expressions.": "Единственная задача роутера — быстро сопоставить эту строку с нужным хендлером. Весь этот модуль о том, как он делает это без регулярных выражений.",
+    "The router's only job is mapping this one string to the right handler, fast - everything in this module is about how it does that without regular expressions.": "Единственная задача роутера - быстро сопоставить эту строку с нужным хендлером. Весь этот модуль о том, как он делает это без регулярных выражений.",
     "The router walks a trie, segment by segment": "Роутер идёт по trie, сегмент за сегментом",
-    "ServeMux matches each path segment against the trie one node at a time — /api, then /v1, then /ledger — until it can't go any deeper.": "ServeMux сопоставляет каждый сегмент пути с trie по одному узлу за раз — /api, затем /v1, затем /ledger — пока не сможет идти глубже.",
+    "ServeMux matches each path segment against the trie one node at a time - /api, then /v1, then /ledger - until it can't go any deeper.": "ServeMux сопоставляет каждый сегмент пути с trie по одному узлу за раз - /api, затем /v1, затем /ledger - пока не сможет идти глубже.",
     "A trie turns routing into a fixed number of cheap segment comparisons instead of testing the path against every registered pattern in turn.": "Trie превращает маршрутизацию в фиксированное число дешёвых сравнений сегментов вместо проверки пути по очереди против каждого зарегистрированного шаблона.",
     "{id} captures the wildcard segment": "{id} захватывает произвольный сегмент",
-    'The trie\'s last node is a wildcard — it matches ANY segment and captures it as "42", readable in the handler via r.PathValue("id").': 'Последний узел trie — это wildcard: он совпадает с ЛЮБЫМ сегментом и захватывает его как "42", доступное в хендлере через r.PathValue("id").',
-    "A typed wildcard node is what lets one route handle /ledger/42, /ledger/99, /ledger/anything — without falling back to slower regexp matching.": "Именно типизированный wildcard-узел позволяет одному маршруту обрабатывать /ledger/42, /ledger/99, /ledger/что-угодно — без отката к более медленному сопоставлению по regexp.",
+    'The trie\'s last node is a wildcard - it matches ANY segment and captures it as "42", readable in the handler via r.PathValue("id").': 'Последний узел trie - это wildcard: он совпадает с ЛЮБЫМ сегментом и захватывает его как "42", доступное в хендлере через r.PathValue("id").',
+    "A typed wildcard node is what lets one route handle /ledger/42, /ledger/99, /ledger/anything - without falling back to slower regexp matching.": "Именно типизированный wildcard-узел позволяет одному маршруту обрабатывать /ledger/42, /ledger/99, /ledger/что-угодно - без отката к более медленному сопоставлению по regexp.",
     "Handler resolves → 200 OK": "Хендлер срабатывает → 200 OK",
     "Once both the method (GET) and the full path match, the registered handler runs and returns a response.": "Когда совпадают и метод (GET), и весь путь, зарегистрированный хендлер выполняется и возвращает ответ.",
     "Matching method AND path together (not just path) is what lets GET /ledger/42 and DELETE /ledger/42 route to two completely different handlers.": "Именно совпадение метода И пути вместе (а не только пути) позволяет GET /ledger/42 и DELETE /ledger/42 направляться в два совершенно разных хендлера.",
     "os.Root: a directory you can't escape": "os.Root: каталог, из которого не выйти",
-    'A handler that reads files opens them through os.Root("data") instead of the raw filesystem — every path it resolves is forced to stay inside data/.': 'Хендлер, читающий файлы, открывает их через os.Root("data") вместо прямого доступа к файловой системе — любой путь, который он резолвит, обязан оставаться внутри data/.',
-    "Path traversal (`../../etc/passwd`) is a classic vulnerability — os.Root makes 'escaping the jail' a type error, not a runtime check you might forget.": "Обход пути (`../../etc/passwd`) — классическая уязвимость. os.Root превращает «выход из песочницы» в ошибку типов, а не в проверку в рантайме, которую можно забыть.",
+    'A handler that reads files opens them through os.Root("data") instead of the raw filesystem - every path it resolves is forced to stay inside data/.': 'Хендлер, читающий файлы, открывает их через os.Root("data") вместо прямого доступа к файловой системе - любой путь, который он резолвит, обязан оставаться внутри data/.',
+    "Path traversal (`../../etc/passwd`) is a classic vulnerability - os.Root makes 'escaping the jail' a type error, not a runtime check you might forget.": "Обход пути (`../../etc/passwd`) - классическая уязвимость. os.Root превращает «выход из песочницы» в ошибку типов, а не в проверку в рантайме, которую можно забыть.",
     "An escape attempt is blocked": "Попытка выхода блокируется",
     "A read of ../../etc/passwd tries to walk OUT of data/ using relative path tricks.": "Чтение ../../etc/passwd пытается выйти ЗА пределы data/, используя трюки с относительными путями.",
     "If this succeeded, any handler taking a user-supplied filename could be tricked into reading arbitrary files on the host.": "Если бы это удалось, любой хендлер, принимающий имя файла от пользователя, можно было бы обмануть и заставить читать произвольные файлы на хосте.",
     "Legitimate reads still succeed": "Легитимные чтения всё равно работают",
-    'root.Open("config.json") resolves inside the jail and works exactly like a normal file read — no extra code in the handler.': 'root.Open("config.json") резолвится внутри песочницы и работает точно как обычное чтение файла — без дополнительного кода в хендлере.',
-    "The safety is structural: code that only ever has an *os.Root, never a raw path, cannot accidentally escape the jail — there's no boundary check to forget.": "Безопасность структурная: код, у которого есть только *os.Root, но никогда сырой путь, не может случайно выйти из песочницы — тут нет проверки границы, которую можно забыть.",
+    'root.Open("config.json") resolves inside the jail and works exactly like a normal file read - no extra code in the handler.': 'root.Open("config.json") резолвится внутри песочницы и работает точно как обычное чтение файла - без дополнительного кода в хендлере.',
+    "The safety is structural: code that only ever has an *os.Root, never a raw path, cannot accidentally escape the jail - there's no boundary check to forget.": "Безопасность структурная: код, у которого есть только *os.Root, но никогда сырой путь, не может случайно выйти из песочницы - тут нет проверки границы, которую можно забыть.",
 
     // swiss-table
     'The same lookup: m["USD"]': 'Один и тот же поиск: m["USD"]',
     "We'll trace this one lookup through two implementations: Go's legacy map, and the new Swiss Table design.": "Мы проследим этот один поиск через две реализации: старую map в Go и новую конструкцию Swiss Table.",
-    "The map TYPE never changes in your code — only the internal layout does. Seeing both traces side by side (in time, not space) shows exactly what that internal change buys you.": "ТИП map в вашем коде никогда не меняется — меняется только внутреннее устройство. Просмотр обоих трейсов рядом (во времени, не в пространстве) показывает, что именно даёт это внутреннее изменение.",
+    "The map TYPE never changes in your code - only the internal layout does. Seeing both traces side by side (in time, not space) shows exactly what that internal change buys you.": "ТИП map в вашем коде никогда не меняется - меняется только внутреннее устройство. Просмотр обоих трейсов рядом (во времени, не в пространстве) показывает, что именно даёт это внутреннее изменение.",
     "Legacy map: probe slot by slot": "Старая map: проверяем слот за слотом",
     "The old map walks its bucket one entry at a time, comparing keys, until it finds USD or runs out of entries.": "Старая map проходит свой bucket по одной записи, сравнивая ключи, пока не найдёт USD или не закончатся записи.",
-    "Each entry lives at a different memory address, so each check that misses is very likely its OWN separate cache miss — the cost adds up linearly.": "Каждая запись живёт по своему адресу памяти, поэтому каждая неудачная проверка — это, скорее всего, СВОЙ отдельный промах кэша — стоимость растёт линейно.",
+    "Each entry lives at a different memory address, so each check that misses is very likely its OWN separate cache miss - the cost adds up linearly.": "Каждая запись живёт по своему адресу памяти, поэтому каждая неудачная проверка - это, скорее всего, СВОЙ отдельный промах кэша - стоимость растёт линейно.",
     "Swiss Table: jump straight to one group of 8": "Swiss Table: сразу переходим к одной группе из 8",
-    "The hash picks a single 8-slot group, and its 8 one-byte 'control bytes' — a tiny fingerprint per slot — all live together in ONE cache line.": "Хэш выбирает одну группу из 8 слотов, и её 8 однобайтовых «контрольных байтов» — крошечный отпечаток на слот — все живут вместе в ОДНОЙ кэш-линии.",
-    "Loading 8 slots' worth of metadata costs the same one cache-line fetch as loading just one — the layout was designed around that fact.": "Загрузка метаданных для 8 слотов стоит ровно одну загрузку кэш-линии, как и загрузка одного — устройство было спроектировано именно под этот факт.",
+    "The hash picks a single 8-slot group, and its 8 one-byte 'control bytes' - a tiny fingerprint per slot - all live together in ONE cache line.": "Хэш выбирает одну группу из 8 слотов, и её 8 однобайтовых «контрольных байтов» - крошечный отпечаток на слот - все живут вместе в ОДНОЙ кэш-линии.",
+    "Loading 8 slots' worth of metadata costs the same one cache-line fetch as loading just one - the layout was designed around that fact.": "Загрузка метаданных для 8 слотов стоит ровно одну загрузку кэш-линии, как и загрузка одного - устройство было спроектировано именно под этот факт.",
     "SIMD compares all 8 tags in one operation": "SIMD сравнивает все 8 тегов за одну операцию",
     "Instead of checking slot 0, then slot 1, then slot 2…, one SIMD-style instruction compares the target's fingerprint against all 8 control bytes simultaneously.": "Вместо проверки слота 0, затем слота 1, затем слота 2…, одна SIMD-инструкция сравнивает отпечаток цели со всеми 8 контрольными байтами одновременно.",
-    "This is the structural win: legacy map cost scales with HOW MANY entries you check; Swiss Table cost is closer to constant — one fetch, one compare, almost always.": "Вот структурный выигрыш: стоимость старой map растёт с ТЕМ, сколько записей вы проверяете; стоимость Swiss Table почти константна — одна загрузка, одно сравнение, почти всегда.",
-    "Match found — one cache line touched, total": "Совпадение найдено — всего одна затронутая кэш-линия",
-    'USD sits in slot 2 of the group — found immediately. The whole lookup cost ONE cache-line fetch, versus up to 5 for the legacy map.': 'USD находится в слоте 2 группы — найдено сразу. Весь поиск стоил ОДНУ загрузку кэш-линии против до 5 у старой map.',
-    "This is why the Swiss Table redesign matters in practice: hot map lookups in a request path get measurably faster purely from this layout change — no code changes required.": "Вот почему редизайн Swiss Table важен на практике: горячие поиски в map на пути запроса измеримо ускоряются просто за счёт изменения устройства — без изменений в коде.",
+    "This is the structural win: legacy map cost scales with HOW MANY entries you check; Swiss Table cost is closer to constant - one fetch, one compare, almost always.": "Вот структурный выигрыш: стоимость старой map растёт с ТЕМ, сколько записей вы проверяете; стоимость Swiss Table почти константна - одна загрузка, одно сравнение, почти всегда.",
+    "Match found - one cache line touched, total": "Совпадение найдено - всего одна затронутая кэш-линия",
+    'USD sits in slot 2 of the group - found immediately. The whole lookup cost ONE cache-line fetch, versus up to 5 for the legacy map.': 'USD находится в слоте 2 группы - найдено сразу. Весь поиск стоил ОДНУ загрузку кэш-линии против до 5 у старой map.',
+    "This is why the Swiss Table redesign matters in practice: hot map lookups in a request path get measurably faster purely from this layout change - no code changes required.": "Вот почему редизайн Swiss Table важен на практике: горячие поиски в map на пути запроса измеримо ускоряются просто за счёт изменения устройства - без изменений в коде.",
 
     // cleanup-seq
     "The object is alive": "Объект жив",
-    "A *Conn lives inside a parent span. The stack holds a reference to it, so the garbage collector considers it reachable — alive.": "*Conn живёт внутри родительского span. Стек держит на него ссылку, поэтому сборщик мусора считает его достижимым — живым.",
-    "Reachability from a root is the ONLY thing that keeps an object alive in Go — not how recently it was used, not its size, just 'can a root still get to it.'": "Достижимость из корня — ЕДИНСТВЕННОЕ, что держит объект живым в Go — не то, как недавно он использовался, не его размер, а только «может ли корень до него добраться».",
+    "A *Conn lives inside a parent span. The stack holds a reference to it, so the garbage collector considers it reachable - alive.": "*Conn живёт внутри родительского span. Стек держит на него ссылку, поэтому сборщик мусора считает его достижимым - живым.",
+    "Reachability from a root is the ONLY thing that keeps an object alive in Go - not how recently it was used, not its size, just 'can a root still get to it.'": "Достижимость из корня - ЕДИНСТВЕННОЕ, что держит объект живым в Go - не то, как недавно он использовался, не его размер, а только «может ли корень до него добраться».",
     "The last reference drops": "Последняя ссылка исчезает",
-    "Whatever held that reference returns or goes out of scope. The *Conn is now unreachable from any root — eligible for collection, but not yet collected.": "То, что держало эту ссылку, возвращается или выходит из области видимости. *Conn теперь недостижим из любого корня — годен для сборки, но пока не собран.",
-    "'Unreachable' and 'freed' are NOT the same moment in Go — there's a gap, and that gap is exactly what the next two steps are about.": "«Недостижим» и «освобождён» — это НЕ один и тот же момент в Go, между ними есть промежуток, и следующие два шага именно об этом промежутке.",
+    "Whatever held that reference returns or goes out of scope. The *Conn is now unreachable from any root - eligible for collection, but not yet collected.": "То, что держало эту ссылку, возвращается или выходит из области видимости. *Conn теперь недостижим из любого корня - годен для сборки, но пока не собран.",
+    "'Unreachable' and 'freed' are NOT the same moment in Go - there's a gap, and that gap is exactly what the next two steps are about.": "«Недостижим» и «освобождён» - это НЕ один и тот же момент в Go, между ними есть промежуток, и следующие два шага именно об этом промежутке.",
     "The GC's next mark pass finds it dead": "Следующий проход пометки GC находит его мёртвым",
-    "The concurrent collector sweeps through live memory tracing from the roots. The *Conn is never reached this time — it's now PROVABLY garbage, not just assumed.": "Конкурентный сборщик проходит по живой памяти, трассируя от корней. *Conn на этот раз не достигается — теперь это ДОКАЗАННЫЙ мусор, а не просто предположение.",
-    "Go won't free an object the instant it looks unused — it waits for the mark pass to confirm it, which is what makes collection safe even with concurrent mutation.": "Go не освобождает объект в момент, когда он ВЫГЛЯДИТ неиспользуемым — он ждёт подтверждения от прохода пометки, что и делает сборку безопасной даже при конкурентных изменениях.",
+    "The concurrent collector sweeps through live memory tracing from the roots. The *Conn is never reached this time - it's now PROVABLY garbage, not just assumed.": "Конкурентный сборщик проходит по живой памяти, трассируя от корней. *Conn на этот раз не достигается - теперь это ДОКАЗАННЫЙ мусор, а не просто предположение.",
+    "Go won't free an object the instant it looks unused - it waits for the mark pass to confirm it, which is what makes collection safe even with concurrent mutation.": "Go не освобождает объект в момент, когда он ВЫГЛЯДИТ неиспользуемым - он ждёт подтверждения от прохода пометки, что и делает сборку безопасной даже при конкурентных изменениях.",
     "The registered cleanup runs exactly once": "Зарегистрированная очистка выполняется ровно один раз",
-    "runtime.AddCleanup fires: syscall.Close(7). It captured the file descriptor by VALUE when registered — not the object itself, so it can run safely even though *Conn is gone.": "runtime.AddCleanup срабатывает: syscall.Close(7). Он захватил файловый дескриптор ПО ЗНАЧЕНИЮ при регистрации — не сам объект, поэтому может безопасно выполниться, даже когда *Conn уже нет.",
-    "Unlike the legacy SetFinalizer, AddCleanup never resurrects the object and never silently skips a cycle — it's a plain function call guaranteed to run once, on a dead object.": "В отличие от старого SetFinalizer, AddCleanup никогда не воскрешает объект и никогда молча не пропускает цикл — это обычный вызов функции, гарантированно выполняемый один раз, на мёртвом объекте.",
+    "runtime.AddCleanup fires: syscall.Close(7). It captured the file descriptor by VALUE when registered - not the object itself, so it can run safely even though *Conn is gone.": "runtime.AddCleanup срабатывает: syscall.Close(7). Он захватил файловый дескриптор ПО ЗНАЧЕНИЮ при регистрации - не сам объект, поэтому может безопасно выполниться, даже когда *Conn уже нет.",
+    "Unlike the legacy SetFinalizer, AddCleanup never resurrects the object and never silently skips a cycle - it's a plain function call guaranteed to run once, on a dead object.": "В отличие от старого SetFinalizer, AddCleanup никогда не воскрешает объект и никогда молча не пропускает цикл - это обычный вызов функции, гарантированно выполняемый один раз, на мёртвом объекте.",
     "Memory freed, no extra delay": "Память освобождена, без лишней задержки",
-    "The parent span is reclaimed in the SAME cycle that proved the object dead — no resurrection pass, no waiting an extra GC cycle.": "Родительский span освобождается в ТОМ ЖЕ цикле, который доказал смерть объекта — без прохода воскрешения, без ожидания лишнего цикла GC.",
+    "The parent span is reclaimed in the SAME cycle that proved the object dead - no resurrection pass, no waiting an extra GC cycle.": "Родительский span освобождается в ТОМ ЖЕ цикле, который доказал смерть объекта - без прохода воскрешения, без ожидания лишнего цикла GC.",
     "This is the practical reason AddCleanup replaced finalizers for resource cleanup: deterministic, single-cycle reclamation means file descriptors and connections don't linger.": "Это практическая причина, по которой AddCleanup заменил финализаторы для очистки ресурсов: детерминированное освобождение за один цикл означает, что файловые дескрипторы и соединения не задерживаются.",
 
     // synctest-bubble
     "Goroutines start inside an isolated bubble": "Горутины стартуют внутри изолированного пузыря",
-    "Three goroutines run inside a synctest bubble — a sandbox with its OWN fake clock, separate from real wall-clock time.": "Три горутины выполняются внутри пузыря synctest — песочницы со СВОИМИ фальшивыми часами, отдельными от настенного времени.",
+    "Three goroutines run inside a synctest bubble - a sandbox with its OWN fake clock, separate from real wall-clock time.": "Три горутины выполняются внутри пузыря synctest - песочницы со СВОИМИ фальшивыми часами, отдельными от настенного времени.",
     "Isolating both the goroutines AND time itself is what will let the test fast-forward through delays instead of actually waiting for them.": "Именно изоляция и горутин, И самого времени позволит тесту промотать задержки вперёд, а не реально их ждать.",
     "Each one runs, then blocks": "Каждая выполняется, затем блокируется",
-    "G1 sleeps for 0.5s, G2 for 0.8s, G3 for 1.0s (or waits on a channel) — each parks the moment it has nothing left to do.": "G1 спит 0.5с, G2 — 0.8с, G3 — 1.0с (или ждёт на канале) — каждая паркуется в момент, когда ей больше нечего делать.",
-    "A real test would have to actually wait out the slowest of these — that's the time cost synctest is about to eliminate.": "Настоящему тесту пришлось бы реально дождаться самой медленной из них — именно эти временные затраты synctest сейчас устранит.",
+    "G1 sleeps for 0.5s, G2 for 0.8s, G3 for 1.0s (or waits on a channel) - each parks the moment it has nothing left to do.": "G1 спит 0.5с, G2 - 0.8с, G3 - 1.0с (или ждёт на канале) - каждая паркуется в момент, когда ей больше нечего делать.",
+    "A real test would have to actually wait out the slowest of these - that's the time cost synctest is about to eliminate.": "Настоящему тесту пришлось бы реально дождаться самой медленной из них - именно эти временные затраты synctest сейчас устранит.",
     "synctest.Wait: a precise barrier": "synctest.Wait: точный барьер",
-    "The test calls synctest.Wait, which blocks until EVERY goroutine in the bubble is durably parked — not 'probably done', but provably done.": "Тест вызывает synctest.Wait, который блокируется, пока КАЖДАЯ горутина в пузыре не устойчиво припаркована — не «вероятно готова», а доказуемо готова.",
+    "The test calls synctest.Wait, which blocks until EVERY goroutine in the bubble is durably parked - not 'probably done', but provably done.": "Тест вызывает synctest.Wait, который блокируется, пока КАЖДАЯ горутина в пузыре не устойчиво припаркована - не «вероятно готова», а доказуемо готова.",
     "This replaces a guessed time.Sleep(100*time.Millisecond) 'hope it's enough' with an exact, race-free synchronization point.": "Это заменяет угаданный time.Sleep(100*time.Millisecond) «надеюсь, хватит» точной, свободной от гонок точкой синхронизации.",
     "The fake clock jumps to the next timer": "Фальшивые часы перескакивают к следующему таймеру",
-    "With every goroutine confirmed blocked, the bubble's clock fast-forwards directly to whenever the next timer fires — instantly, no real waiting.": "Когда подтверждено, что каждая горутина блокирована, часы пузыря мгновенно перематываются прямо к моменту срабатывания следующего таймера — без реального ожидания.",
+    "With every goroutine confirmed blocked, the bubble's clock fast-forwards directly to whenever the next timer fires - instantly, no real waiting.": "Когда подтверждено, что каждая горутина блокирована, часы пузыря мгновенно перематываются прямо к моменту срабатывания следующего таймера - без реального ожидания.",
     "Real time and bubble time are decoupled: the test can simulate 5 real-world seconds of timers in microseconds of actual CPU time.": "Реальное время и время пузыря разделены: тест может симулировать 5 реальных секунд таймеров за микросекунды настоящего процессорного времени.",
     "Goroutines wake and finish": "Горутины пробуждаются и завершаются",
     "Now that their timers/channels are ready, all three goroutines resume, complete their work, and the test's assertions run against a fully settled state.": "Теперь, когда их таймеры/каналы готовы, все три горутины продолжают работу, завершают её, и проверки теста выполняются на полностью устоявшемся состоянии.",
     "Because everything is driven by the deterministic bubble clock, there's no window where the assertions could race against a goroutine that's still finishing.": "Поскольку всё управляется детерминированными часами пузыря, нет окна, где проверки могли бы гоняться с горутиной, которая ещё завершается.",
     "No flakes: wall ≈ 0s, bubble = 5s": "Без нестабильности: настенное время ≈ 0с, время пузыря = 5с",
-    "The whole test simulated 5 seconds of timers while real wall-clock time barely moved — fully deterministic, every run, every machine.": "Весь тест симулировал 5 секунд таймеров, пока настенное время почти не двигалось — полностью детерминировано, при каждом запуске, на любой машине.",
-    "No time.Sleep means no 'flaky on a slow CI box' — the test's correctness no longer depends on how fast the test runner happens to be today.": "Отсутствие time.Sleep означает отсутствие «нестабильности на медленном CI» — корректность теста больше не зависит от того, насколько быстрой машине сегодня довелось его запускать.",
+    "The whole test simulated 5 seconds of timers while real wall-clock time barely moved - fully deterministic, every run, every machine.": "Весь тест симулировал 5 секунд таймеров, пока настенное время почти не двигалось - полностью детерминировано, при каждом запуске, на любой машине.",
+    "No time.Sleep means no 'flaky on a slow CI box' - the test's correctness no longer depends on how fast the test runner happens to be today.": "Отсутствие time.Sleep означает отсутствие «нестабильности на медленном CI» - корректность теста больше не зависит от того, насколько быстрой машине сегодня довелось его запускать.",
 
     // sql-txn
     "Two transfers want the same account": "Два перевода хотят один и тот же счёт",
-    "T1 and T2 are both transactions trying to move money — and both need to touch account A at the same moment.": "T1 и T2 — обе транзакции пытаются перевести деньги, и обеим нужно тронуть счёт A в один и тот же момент.",
-    "This exact scenario — concurrent writers, shared row — is what row-level locking exists to make safe.": "Именно этот сценарий — конкурентные писатели, общая строка — блокировка на уровне строк и существует, чтобы сделать безопасным.",
+    "T1 and T2 are both transactions trying to move money - and both need to touch account A at the same moment.": "T1 и T2 - обе транзакции пытаются перевести деньги, и обеим нужно тронуть счёт A в один и тот же момент.",
+    "This exact scenario - concurrent writers, shared row - is what row-level locking exists to make safe.": "Именно этот сценарий - конкурентные писатели, общая строка - блокировка на уровне строк и существует, чтобы сделать безопасным.",
     "T1 locks account A": "T1 блокирует счёт A",
-    "T1 runs SELECT … FOR UPDATE, which takes a lock on just that one row — not the whole table.": "T1 выполняет SELECT … FOR UPDATE, который берёт блокировку только на эту одну строку — не на всю таблицу.",
-    "Locking only the specific row means transfers touching DIFFERENT accounts can still run fully in parallel — the lock's scope is as narrow as correctness allows.": "Блокировка только конкретной строки означает, что переводы, затрагивающие ДРУГИЕ счета, могут выполняться полностью параллельно — область блокировки настолько узкая, насколько позволяет корректность.",
+    "T1 runs SELECT … FOR UPDATE, which takes a lock on just that one row - not the whole table.": "T1 выполняет SELECT … FOR UPDATE, который берёт блокировку только на эту одну строку - не на всю таблицу.",
+    "Locking only the specific row means transfers touching DIFFERENT accounts can still run fully in parallel - the lock's scope is as narrow as correctness allows.": "Блокировка только конкретной строки означает, что переводы, затрагивающие ДРУГИЕ счета, могут выполняться полностью параллельно - область блокировки настолько узкая, насколько позволяет корректность.",
     "T2 blocks behind the lock": "T2 блокируется за блокировкой",
-    "T2 also needs account A, so it simply waits — Postgres won't let it read until T1's transaction finishes.": "T2 тоже нужен счёт A, поэтому он просто ждёт — Postgres не даст ему прочитать, пока транзакция T1 не завершится.",
-    "If T2 read A mid-transfer, it could see a half-finished state (debited but not yet credited) — blocking prevents that entirely.": "Если бы T2 прочитал A в середине перевода, он мог бы увидеть наполовину завершённое состояние (списано, но ещё не зачислено) — блокировка полностью это предотвращает.",
+    "T2 also needs account A, so it simply waits - Postgres won't let it read until T1's transaction finishes.": "T2 тоже нужен счёт A, поэтому он просто ждёт - Postgres не даст ему прочитать, пока транзакция T1 не завершится.",
+    "If T2 read A mid-transfer, it could see a half-finished state (debited but not yet credited) - blocking prevents that entirely.": "Если бы T2 прочитал A в середине перевода, он мог бы увидеть наполовину завершённое состояние (списано, но ещё не зачислено) - блокировка полностью это предотвращает.",
     "Inside the transaction: debit and credit together": "Внутри транзакции: списание и зачисление вместе",
-    "T1 subtracts $100 from A and adds $100 to B — both statements run inside the SAME transaction, so they can never land separately.": "T1 вычитает $100 из A и добавляет $100 к B — оба выражения выполняются внутри ОДНОЙ транзакции, поэтому они никогда не могут применяться отдельно.",
-    "This is double-entry: if the process crashed between the two writes, the whole transaction rolls back — you never end up with money debited from A but never credited to B.": "Это двойная запись: если процесс упадёт между двумя записями, вся транзакция откатывается — вы никогда не получите деньги, списанные с A, но так и не зачисленные на B.",
+    "T1 subtracts $100 from A and adds $100 to B - both statements run inside the SAME transaction, so they can never land separately.": "T1 вычитает $100 из A и добавляет $100 к B - оба выражения выполняются внутри ОДНОЙ транзакции, поэтому они никогда не могут применяться отдельно.",
+    "This is double-entry: if the process crashed between the two writes, the whole transaction rolls back - you never end up with money debited from A but never credited to B.": "Это двойная запись: если процесс упадёт между двумя записями, вся транзакция откатывается - вы никогда не получите деньги, списанные с A, но так и не зачисленные на B.",
     "COMMIT releases the lock": "COMMIT освобождает блокировку",
-    "T1 commits — its changes become permanent, and the row lock on account A is released immediately.": "T1 коммитится — его изменения становятся постоянными, и блокировка строки счёта A немедленно освобождается.",
+    "T1 commits - its changes become permanent, and the row lock on account A is released immediately.": "T1 коммитится - его изменения становятся постоянными, и блокировка строки счёта A немедленно освобождается.",
     "The lock is held for the shortest time that's still correct: exactly as long as T1's transaction is open, no longer.": "Блокировка держится минимально возможное время, при котором всё ещё корректно: ровно столько, сколько открыта транзакция T1, не дольше.",
-    "T2 proceeds — the invariant held": "T2 продолжает — инвариант сохранён",
+    "T2 proceeds - the invariant held": "T2 продолжает - инвариант сохранён",
     "T2 now reads fresh, consistent balances and runs its own transfer. Through all of this, the total money in the system never changed.": "T2 теперь читает свежие, согласованные балансы и выполняет свой перевод. За всё это время общая сумма денег в системе не изменилась.",
     "This is the proof the pattern works: concurrent access was serialized just enough to keep Σ(balances) constant, without serializing the WHOLE database.": "Это доказательство того, что паттерн работает: конкурентный доступ был сериализован ровно настолько, чтобы Σ(балансов) оставалась постоянной, без сериализации ВСЕЙ базы данных.",
 
     // pqc-lattice
     "Two handshakes, same shape, different math": "Два handshake, одна форма, разная математика",
-    "Channel A negotiates a classical X25519 key. Channel B negotiates a hybrid key — classical X25519 PLUS a lattice-based ML-KEM-768 key, combined.": "Канал A договаривается о классическом ключе X25519. Канал B договаривается о гибридном ключе — классический X25519 ПЛЮС решёточный ключ ML-KEM-768, объединённые.",
-    "Both look identical at the protocol level — a normal TLS handshake. The difference that matters is invisible: what hard math problem the key relies on.": "На уровне протокола оба выглядят одинаково — обычный TLS handshake. Значимая разница невидима: на какую сложную математическую задачу опирается ключ.",
+    "Channel A negotiates a classical X25519 key. Channel B negotiates a hybrid key - classical X25519 PLUS a lattice-based ML-KEM-768 key, combined.": "Канал A договаривается о классическом ключе X25519. Канал B договаривается о гибридном ключе - классический X25519 ПЛЮС решёточный ключ ML-KEM-768, объединённые.",
+    "Both look identical at the protocol level - a normal TLS handshake. The difference that matters is invisible: what hard math problem the key relies on.": "На уровне протокола оба выглядят одинаково - обычный TLS handshake. Значимая разница невидима: на какую сложную математическую задачу опирается ключ.",
     "An attacker harvests today's ciphertext": "Атакующий собирает сегодняшний шифротекст",
-    "A passive adversary doesn't try to break the key right now — it just records both encrypted sessions and stores them.": "Пассивный атакующий не пытается взломать ключ прямо сейчас — он просто записывает обе зашифрованные сессии и сохраняет их.",
+    "A passive adversary doesn't try to break the key right now - it just records both encrypted sessions and stores them.": "Пассивный атакующий не пытается взломать ключ прямо сейчас - он просто записывает обе зашифрованные сессии и сохраняет их.",
     "This is 'harvest now, decrypt later': the attack doesn't need to be feasible TODAY, only by the time a quantum computer exists.": "Это «собери сейчас, расшифруй позже»: атаке не нужно быть реализуемой СЕГОДНЯ, только к моменту, когда появится квантовый компьютер.",
     "Years later: a quantum computer arrives": "Годы спустя: появляется квантовый компьютер",
     "A cryptographically-relevant quantum computer comes online and is pointed at both stored recordings.": "Криптографически значимый квантовый компьютер запускается и направляется на обе сохранённые записи.",
     "This is the whole premise of post-quantum cryptography: defend data today against a computer that doesn't exist yet, because the recording already happened.": "В этом вся суть постквантовой криптографии: защищать данные сегодня от компьютера, которого ещё не существует, потому что запись уже произошла.",
     "Channel A's classical key falls": "Классический ключ канала A падает",
-    "Shor's algorithm efficiently solves the discrete-log problem that X25519's security rests on — the recorded session decrypts.": "Алгоритм Шора эффективно решает задачу дискретного логарифма, на которой держится безопасность X25519 — записанная сессия расшифровывается.",
-    "This is exactly why 'classical-only' key exchange is a liability for any data that needs to stay secret for years: today's strong key becomes tomorrow's broken one.": "Именно поэтому «только классический» обмен ключами — это риск для любых данных, которые должны храниться в секрете годами: сегодняшний сильный ключ становится завтрашним взломанным.",
+    "Shor's algorithm efficiently solves the discrete-log problem that X25519's security rests on - the recorded session decrypts.": "Алгоритм Шора эффективно решает задачу дискретного логарифма, на которой держится безопасность X25519 - записанная сессия расшифровывается.",
+    "This is exactly why 'classical-only' key exchange is a liability for any data that needs to stay secret for years: today's strong key becomes tomorrow's broken one.": "Именно поэтому «только классический» обмен ключами - это риск для любых данных, которые должны храниться в секрете годами: сегодняшний сильный ключ становится завтрашним взломанным.",
     "Channel B's hybrid key holds": "Гибридный ключ канала B держится",
-    "The ML-KEM-768 lattice key has no known efficient quantum attack — so even though the ciphertext was recorded, it stays unreadable.": "У решёточного ключа ML-KEM-768 нет известной эффективной квантовой атаки — поэтому, хотя шифротекст и был записан, он остаётся нечитаемым.",
-    "Hybrid means EITHER half failing is survivable: it's only broken if BOTH the classical AND the lattice problem fall — a much higher bar than relying on one algorithm alone.": "Гибрид означает, что провал ЛЮБОЙ из половин переживаем: взлом происходит только если падают И классическая, И решёточная задача — гораздо более высокая планка, чем опора на один алгоритм.",
+    "The ML-KEM-768 lattice key has no known efficient quantum attack - so even though the ciphertext was recorded, it stays unreadable.": "У решёточного ключа ML-KEM-768 нет известной эффективной квантовой атаки - поэтому, хотя шифротекст и был записан, он остаётся нечитаемым.",
+    "Hybrid means EITHER half failing is survivable: it's only broken if BOTH the classical AND the lattice problem fall - a much higher bar than relying on one algorithm alone.": "Гибрид означает, что провал ЛЮБОЙ из половин переживаем: взлом происходит только если падают И классическая, И решёточная задача - гораздо более высокая планка, чем опора на один алгоритм.",
 
     // leak-graph
     "A live goroutine graph": "Граф живых горутин",
-    "Goroutines are nodes; the channels and contexts connecting them are the edges. This is the shape the leak analyzer reasons about.": "Горутины — это узлы; каналы и контексты, соединяющие их — это рёбра. Именно с этой формой рассуждает анализатор утечек.",
-    "Most goroutine leaks aren't a mystery once you can SEE the dependency graph — they're usually one missing edge.": "Большинство утечек горутин — не загадка, если вы можете УВИДЕТЬ граф зависимостей — обычно это одно недостающее ребро.",
+    "Goroutines are nodes; the channels and contexts connecting them are the edges. This is the shape the leak analyzer reasons about.": "Горутины - это узлы; каналы и контексты, соединяющие их - это рёбра. Именно с этой формой рассуждает анализатор утечек.",
+    "Most goroutine leaks aren't a mystery once you can SEE the dependency graph - they're usually one missing edge.": "Большинство утечек горутин - не загадка, если вы можете УВИДЕТЬ граф зависимостей - обычно это одно недостающее ребро.",
     "G4 is stuck forever": "G4 застряла навсегда",
-    "G4 is parked on <-results — and tracing the graph, NOTHING will ever send on that channel. It will wait until the process dies.": "G4 припаркована на <-results — и, трассируя граф, видно, что НИЧТО никогда не отправит в этот канал. Она будет ждать до самой смерти процесса.",
-    "A blocked goroutine isn't automatically a leak — other goroutines block briefly all the time. It's a leak specifically because nothing can ever wake it.": "Блокированная горутина не является утечкой автоматически — другие горутины блокируются на короткое время постоянно. Это утечка именно потому, что ничто никогда не может её разбудить.",
+    "G4 is parked on <-results - and tracing the graph, NOTHING will ever send on that channel. It will wait until the process dies.": "G4 припаркована на <-results - и, трассируя граф, видно, что НИЧТО никогда не отправит в этот канал. Она будет ждать до самой смерти процесса.",
+    "A blocked goroutine isn't automatically a leak - other goroutines block briefly all the time. It's a leak specifically because nothing can ever wake it.": "Блокированная горутина не является утечкой автоматически - другие горутины блокируются на короткое время постоянно. Это утечка именно потому, что ничто никогда не может её разбудить.",
     "The analyzer traces backward": "Анализатор трассирует назад",
-    "Starting from the blocked goroutine, the analyzer walks the channel graph backward — G4 ← G3 — hunting for whoever was supposed to send.": "Начиная с блокированной горутины, анализатор идёт по графу каналов назад — G4 ← G3 — в поисках того, кто должен был отправить.",
-    "Walking the graph backward from the symptom is exactly how you'd debug this by hand — the analyzer just does it instantly and exhaustively.": "Проход по графу назад от симптома — именно так вы бы дебажили это руками — анализатор просто делает это мгновенно и исчерпывающе.",
+    "Starting from the blocked goroutine, the analyzer walks the channel graph backward - G4 ← G3 - hunting for whoever was supposed to send.": "Начиная с блокированной горутины, анализатор идёт по графу каналов назад - G4 ← G3 - в поисках того, кто должен был отправить.",
+    "Walking the graph backward from the symptom is exactly how you'd debug this by hand - the analyzer just does it instantly and exhaustively.": "Проход по графу назад от симптома - именно так вы бы дебажили это руками - анализатор просто делает это мгновенно и исчерпывающе.",
     "Root cause found": "Корневая причина найдена",
-    "G2 dispatch is the actual problem: it never sends on results, and its context had no deadline to force it to give up and move on.": "G2 dispatch — вот настоящая проблема: она никогда не отправляет в results, а у её контекста не было дедлайна, чтобы заставить её сдаться и продолжить.",
+    "G2 dispatch is the actual problem: it never sends on results, and its context had no deadline to force it to give up and move on.": "G2 dispatch - вот настоящая проблема: она никогда не отправляет в results, а у её контекста не было дедлайна, чтобы заставить её сдаться и продолжить.",
     "Localizing to ONE goroutine and ONE missing send turns 'the program hangs sometimes' into a fix you can make in one line.": "Локализация до ОДНОЙ горутины и ОДНОЙ недостающей отправки превращает «программа иногда виснет» в исправление одной строкой.",
 
     // simd-gc
     "Same work, two engines": "Одна работа, два движка",
     "We'll process the same 32-element array two ways: a plain scalar loop, one element at a time, and a SIMD vector loop.": "Мы обработаем один и тот же массив из 32 элементов двумя способами: обычным скалярным циклом, по одному элементу за раз, и векторным циклом SIMD.",
-    "Comparing them on identical work isolates exactly what the vector hardware buys you — nothing about the task itself changes.": "Сравнение их на одинаковой работе изолирует именно то, что даёт векторное железо — сама задача при этом не меняется.",
+    "Comparing them on identical work isolates exactly what the vector hardware buys you - nothing about the task itself changes.": "Сравнение их на одинаковой работе изолирует именно то, что даёт векторное железо - сама задача при этом не меняется.",
     "Scalar: one element per cycle": "Скаляр: один элемент за такт",
-    "The plain loop touches a single array element each iteration — the pointer crawls along one cell at a time.": "Обычный цикл трогает один элемент массива за итерацию — указатель ползёт по одной ячейке за раз.",
+    "The plain loop touches a single array element each iteration - the pointer crawls along one cell at a time.": "Обычный цикл трогает один элемент массива за итерацию - указатель ползёт по одной ячейке за раз.",
     "This is the baseline: N elements means N cycles of work, no matter how simple each individual step is.": "Это базовая линия: N элементов означает N тактов работы, независимо от того, насколько прост каждый отдельный шаг.",
     "SIMD: sixteen elements per cycle": "SIMD: шестнадцать элементов за такт",
-    "One vector instruction loads and processes a whole 16-element lane at once — the same array, far fewer trips through the loop.": "Одна векторная инструкция загружает и обрабатывает целую дорожку из 16 элементов за раз — тот же массив, гораздо меньше проходов через цикл.",
-    "The CPU has dedicated wide registers and circuits for this — it's not 'doing 16 things fast', it's doing them in the SAME instruction.": "У CPU есть выделенные широкие регистры и схемы именно для этого — это не «делать 16 вещей быстро», это делать их за ОДНУ инструкцию.",
+    "One vector instruction loads and processes a whole 16-element lane at once - the same array, far fewer trips through the loop.": "Одна векторная инструкция загружает и обрабатывает целую дорожку из 16 элементов за раз - тот же массив, гораздо меньше проходов через цикл.",
+    "The CPU has dedicated wide registers and circuits for this - it's not 'doing 16 things fast', it's doing them in the SAME instruction.": "У CPU есть выделенные широкие регистры и схемы именно для этого - это не «делать 16 вещей быстро», это делать их за ОДНУ инструкцию.",
     "Same result, ~16× fewer cycles": "Тот же результат, ~в 16× меньше тактов",
-    "Both loops produce the identical output — only the number of cycles spent getting there differs.": "Оба цикла производят идентичный результат — различается только число тактов, потраченных на его получение.",
+    "Both loops produce the identical output - only the number of cycles spent getting there differs.": "Оба цикла производят идентичный результат - различается только число тактов, потраченных на его получение.",
     "This is why hot numeric loops (hashing, checksums, image/byte processing) are worth vectorizing: the speedup is structural, not a micro-optimization.": "Вот почему горячие числовые циклы (хеширование, контрольные суммы, обработка изображений/байтов) стоит векторизовать: ускорение структурное, а не микрооптимизация.",
     "Green Tea GC sweeps contiguous spans": "Green Tea GC собирает мусор по непрерывным спанам",
     "Switching topics: the new collector marks memory in contiguous 8 KiB spans in parallel, instead of chasing one scattered object at a time.": "Меняем тему: новый сборщик помечает память непрерывными спанами по 8 КиБ параллельно, вместо погони за одним разрозненным объектом за раз.",
-    "Spans are physically contiguous in memory — exactly the layout that lets a sweep be both vectorizable AND cache-friendly, the same idea as the SIMD loop above.": "Спаны физически непрерывны в памяти — именно такое устройство позволяет сборке быть и векторизуемой, И дружелюбной к кэшу — та же идея, что и в SIMD-цикле выше.",
+    "Spans are physically contiguous in memory - exactly the layout that lets a sweep be both vectorizable AND cache-friendly, the same idea as the SIMD loop above.": "Спаны физически непрерывны в памяти - именно такое устройство позволяет сборке быть и векторизуемой, И дружелюбной к кэшу - та же идея, что и в SIMD-цикле выше.",
     "Cache-friendly and scales with cores": "Дружелюбно к кэшу и масштабируется по ядрам",
     "Sequential span scanning avoids the scattered cache misses of object-by-object marking, and multiple cores can sweep different spans in parallel.": "Последовательное сканирование спанов избегает разрозненных промахов кэша при пометке объект-за-объектом, и несколько ядер могут собирать разные спаны параллельно.",
-    "This connects directly back to M10: contiguous memory is what makes both a SIMD loop AND a GC sweep fast — the hardware always rewards sequential access.": "Это напрямую связано с M10: именно непрерывная память делает быстрыми и SIMD-цикл, И сборку GC — железо всегда вознаграждает последовательный доступ.",
+    "This connects directly back to M10: contiguous memory is what makes both a SIMD loop AND a GC sweep fast - the hardware always rewards sequential access.": "Это напрямую связано с M10: именно непрерывная память делает быстрыми и SIMD-цикл, И сборку GC - железо всегда вознаграждает последовательный доступ.",
 
     // container-rollout
     "Three healthy v1 pods serve traffic": "Три здоровых пода v1 обслуживают трафик",
     "The load balancer spreads incoming requests across every Ready pod. This is the steady state before a rollout begins.": "Балансировщик нагрузки распределяет входящие запросы по всем подам в состоянии Ready. Это устойчивое состояние перед началом раскатки.",
-    "A rollout always starts from a known-good baseline — that's what makes it safe to compare against as the upgrade proceeds.": "Раскатка всегда начинается с заведомо исправной базовой линии — именно это делает безопасным сравнение с ней по ходу обновления.",
-    "A new v2 pod starts — but gets no traffic yet": "Новый под v2 запускается — но пока не получает трафика",
+    "A rollout always starts from a known-good baseline - that's what makes it safe to compare against as the upgrade proceeds.": "Раскатка всегда начинается с заведомо исправной базовой линии - именно это делает безопасным сравнение с ней по ходу обновления.",
+    "A new v2 pod starts - but gets no traffic yet": "Новый под v2 запускается - но пока не получает трафика",
     "A 4th pod boots running v2. Its readiness probe hasn't passed, so the load balancer deliberately routes it nothing.": "4-й под загружается с v2. Его readiness-проверка ещё не пройдена, поэтому балансировщик намеренно не направляет ему ничего.",
     "Sending live traffic to a pod that isn't ready (still loading config, warming caches) would mean real users hitting errors.": "Отправка живого трафика поду, который не готов (ещё загружает конфиг, разогревает кэши), означала бы, что настоящие пользователи получают ошибки.",
     "Readiness probe passes → pod joins rotation": "Readiness-проверка проходит → под входит в ротацию",
-    "Once the probe succeeds, the load balancer adds the v2 pod to rotation immediately — it starts receiving its share of traffic.": "Как только проверка успешна, балансировщик немедленно добавляет под v2 в ротацию — он начинает получать свою долю трафика.",
-    "This is the gate that makes rollouts safe: 'started' and 'ready to serve' are different states, and only the second one earns traffic.": "Это тот шлюз, который делает раскатки безопасными: «запущен» и «готов обслуживать» — разные состояния, и только второе заслуживает трафик.",
+    "Once the probe succeeds, the load balancer adds the v2 pod to rotation immediately - it starts receiving its share of traffic.": "Как только проверка успешна, балансировщик немедленно добавляет под v2 в ротацию - он начинает получать свою долю трафика.",
+    "This is the gate that makes rollouts safe: 'started' and 'ready to serve' are different states, and only the second one earns traffic.": "Это тот шлюз, который делает раскатки безопасными: «запущен» и «готов обслуживать» - разные состояния, и только второе заслуживает трафик.",
     "An old v1 pod drains": "Старый под v1 дренируется",
     "Now that v2 is carrying load, one v1 pod stops receiving NEW requests but keeps running until its in-flight requests finish.": "Теперь, когда v2 несёт нагрузку, один под v1 перестаёт получать НОВЫЕ запросы, но продолжает работать, пока не завершатся его запросы в полёте.",
-    "Draining (not killing) is what guarantees zero dropped requests — a request that's already in progress always gets to complete.": "Именно дренаж (а не убийство) гарантирует ноль потерянных запросов — запрос, который уже в процессе, всегда получает возможность завершиться.",
+    "Draining (not killing) is what guarantees zero dropped requests - a request that's already in progress always gets to complete.": "Именно дренаж (а не убийство) гарантирует ноль потерянных запросов - запрос, который уже в процессе, всегда получает возможность завершиться.",
     "The slot comes back as v2": "Слот возвращается как v2",
-    "Once drained, the old pod terminates and a fresh v2 pod boots in its place — going through the same starting → ready sequence.": "После дренажа старый под завершается, и на его месте загружается новый под v2 — проходя через ту же последовательность запуск → готовность.",
+    "Once drained, the old pod terminates and a fresh v2 pod boots in its place - going through the same starting → ready sequence.": "После дренажа старый под завершается, и на его месте загружается новый под v2 - проходя через ту же последовательность запуск → готовность.",
     "Replacing pods ONE AT A TIME (not all at once) means the fleet never drops below enough healthy capacity to serve current load.": "Замена подов ПО ОДНОМУ (не все сразу) означает, что флот никогда не опускается ниже достаточной здоровой мощности для обслуживания текущей нагрузки.",
     "Repeat until the whole fleet is upgraded": "Повторяем, пока весь флот не обновится",
     "The same start → probe → join → drain → replace cycle repeats pod by pod until every pod runs v2.": "Тот же цикл запуск → проверка → вход → дренаж → замена повторяется под за подом, пока каждый под не будет работать на v2.",
-    "Zero dropped requests, throughout an entire version upgrade, with no maintenance window — that's the payoff of doing it incrementally.": "Ноль потерянных запросов на протяжении всего обновления версии, без окна обслуживания — вот выигрыш от инкрементального подхода.",
+    "Zero dropped requests, throughout an entire version upgrade, with no maintenance window - that's the payoff of doing it incrementally.": "Ноль потерянных запросов на протяжении всего обновления версии, без окна обслуживания - вот выигрыш от инкрементального подхода.",
 
     // cache-hierarchy
     "Small & fast, down to big & slow": "От маленького и быстрого до большого и медленного",
-    "Memory is a pyramid: L1 is tiny but ~1 ns, RAM is huge but ~100 ns. Each step down is roughly 10× bigger and 10× slower.": "Память — это пирамида: L1 крошечный, но ~1 нс, RAM огромный, но ~100 нс. Каждый шаг вниз — примерно в 10× больше и в 10× медленнее.",
-    "On-chip caches are small because fast memory is expensive to build — so the CPU keeps only the hottest data there and falls back to slower, bigger memory for the rest.": "Кэши на чипе маленькие, потому что быструю память дорого строить — поэтому CPU держит там только самые горячие данные, а для остального откатывается к более медленной, большей памяти.",
+    "Memory is a pyramid: L1 is tiny but ~1 ns, RAM is huge but ~100 ns. Each step down is roughly 10× bigger and 10× slower.": "Память - это пирамида: L1 крошечный, но ~1 нс, RAM огромный, но ~100 нс. Каждый шаг вниз - примерно в 10× больше и в 10× медленнее.",
+    "On-chip caches are small because fast memory is expensive to build - so the CPU keeps only the hottest data there and falls back to slower, bigger memory for the rest.": "Кэши на чипе маленькие, потому что быструю память дорого строить - поэтому CPU держит там только самые горячие данные, а для остального откатывается к более медленной, большей памяти.",
     "A miss escalates one level at a time": "Промах поднимается на уровень выше, шаг за шагом",
     "The CPU asks L1 first. Not there? Ask L2. Not there? Ask L3. Each 'no' costs a little more time before moving down.": "CPU сначала спрашивает L1. Нет там? Спрашивает L2. Нет там? Спрашивает L3. Каждое «нет» стоит немного больше времени перед переходом вниз.",
-    "Each cache only stores a recent subset of memory — checking the small, fast one first is cheap insurance before paying for a slower lookup.": "Каждый кэш хранит только недавнее подмножество памяти — проверка маленького, быстрого кэша первым — это дешёвая страховка перед платой за более медленный поиск.",
+    "Each cache only stores a recent subset of memory - checking the small, fast one first is cheap insurance before paying for a slower lookup.": "Каждый кэш хранит только недавнее подмножество памяти - проверка маленького, быстрого кэша первым - это дешёвая страховка перед платой за более медленный поиск.",
     "RAM answers with a whole 64-byte line": "RAM отвечает целой 64-байтной линией",
-    "RAM never hands back a single value — it returns the full 64-byte block containing it, and that block fills L3, then L2, then L1 on the way back up.": "RAM никогда не возвращает одно значение — она возвращает весь 64-байтный блок, содержащий его, и этот блок заполняет L3, затем L2, затем L1 на пути обратно вверх.",
-    "Fetching one extra value is almost free once the bus is already moving data, so hardware always moves in line-sized chunks — betting that nearby bytes will be used soon too.": "Получить одно дополнительное значение почти бесплатно, когда шина уже передаёт данные, поэтому железо всегда двигается блоками размером в линию — делая ставку, что соседние байты тоже скоро понадобятся.",
+    "RAM never hands back a single value - it returns the full 64-byte block containing it, and that block fills L3, then L2, then L1 on the way back up.": "RAM никогда не возвращает одно значение - она возвращает весь 64-байтный блок, содержащий его, и этот блок заполняет L3, затем L2, затем L1 на пути обратно вверх.",
+    "Fetching one extra value is almost free once the bus is already moving data, so hardware always moves in line-sized chunks - betting that nearby bytes will be used soon too.": "Получить одно дополнительное значение почти бесплатно, когда шина уже передаёт данные, поэтому железо всегда двигается блоками размером в линию - делая ставку, что соседние байты тоже скоро понадобятся.",
     "The next 7 reads are now nearly free": "Следующие 7 чтений теперь почти бесплатны",
     "Those values were strangers a moment ago; now they live in L1 with the one we asked for. Reading them costs ~1 ns each instead of ~100 ns.": "Эти значения были чужими секунду назад; теперь они живут в L1 вместе с тем, что мы запросили. Их чтение стоит ~1 нс каждое вместо ~100 нс.",
-    "This is why sequential, contiguous access (slices) is so much faster than scattered access (linked lists, pointer-chasing) — it cashes in on a line you already paid to fetch.": "Вот почему последовательный, непрерывный доступ (слайсы) настолько быстрее разрозненного доступа (связные списки, погоня за указателями) — он использует линию, за загрузку которой вы уже заплатили.",
+    "This is why sequential, contiguous access (slices) is so much faster than scattered access (linked lists, pointer-chasing) - it cashes in on a line you already paid to fetch.": "Вот почему последовательный, непрерывный доступ (слайсы) настолько быстрее разрозненного доступа (связные списки, погоня за указателями) - он использует линию, за загрузку которой вы уже заплатили.",
 
     // cpu-pipeline
     "One instruction, five stages": "Одна инструкция, пять стадий",
     "Every instruction passes through 5 fixed stations: Fetch the instruction, Decode it, Execute it, access Memory, Write the result back.": "Каждая инструкция проходит через 5 фиксированных станций: Fetch (выборка), Decode (декодирование), Execute (выполнение), доступ к Memory (памяти), Write-back (запись результата).",
-    "Splitting the work into small fixed stages is what lets the next instruction start before this one finishes — that's the whole trick of pipelining.": "Именно разбиение работы на маленькие фиксированные стадии позволяет следующей инструкции начаться до завершения этой — в этом весь фокус конвейеризации.",
+    "Splitting the work into small fixed stages is what lets the next instruction start before this one finishes - that's the whole trick of pipelining.": "Именно разбиение работы на маленькие фиксированные стадии позволяет следующей инструкции начаться до завершения этой - в этом весь фокус конвейеризации.",
     "The next instruction starts one cycle later": "Следующая инструкция начинается на такт позже",
-    "While I1 moves to Decode, I2 enters Fetch right behind it — they're in different stages of the SAME pipe at the same time.": "Пока I1 переходит в Decode, I2 входит в Fetch прямо позади неё — они находятся в разных стадиях ОДНОГО конвейера одновременно.",
+    "While I1 moves to Decode, I2 enters Fetch right behind it - they're in different stages of the SAME pipe at the same time.": "Пока I1 переходит в Decode, I2 входит в Fetch прямо позади неё - они находятся в разных стадиях ОДНОГО конвейера одновременно.",
     "If the core waited for I1 to fully finish before starting I2, four of the five stages would sit idle the whole time. Overlap keeps every stage busy.": "Если бы ядро ждало полного завершения I1 перед началом I2, четыре из пяти стадий простаивали бы всё это время. Перекрытие держит каждую стадию занятой.",
     "Steady state: ~1 instruction retires per cycle": "Устойчивое состояние: ~1 инструкция завершается за такт",
-    "Once the pipe is full, a NEW instruction finishes Write-back almost every cycle — even though any single one still takes 5 cycles start to finish.": "Когда конвейер заполнен, НОВАЯ инструкция завершает Write-back почти каждый такт — хотя каждая отдельная инструкция всё ещё занимает 5 тактов от начала до конца.",
+    "Once the pipe is full, a NEW instruction finishes Write-back almost every cycle - even though any single one still takes 5 cycles start to finish.": "Когда конвейер заполнен, НОВАЯ инструкция завершает Write-back почти каждый такт - хотя каждая отдельная инструкция всё ещё занимает 5 тактов от начала до конца.",
     "This is the payoff: pipelining doesn't make one instruction faster, it overlaps many so the average THROUGHPUT approaches one per cycle.": "Вот и выигрыш: конвейеризация не делает одну инструкцию быстрее, она перекрывает многие, так что средняя ПРОПУСКНАЯ СПОСОБНОСТЬ приближается к одной за такт.",
     "A branch enters the pipe": "Переход входит в конвейер",
-    "I5 is a conditional branch (an `if`). Its true outcome — which way execution should go next — isn't known until it reaches Execute.": "I5 — это условный переход (`if`). Его истинный исход — куда пойдёт выполнение далее — не известен, пока он не достигнет Execute.",
-    "But Fetch can't just sit idle waiting 2 stages for that answer — every idle stage is wasted throughput.": "Но Fetch не может просто простаивать, ожидая этого ответа 2 стадии — каждая простаивающая стадия — это потерянная пропускная способность.",
+    "I5 is a conditional branch (an `if`). Its true outcome - which way execution should go next - isn't known until it reaches Execute.": "I5 - это условный переход (`if`). Его истинный исход - куда пойдёт выполнение далее - не известен, пока он не достигнет Execute.",
+    "But Fetch can't just sit idle waiting 2 stages for that answer - every idle stage is wasted throughput.": "Но Fetch не может просто простаивать, ожидая этого ответа 2 стадии - каждая простаивающая стадия - это потерянная пропускная способность.",
     "Speculate: guess, and keep going": "Спекуляция: угадай и продолжай",
-    "A branch predictor guesses the outcome (e.g. 'taken', based on history) and the pipeline fetches the NEXT instructions down that guessed path — before the branch is actually resolved.": "Предсказатель переходов угадывает исход (например, «переход выполнится», на основе истории), и конвейер выбирает СЛЕДУЮЩИЕ инструкции по этому предполагаемому пути — до того, как переход реально разрешится.",
+    "A branch predictor guesses the outcome (e.g. 'taken', based on history) and the pipeline fetches the NEXT instructions down that guessed path - before the branch is actually resolved.": "Предсказатель переходов угадывает исход (например, «переход выполнится», на основе истории), и конвейер выбирает СЛЕДУЮЩИЕ инструкции по этому предполагаемому пути - до того, как переход реально разрешится.",
     "A good predictor is right >95% of the time on real code, so guessing and running ahead wins far more cycles than it costs when wrong.": "Хороший предсказатель прав >95% времени на реальном коде, поэтому угадывание и забег вперёд выигрывают гораздо больше тактов, чем стоят при ошибке.",
     "Misprediction: the guess was wrong": "Ошибка предсказания: догадка была неверной",
-    "I5 resolves in Execute — and it went the OTHER way. Everything fetched on the guessed path (I6, I7) was working on instructions that should never have run.": "I5 разрешается в Execute — и пошла ДРУГИМ путём. Всё, что было выбрано по предполагаемому пути (I6, I7), работало над инструкциями, которые никогда не должны были выполняться.",
+    "I5 resolves in Execute - and it went the OTHER way. Everything fetched on the guessed path (I6, I7) was working on instructions that should never have run.": "I5 разрешается в Execute - и пошла ДРУГИМ путём. Всё, что было выбрано по предполагаемому пути (I6, I7), работало над инструкциями, которые никогда не должны были выполняться.",
     "Correctness comes first: the CPU cannot let wrong-path work touch real registers or memory, so it must be found and discarded immediately.": "Корректность превыше всего: CPU не может позволить работе с неверного пути тронуть настоящие регистры или память, поэтому она должна быть найдена и отброшена немедленно.",
     "Flush, refetch, and refill": "Сброс, повторная выборка и заполнение",
-    "The wrong-path instructions are flushed out, Fetch restarts at the CORRECT target address, and the pipeline gradually fills back up — a short bubble of idle stages, then back to full speed.": "Инструкции с неверного пути сбрасываются, Fetch перезапускается с ПРАВИЛЬНОГО целевого адреса, и конвейер постепенно заполняется снова — короткий пузырь простаивающих стадий, затем снова полная скорость.",
-    "The cost of a misprediction is only this refill delay (~15–20 cycles on real hardware) — far cheaper than stalling on every single branch and never speculating at all.": "Стоимость ошибки предсказания — это только эта задержка заполнения (~15–20 тактов на реальном железе) — гораздо дешевле, чем останавливаться на каждом переходе и вообще никогда не спекулировать.",
+    "The wrong-path instructions are flushed out, Fetch restarts at the CORRECT target address, and the pipeline gradually fills back up - a short bubble of idle stages, then back to full speed.": "Инструкции с неверного пути сбрасываются, Fetch перезапускается с ПРАВИЛЬНОГО целевого адреса, и конвейер постепенно заполняется снова - короткий пузырь простаивающих стадий, затем снова полная скорость.",
+    "The cost of a misprediction is only this refill delay (~15–20 cycles on real hardware) - far cheaper than stalling on every single branch and never speculating at all.": "Стоимость ошибки предсказания - это только эта задержка заполнения (~15–20 тактов на реальном железе) - гораздо дешевле, чем останавливаться на каждом переходе и вообще никогда не спекулировать.",
 
     // gmp-scheduler
     "Three roles: G, M and P": "Три роли: G, M и P",
-    "G is a goroutine — a tiny, cheap unit of work (~2 KB stack). M is an OS thread — the thing the kernel actually runs. P is a processor — a scheduling slot with its own queue; the number of Ps equals GOMAXPROCS.": "G — это горутина: крошечная, дешёвая единица работы (стек ~2 КБ). M — это поток ОС: то, что реально выполняет ядро. P — это процессор: слот планирования со своей очередью; число P равно GOMAXPROCS.",
-    "Separating 'work' (G) from 'who runs it' (M) from 'how many run at once' (P) is what lets Go run a million goroutines on a handful of threads.": "Разделение «работы» (G), «кто её выполняет» (M) и «сколько выполняется одновременно» (P) — вот что позволяет Go запускать миллион горутин на горстке потоков.",
-    "Each P drains its own queue — no shared lock": "Каждый P опустошает свою очередь — без общей блокировки",
+    "G is a goroutine - a tiny, cheap unit of work (~2 KB stack). M is an OS thread - the thing the kernel actually runs. P is a processor - a scheduling slot with its own queue; the number of Ps equals GOMAXPROCS.": "G - это горутина: крошечная, дешёвая единица работы (стек ~2 КБ). M - это поток ОС: то, что реально выполняет ядро. P - это процессор: слот планирования со своей очередью; число P равно GOMAXPROCS.",
+    "Separating 'work' (G) from 'who runs it' (M) from 'how many run at once' (P) is what lets Go run a million goroutines on a handful of threads.": "Разделение «работы» (G), «кто её выполняет» (M) и «сколько выполняется одновременно» (P) - вот что позволяет Go запускать миллион горутин на горстке потоков.",
+    "Each P drains its own queue - no shared lock": "Каждый P опустошает свою очередь - без общей блокировки",
     "A P pulls goroutines one at a time from its OWN local queue and hands each to its M to run. Other Ps never need to touch this queue.": "P забирает горутины по одной из своей СОБСТВЕННОЙ локальной очереди и передаёт каждую своему M для выполнения. Другим P никогда не нужно трогать эту очередь.",
-    "A private queue per P means most scheduling needs zero synchronization with other Ps — that's what keeps the hot path fast.": "Приватная очередь на каждый P означает, что большинству планирования не нужна синхронизация с другими P — именно это делает горячий путь быстрым.",
+    "A private queue per P means most scheduling needs zero synchronization with other Ps - that's what keeps the hot path fast.": "Приватная очередь на каждый P означает, что большинству планирования не нужна синхронизация с другими P - именно это делает горячий путь быстрым.",
     "An idle P steals work instead of waiting": "Простаивающий P крадёт работу вместо ожидания",
     "P2's queue runs dry while P1 still has plenty queued. Rather than sit idle, P2 steals half of P1's remaining goroutines.": "Очередь P2 опустела, пока у P1 ещё много в очереди. Вместо простоя P2 крадёт половину оставшихся горутин P1.",
-    "No central scheduler decides this — each idle P independently grabs work from a busy neighbor, so load balances itself without a bottleneck.": "Никакой центральный планировщик это не решает — каждый простаивающий P независимо забирает работу у занятого соседа, так что нагрузка балансируется сама, без узкого места.",
+    "No central scheduler decides this - each idle P independently grabs work from a busy neighbor, so load balances itself without a bottleneck.": "Никакой центральный планировщик это не решает - каждый простаивающий P независимо забирает работу у занятого соседа, так что нагрузка балансируется сама, без узкого места.",
     "A blocking syscall can't be allowed to block the P": "Блокирующему syscall нельзя позволить заблокировать P",
     "M3 makes a slow syscall (e.g. reading a file) and the OS genuinely blocks that thread for its duration.": "M3 выполняет медленный syscall (например, чтение файла), и ОС реально блокирует этот поток на всё его время.",
-    "If P3 stayed attached to the blocked M3, every OTHER goroutine queued on P3 would starve until the syscall returns — possibly milliseconds of wasted parallelism.": "Если бы P3 оставался прикреплён к блокированному M3, каждая ДРУГАЯ горутина в очереди P3 голодала бы, пока syscall не вернётся — возможно, миллисекунды потерянного параллелизма.",
+    "If P3 stayed attached to the blocked M3, every OTHER goroutine queued on P3 would starve until the syscall returns - possibly milliseconds of wasted parallelism.": "Если бы P3 оставался прикреплён к блокированному M3, каждая ДРУГАЯ горутина в очереди P3 голодала бы, пока syscall не вернётся - возможно, миллисекунды потерянного параллелизма.",
     "The runtime detaches P3 and hands it to a fresh M": "Runtime отсоединяет P3 и передаёт его новому M",
     "P3 lets go of the blocked M3 and attaches to a new thread, M4, so its queued goroutines keep running immediately. M3 stays behind, still stuck in the kernel.": "P3 отпускает блокированный M3 и прикрепляется к новому потоку, M4, чтобы его горутины в очереди немедленно продолжили выполняться. M3 остаётся позади, всё ещё застряв в ядре.",
     "This is exactly why a Go process can have MORE OS threads than GOMAXPROCS: extra Ms exist only to cover threads parked in blocking syscalls.": "Именно поэтому у Go-процесса может быть БОЛЬШЕ потоков ОС, чем GOMAXPROCS: лишние M существуют только для того, чтобы прикрыть потоки, застрявшие в блокирующих syscall.",
 
     // sync-primitives
     "The problem: a data race": "Проблема: гонка данных",
-    "Two goroutines run `n++` on the same variable with no coordination at all. Both read the old value, both compute +1, both write — one update is silently lost.": "Две горутины выполняют `n++` на одной переменной без какой-либо координации. Обе читают старое значение, обе вычисляют +1, обе пишут — одно обновление молча теряется.",
-    "This isn't just 'sometimes wrong' — the Go memory model calls it undefined behavior, because the compiler and CPU are free to reorder these operations however they like.": "Это не просто «иногда неверно» — модель памяти Go называет это неопределённым поведением, потому что компилятор и CPU вольны переупорядочивать эти операции как угодно.",
+    "Two goroutines run `n++` on the same variable with no coordination at all. Both read the old value, both compute +1, both write - one update is silently lost.": "Две горутины выполняют `n++` на одной переменной без какой-либо координации. Обе читают старое значение, обе вычисляют +1, обе пишут - одно обновление молча теряется.",
+    "This isn't just 'sometimes wrong' - the Go memory model calls it undefined behavior, because the compiler and CPU are free to reorder these operations however they like.": "Это не просто «иногда неверно» - модель памяти Go называет это неопределённым поведением, потому что компилятор и CPU вольны переупорядочивать эти операции как угодно.",
     "Atomic: a lock-free compare-and-swap": "Atomic: lock-free compare-and-swap",
     "A goroutine reads the current value, computes the new one, then asks the CPU to swap it in 'only if nobody changed it since I read it.' If it lost the race, it just retries.": "Горутина читает текущее значение, вычисляет новое, затем просит CPU подменить его «только если никто не менял его с момента моего чтения». Если она проиграла гонку, она просто повторяет попытку.",
-    "No goroutine ever blocks or sleeps — the whole update is one indivisible CPU instruction. It's the cheapest tool, but it only protects a single word.": "Ни одна горутина никогда не блокируется и не спит — всё обновление — это одна неделимая инструкция CPU. Это самый дешёвый инструмент, но он защищает только одно машинное слово.",
+    "No goroutine ever blocks or sleeps - the whole update is one indivisible CPU instruction. It's the cheapest tool, but it only protects a single word.": "Ни одна горутина никогда не блокируется и не спит - всё обновление - это одна неделимая инструкция CPU. Это самый дешёвый инструмент, но он защищает только одно машинное слово.",
     "Mutex: one goroutine in the critical section at a time": "Mutex: одна горутина в критической секции за раз",
     "A goroutine must acquire the lock before touching shared state, and release it when done. Anyone else who wants in simply waits their turn.": "Горутина должна получить блокировку перед тем, как трогать общее состояние, и отпустить её по завершении. Любой другой, кто хочет войти, просто ждёт своей очереди.",
-    "Use this when an INVARIANT spans more than one field (e.g. a balance and a log entry that must change together) — something a single atomic can never guarantee.": "Используйте это, когда ИНВАРИАНТ охватывает больше одного поля (например, баланс и запись в журнале, которые должны меняться вместе) — то, что один atomic никогда не может гарантировать.",
+    "Use this when an INVARIANT spans more than one field (e.g. a balance and a log entry that must change together) - something a single atomic can never guarantee.": "Используйте это, когда ИНВАРИАНТ охватывает больше одного поля (например, баланс и запись в журнале, которые должны меняться вместе) - то, что один atomic никогда не может гарантировать.",
     "Channel: ownership moves with the value": "Channel: владение перемещается вместе со значением",
-    "Instead of two goroutines sharing one variable, the producer sends the value down a channel — the consumer is now the only one who can touch it.": "Вместо того чтобы две горутины делили одну переменную, производитель отправляет значение в канал — теперь только потребитель может его трогать.",
+    "Instead of two goroutines sharing one variable, the producer sends the value down a channel - the consumer is now the only one who can touch it.": "Вместо того чтобы две горутины делили одну переменную, производитель отправляет значение в канал - теперь только потребитель может его трогать.",
     "'Don't communicate by sharing memory; share memory by communicating.' There's no shared state left to race on, because only one goroutine ever owns the value at a time.": "«Не общайтесь, разделяя память; разделяйте память, общаясь». Не остаётся общего состояния для гонки, потому что значением в любой момент владеет только одна горутина.",
     "Pick by the shape of the problem": "Выбирайте по форме задачи",
-    "All three are race-free — the right choice depends on what you're protecting, not on habit.": "Все три варианта свободны от гонок — правильный выбор зависит от того, что вы защищаете, а не от привычки.",
-    "Reaching for the wrong tool still 'works' but costs clarity or performance: an atomic-per-field can't keep two fields consistent; a mutex around a single counter is needless overhead; a channel as a lock is heavier than either.": "Выбор неверного инструмента всё равно «работает», но стоит ясности или производительности: atomic на каждое поле не может сохранить согласованность двух полей; mutex вокруг одного счётчика — лишние затраты; channel как блокировка тяжелее обоих вариантов.",
+    "All three are race-free - the right choice depends on what you're protecting, not on habit.": "Все три варианта свободны от гонок - правильный выбор зависит от того, что вы защищаете, а не от привычки.",
+    "Reaching for the wrong tool still 'works' but costs clarity or performance: an atomic-per-field can't keep two fields consistent; a mutex around a single counter is needless overhead; a channel as a lock is heavier than either.": "Выбор неверного инструмента всё равно «работает», но стоит ясности или производительности: atomic на каждое поле не может сохранить согласованность двух полей; mutex вокруг одного счётчика - лишние затраты; channel как блокировка тяжелее обоих вариантов.",
 
     // three-pillars
     "One request, three services": "Один запрос, три сервиса",
-    "A request enters Service A, which calls Service B, which calls Service C — a normal cross-service call chain.": "Запрос входит в Сервис A, который вызывает Сервис B, который вызывает Сервис C — обычная цепочка межсервисных вызовов.",
-    "Once a request crosses service boundaries, no single process can see the whole picture anymore — that's the gap observability exists to close.": "Как только запрос пересекает границы сервисов, ни один процесс больше не видит полной картины — именно этот разрыв и призвана закрыть observability.",
+    "A request enters Service A, which calls Service B, which calls Service C - a normal cross-service call chain.": "Запрос входит в Сервис A, который вызывает Сервис B, который вызывает Сервис C - обычная цепочка межсервисных вызовов.",
+    "Once a request crosses service boundaries, no single process can see the whole picture anymore - that's the gap observability exists to close.": "Как только запрос пересекает границы сервисов, ни один процесс больше не видит полной картины - именно этот разрыв и призвана закрыть observability.",
     "Each hop opens a child span": "Каждый переход открывает дочерний span",
     "Service A's span covers the whole request. When it calls B, B opens its OWN span nested inside A's. The nesting mirrors the call stack across services.": "Span Сервиса A покрывает весь запрос. Когда он вызывает B, B открывает СВОЙ собственный span, вложенный внутрь span'а A. Вложенность отражает стек вызовов между сервисами.",
-    "A trace is just this tree of spans — it's how you see exactly which hop the time went to, instead of one opaque total latency number.": "Трейс — это просто дерево таких span'ов — так вы видите, на какой именно переход ушло время, вместо одного непрозрачного числа общей задержки.",
+    "A trace is just this tree of spans - it's how you see exactly which hop the time went to, instead of one opaque total latency number.": "Трейс - это просто дерево таких span'ов - так вы видите, на какой именно переход ушло время, вместо одного непрозрачного числа общей задержки.",
     "Metrics: cheap aggregates that answer 'is it broken?'": "Метрики: дешёвые агрегаты, отвечающие «всё ли сломано?»",
-    "Every request bumps a counter and records its duration in a histogram — tiny, constant-cost numbers no matter how much traffic flows through.": "Каждый запрос увеличивает счётчик и записывает свою длительность в гистограмму — крошечные числа с постоянной стоимостью независимо от объёма трафика.",
-    "Metrics are cheap enough to keep forever and alert on continuously — they're the first signal that something is wrong, even before anyone looks at a trace.": "Метрики достаточно дёшевы, чтобы хранить их вечно и непрерывно проверять на алерты — это первый сигнал о том, что что-то не так, ещё до того, как кто-то посмотрит на трейс.",
+    "Every request bumps a counter and records its duration in a histogram - tiny, constant-cost numbers no matter how much traffic flows through.": "Каждый запрос увеличивает счётчик и записывает свою длительность в гистограмму - крошечные числа с постоянной стоимостью независимо от объёма трафика.",
+    "Metrics are cheap enough to keep forever and alert on continuously - they're the first signal that something is wrong, even before anyone looks at a trace.": "Метрики достаточно дёшевы, чтобы хранить их вечно и непрерывно проверять на алерты - это первый сигнал о том, что что-то не так, ещё до того, как кто-то посмотрит на трейс.",
     "Logs: structured detail for one specific event": "Логи: структурированные детали для одного конкретного события",
-    "Each service emits a key/value log line for what it actually did — not a sentence to parse, but searchable fields.": "Каждый сервис выпускает строку лога в формате ключ/значение о том, что он реально сделал — не предложение для разбора, а поля для поиска.",
-    "Metrics tell you something's wrong; logs are where you read exactly what happened in the one request you're debugging.": "Метрики говорят вам, что что-то не так; логи — это то место, где вы читаете, что именно произошло в том одном запросе, который вы дебажите.",
+    "Each service emits a key/value log line for what it actually did - not a sentence to parse, but searchable fields.": "Каждый сервис выпускает строку лога в формате ключ/значение о том, что он реально сделал - не предложение для разбора, а поля для поиска.",
+    "Metrics tell you something's wrong; logs are where you read exactly what happened in the one request you're debugging.": "Метрики говорят вам, что что-то не так; логи - это то место, где вы читаете, что именно произошло в том одном запросе, который вы дебажите.",
     "Correlated by one trace_id": "Связаны одним trace_id",
-    "The same trace_id is stamped on the span, the log lines, and (as a label) the metric for this request — so you can jump from a metric alert, to the slow trace, to the exact log line that explains it.": "Один и тот же trace_id проставлен на span, строках лога и (как метка) на метрике этого запроса — так вы можете прыгнуть от алерта по метрике к медленному трейсу и к точной строке лога, которая всё объясняет.",
-    "Without a shared ID, the three pillars are three disconnected views. With it, they become one investigation: alert → trace → root cause.": "Без общего ID три столпа — это три несвязанных представления. С ним они становятся одним расследованием: алерт → трейс → корневая причина.",
+    "The same trace_id is stamped on the span, the log lines, and (as a label) the metric for this request - so you can jump from a metric alert, to the slow trace, to the exact log line that explains it.": "Один и тот же trace_id проставлен на span, строках лога и (как метка) на метрике этого запроса - так вы можете прыгнуть от алерта по метрике к медленному трейсу и к точной строке лога, которая всё объясняет.",
+    "Without a shared ID, the three pillars are three disconnected views. With it, they become one investigation: alert → trace → root cause.": "Без общего ID три столпа - это три несвязанных представления. С ним они становятся одним расследованием: алерт → трейс → корневая причина.",
 
     // circuit-breaker
     "Closed: calls flow normally": "Closed: вызовы идут нормально",
     "In the default CLOSED state, every call passes straight through to the service. The breaker just quietly counts failures in the background.": "В состоянии CLOSED по умолчанию каждый вызов проходит прямо к сервису. Автомат просто тихо считает сбои в фоне.",
-    "Most of the time the dependency is healthy, so the breaker should add zero overhead — just watch, don't interfere.": "Большую часть времени зависимость здорова, поэтому автомат должен добавлять нулевые затраты — просто наблюдать, не мешать.",
+    "Most of the time the dependency is healthy, so the breaker should add zero overhead - just watch, don't interfere.": "Большую часть времени зависимость здорова, поэтому автомат должен добавлять нулевые затраты - просто наблюдать, не мешать.",
     "Failures climb toward the trip threshold": "Сбои растут к порогу срабатывания",
-    "The downstream service starts erroring. Each failed call still goes all the way out and back — the breaker just increments its counter.": "Нижестоящий сервис начинает выдавать ошибки. Каждый неудачный вызов всё равно идёт туда и обратно целиком — автомат просто увеличивает свой счётчик.",
-    "The breaker needs real evidence the dependency is unhealthy (not one blip) before it changes behavior — that's what the threshold is for.": "Автомату нужны реальные доказательства нездоровья зависимости (не один всплеск), прежде чем менять поведение — именно для этого и существует порог.",
+    "The downstream service starts erroring. Each failed call still goes all the way out and back - the breaker just increments its counter.": "Нижестоящий сервис начинает выдавать ошибки. Каждый неудачный вызов всё равно идёт туда и обратно целиком - автомат просто увеличивает свой счётчик.",
+    "The breaker needs real evidence the dependency is unhealthy (not one blip) before it changes behavior - that's what the threshold is for.": "Автомату нужны реальные доказательства нездоровья зависимости (не один всплеск), прежде чем менять поведение - именно для этого и существует порог.",
     "Trip → OPEN: fail fast, don't even ask": "Срабатывание → OPEN: быстрый отказ, даже не спрашивая",
-    "The breaker trips OPEN. Calls now fail INSTANTLY at the breaker itself — they never even reach the struggling service.": "Автомат переходит в OPEN. Теперь вызовы отказывают МГНОВЕННО прямо на автомате — они даже не достигают проблемного сервиса.",
+    "The breaker trips OPEN. Calls now fail INSTANTLY at the breaker itself - they never even reach the struggling service.": "Автомат переходит в OPEN. Теперь вызовы отказывают МГНОВЕННО прямо на автомате - они даже не достигают проблемного сервиса.",
     "Waiting on a timeout from a service you already know is down just wastes time and adds more load to it. Failing fast is strictly better once you're sure it's unhealthy.": "Ожидание таймаута от сервиса, о котором вы уже знаете, что он лежит, просто тратит время и добавляет ему нагрузки. Быстрый отказ строго лучше, когда вы уверены в его нездоровье.",
     "Cooldown: giving the dependency room to breathe": "Охлаждение: даём зависимости пространство для восстановления",
-    "For a fixed window, every call keeps failing fast — no traffic reaches the service at all.": "В течение фиксированного окна каждый вызов продолжает быстро отказывать — трафик вообще не доходит до сервиса.",
-    "A struggling service often just needs time (to restart, drain a queue, recover from a spike) — sending it zero traffic for a bit is what lets it actually recover.": "Проблемному сервису часто просто нужно время (перезапуститься, опустошить очередь, восстановиться после всплеска) — отправка ему нулевого трафика на время и позволяет ему реально восстановиться.",
+    "For a fixed window, every call keeps failing fast - no traffic reaches the service at all.": "В течение фиксированного окна каждый вызов продолжает быстро отказывать - трафик вообще не доходит до сервиса.",
+    "A struggling service often just needs time (to restart, drain a queue, recover from a spike) - sending it zero traffic for a bit is what lets it actually recover.": "Проблемному сервису часто просто нужно время (перезапуститься, опустошить очередь, восстановиться после всплеска) - отправка ему нулевого трафика на время и позволяет ему реально восстановиться.",
     "Half-Open: let exactly one probe through": "Half-Open: пропускаем ровно один пробный вызов",
-    "Once the cooldown ends, the breaker allows a single real call through to test the water — everything else still waits.": "Когда охлаждение заканчивается, автомат пропускает один настоящий вызов, чтобы прощупать воду — всё остальное всё ещё ждёт.",
+    "Once the cooldown ends, the breaker allows a single real call through to test the water - everything else still waits.": "Когда охлаждение заканчивается, автомат пропускает один настоящий вызов, чтобы прощупать воду - всё остальное всё ещё ждёт.",
     "This answers 'has it recovered?' with minimal risk: if the service is still down, only one call pays the price, not a full flood.": "Это отвечает на вопрос «восстановился ли он?» с минимальным риском: если сервис всё ещё лежит, платит только один вызов, а не целый поток.",
     "Probe succeeds → back to Closed": "Проба успешна → назад в Closed",
     "The probe comes back healthy, so the breaker closes again and lets traffic flow normally. (Had it failed, the breaker would re-open and wait another cooldown.)": "Проба возвращается здоровой, поэтому автомат снова закрывается и пропускает трафик нормально. (Если бы она провалилась, автомат снова открылся бы и подождал ещё одно охлаждение.)",
-    "This Closed → Open → Half-Open → Closed cycle is the whole pattern: protect the dependency when it's down, and self-heal automatically once it recovers — no human required.": "Этот цикл Closed → Open → Half-Open → Closed — весь паттерн целиком: защищать зависимость, когда она лежит, и автоматически самовосстанавливаться, когда она оживает — без участия человека.",
+    "This Closed → Open → Half-Open → Closed cycle is the whole pattern: protect the dependency when it's down, and self-heal automatically once it recovers - no human required.": "Этот цикл Closed → Open → Half-Open → Closed - весь паттерн целиком: защищать зависимость, когда она лежит, и автоматически самовосстанавливаться, когда она оживает - без участия человека.",
 
     // goroutine-spawn (headers, canvas labels)
     "goroutines · go spawns cheap concurrent work": "горутины · go запускает дешёвую конкурентную работу",
@@ -637,29 +637,29 @@
     // goroutine-spawn (per-step title/desc/why)
     "Every program starts as one goroutine": "Любая программа начинается с одной горутины",
     "A Go program begins with a single goroutine running main(). Nothing is concurrent yet.": "Программа на Go начинается с единственной горутины, выполняющей main(). Пока ничего конкурентного нет.",
-    "A goroutine is NOT an OS thread — it's a lightweight task (~2 KB stack) the Go runtime multiplexes onto a small pool of real threads.": "Горутина — это НЕ поток ОС, а лёгкая задача (стек ~2 КБ), которую рантайм Go мультиплексирует на небольшой пул реальных потоков.",
-    "go func() launches goroutines — almost free": "go func() запускает горутины — почти бесплатно",
+    "A goroutine is NOT an OS thread - it's a lightweight task (~2 KB stack) the Go runtime multiplexes onto a small pool of real threads.": "Горутина - это НЕ поток ОС, а лёгкая задача (стек ~2 КБ), которую рантайм Go мультиплексирует на небольшой пул реальных потоков.",
+    "go func() launches goroutines - almost free": "go func() запускает горутины - почти бесплатно",
     "Each `go f()` starts a new goroutine that runs independently. Here main spawns six of them in a loop.": "Каждый `go f()` запускает новую горутину, работающую независимо. Здесь main порождает шесть из них в цикле.",
-    "Spawning costs a few KB and no syscall, so a server can keep hundreds of thousands of goroutines alive at once — unthinkable with OS threads.": "Запуск стоит несколько КБ и без syscall, поэтому сервер может держать сотни тысяч горутин одновременно — немыслимо для потоков ОС.",
+    "Spawning costs a few KB and no syscall, so a server can keep hundreds of thousands of goroutines alive at once - unthinkable with OS threads.": "Запуск стоит несколько КБ и без syscall, поэтому сервер может держать сотни тысяч горутин одновременно - немыслимо для потоков ОС.",
     "They all run concurrently": "Все они выполняются конкурентно",
     "The six goroutines execute at the same time, interleaved across a handful of OS threads by the scheduler.": "Шесть горутин выполняются одновременно, чередуясь планировщиком на горстке потоков ОС.",
-    "You do NOT control the order they run in — assuming an order is the single most common concurrency bug in Go.": "Вы НЕ управляете порядком их выполнения — предположение о порядке — самая частая ошибка конкурентности в Go.",
+    "You do NOT control the order they run in - assuming an order is the single most common concurrency bug in Go.": "Вы НЕ управляете порядком их выполнения - предположение о порядке - самая частая ошибка конкурентности в Go.",
     "wg.Wait() blocks main until each Done()": "wg.Wait() блокирует main до каждого Done()",
     "main parks on wg.Wait(). As every goroutine finishes it calls wg.Done(), dropping the counter one by one.": "main паркуется на wg.Wait(). Каждая горутина по завершении вызывает wg.Done(), уменьшая счётчик по одному.",
-    "Without a WaitGroup (or a channel) main could return early — and when main returns, the whole program exits, killing the other goroutines mid-work.": "Без WaitGroup (или канала) main мог бы завершиться раньше — а когда main возвращается, вся программа завершается, убивая остальные горутины на полпути.",
+    "Without a WaitGroup (or a channel) main could return early - and when main returns, the whole program exits, killing the other goroutines mid-work.": "Без WaitGroup (или канала) main мог бы завершиться раньше - а когда main возвращается, вся программа завершается, убивая остальные горутины на полпути.",
     "All done → main resumes": "Все завершились → main продолжает",
-    "The counter hits zero, wg.Wait() returns, and main continues past it — now guaranteed every goroutine has finished.": "Счётчик достигает нуля, wg.Wait() возвращает управление, и main идёт дальше — теперь гарантировано, что каждая горутина завершилась.",
-    "WaitGroup is the simplest way to fan out a fixed set of goroutines and join back safely; for streaming results you'd reach for a channel instead.": "WaitGroup — простейший способ разветвить фиксированный набор горутин и безопасно дождаться их; для потоковых результатов лучше взять канал.",
+    "The counter hits zero, wg.Wait() returns, and main continues past it - now guaranteed every goroutine has finished.": "Счётчик достигает нуля, wg.Wait() возвращает управление, и main идёт дальше - теперь гарантировано, что каждая горутина завершилась.",
+    "WaitGroup is the simplest way to fan out a fixed set of goroutines and join back safely; for streaming results you'd reach for a channel instead.": "WaitGroup - простейший способ разветвить фиксированный набор горутин и безопасно дождаться их; для потоковых результатов лучше взять канал.",
 
     // channel-flow (headers, canvas labels)
     "channels · handshake, buffering & select": "каналы · рукопожатие, буферизация и select",
     "sender": "отправитель",
     "receiver": "получатель",
     "ch  (unbuffered)": "ch  (небуферизованный)",
-    "⏸ send blocks — no receiver yet": "⏸ отправка блокируется — получателя ещё нет",
-    "✓ received — both goroutines proceed": "✓ получено — обе горутины продолжают",
+    "⏸ send blocks - no receiver yet": "⏸ отправка блокируется - получателя ещё нет",
+    "✓ received - both goroutines proceed": "✓ получено - обе горутины продолжают",
     "value crosses in one handshake (rendezvous)": "значение проходит за одно рукопожатие (рандеву)",
-    "buffered ch — cap 4": "буферизованный ch — cap 4",
+    "buffered ch - cap 4": "буферизованный ch - cap 4",
     "3 sends, buffer has room → sender never blocks": "3 отправки, в буфере есть место → отправитель не блокируется",
     "ch <- v  ⏸ blocks (backpressure)": "ch <- v  ⏸ блокируется (обратное давление)",
     "chA ● ready": "chA ● готов",
@@ -669,19 +669,19 @@
     // channel-flow (per-step title/desc/why)
     "Unbuffered channel: the sender waits": "Небуферизованный канал: отправитель ждёт",
     "A goroutine runs `ch <- v` on an unbuffered channel. With no one receiving yet, the send simply blocks.": "Горутина выполняет `ch <- v` на небуферизованном канале. Пока никто не принимает, отправка просто блокируется.",
-    "An unbuffered channel has zero storage — a send can't complete until another goroutine is ready to receive. Blocking IS the synchronization.": "У небуферизованного канала нет хранилища — отправка не завершится, пока другая горутина не будет готова принять. Блокировка И ЕСТЬ синхронизация.",
+    "An unbuffered channel has zero storage - a send can't complete until another goroutine is ready to receive. Blocking IS the synchronization.": "У небуферизованного канала нет хранилища - отправка не завершится, пока другая горутина не будет готова принять. Блокировка И ЕСТЬ синхронизация.",
     "Receiver arrives → a single handshake": "Получатель приходит → одно рукопожатие",
     "Another goroutine runs `v := <-ch`. The value crosses and BOTH goroutines unblock at the same instant.": "Другая горутина выполняет `v := <-ch`. Значение проходит, и ОБЕ горутины разблокируются в один и тот же момент.",
-    "This rendezvous is a guarantee: after the handshake, the sender knows the value was received — no lost messages, no polling.": "Это рандеву — гарантия: после рукопожатия отправитель знает, что значение получено — без потерянных сообщений и без опроса.",
+    "This rendezvous is a guarantee: after the handshake, the sender knows the value was received - no lost messages, no polling.": "Это рандеву - гарантия: после рукопожатия отправитель знает, что значение получено - без потерянных сообщений и без опроса.",
     "A buffered channel holds values": "Буферизованный канал хранит значения",
-    "make(chan T, 4) gives the channel a buffer. Sends succeed immediately while there's free space — the sender doesn't wait.": "make(chan T, 4) даёт каналу буфер. Отправки проходят сразу, пока есть свободное место — отправитель не ждёт.",
+    "make(chan T, 4) gives the channel a buffer. Sends succeed immediately while there's free space - the sender doesn't wait.": "make(chan T, 4) даёт каналу буфер. Отправки проходят сразу, пока есть свободное место - отправитель не ждёт.",
     "A buffer decouples sender and receiver timing: bursts of work can queue up instead of forcing a lock-step handshake every time.": "Буфер разделяет тайминг отправителя и получателя: всплески работы могут ставиться в очередь вместо жёсткого рукопожатия каждый раз.",
     "Buffer full → the next send blocks": "Буфер полон → следующая отправка блокируется",
     "Once all 4 slots are occupied, the 5th `ch <- v` blocks until a receiver frees a slot. This is natural backpressure.": "Когда все 4 слота заняты, 5-й `ch <- v` блокируется, пока получатель не освободит слот. Это естественное обратное давление.",
-    "Backpressure is a feature: a fast producer is forced to slow to the consumer's pace instead of exhausting memory with an unbounded queue.": "Обратное давление — это преимущество: быстрый производитель вынужден замедлиться до темпа потребителя вместо того, чтобы исчерпать память неограниченной очередью.",
+    "Backpressure is a feature: a fast producer is forced to slow to the consumer's pace instead of exhausting memory with an unbounded queue.": "Обратное давление - это преимущество: быстрый производитель вынужден замедлиться до темпа потребителя вместо того, чтобы исчерпать память неограниченной очередью.",
     "select waits on whichever is ready": "select ждёт тот канал, что готов",
-    "select blocks on several channel operations at once and proceeds with the FIRST one that becomes ready — here, chA.": "select блокируется сразу на нескольких операциях с каналами и продолжает с ПЕРВОЙ, которая станет готова — здесь это chA.",
-    "select is how one goroutine juggles many channels — combine it with a ctx.Done() case and you get clean timeouts and cancellation.": "select — это то, как одна горутина жонглирует множеством каналов; добавьте case с ctx.Done() и получите чистые таймауты и отмену.",
+    "select blocks on several channel operations at once and proceeds with the FIRST one that becomes ready - here, chA.": "select блокируется сразу на нескольких операциях с каналами и продолжает с ПЕРВОЙ, которая станет готова - здесь это chA.",
+    "select is how one goroutine juggles many channels - combine it with a ctx.Done() case and you get clean timeouts and cancellation.": "select - это то, как одна горутина жонглирует множеством каналов; добавьте case с ctx.Done() и получите чистые таймауты и отмену.",
 
     // redis-cache
     "Redis · cache-aside lifecycle & the atomic lock": "Redis · жизненный цикл cache-aside и атомарная блокировка",
@@ -698,25 +698,25 @@
     "worker-": "воркер-",
     " -> acquired the lock": " -> получил блокировку",
     "everyone else -> lock already held, backing off": "все остальные -> блокировка уже занята, отступают",
-    // redis-cache — step captions
+    // redis-cache - step captions
     "Without a cache, every read hits the database directly": "Без кэша каждое чтение идёт прямо в базу данных",
-    "The client asks for a value and there is nowhere faster to check first — every single request pays the full cost of a real database query.": "Клиент запрашивает значение, и нет более быстрого места для проверки — каждый запрос платит полную цену настоящего запроса к базе данных.",
-    "This is the baseline we're about to beat. Nothing here is wrong, it's just slow — and 'slow, every time' is expensive once traffic grows.": "Это базовая линия, которую мы сейчас побьём. Здесь всё корректно, просто медленно — а «медленно каждый раз» становится дорого с ростом трафика.",
-    "First request: Redis is checked first — and it's a miss": "Первый запрос: сначала проверяется Redis — и это промах",
-    "The client's read now stops at Redis before anything else. The key isn't there yet, so go-redis returns the sentinel error redis.Nil — not a crash, just \"not cached yet.\"": "Теперь чтение клиента сначала останавливается в Redis. Ключа там пока нет, поэтому go-redis возвращает сигнальную ошибку redis.Nil — не сбой, просто «ещё не закэшировано».",
-    "Treating a miss as a normal, expected outcome — not an error to panic on — is what makes this pattern safe to use on every read, not just the lucky ones.": "Обращение с промахом как с нормальным, ожидаемым результатом — а не ошибкой, на которую нужно паниковать — делает этот паттерн безопасным для каждого чтения, а не только удачных.",
-    "The answer comes back — and gets cached with a TTL": "Ответ приходит — и кэшируется с TTL",
-    "The database returns the real value. Before handing it to the client, the code writes it into Redis with an expiration attached — e.g. 60 seconds.": "База данных возвращает настоящее значение. Перед тем как отдать его клиенту, код записывает его в Redis со сроком истечения — например, 60 секунд.",
-    "Attaching a TTL at write time is what bounds how wrong this cached copy is allowed to become. Nobody has to remember to clean it up later — Redis does it alone.": "Прикрепление TTL в момент записи ограничивает то, насколько неверной может стать эта закэшированная копия. Никому не нужно помнить о её очистке позже — Redis делает это сам.",
-    "Second request: cache hit — the database is never touched": "Второй запрос: попадание в кэш — база данных не тронута",
+    "The client asks for a value and there is nowhere faster to check first - every single request pays the full cost of a real database query.": "Клиент запрашивает значение, и нет более быстрого места для проверки - каждый запрос платит полную цену настоящего запроса к базе данных.",
+    "This is the baseline we're about to beat. Nothing here is wrong, it's just slow - and 'slow, every time' is expensive once traffic grows.": "Это базовая линия, которую мы сейчас побьём. Здесь всё корректно, просто медленно - а «медленно каждый раз» становится дорого с ростом трафика.",
+    "First request: Redis is checked first - and it's a miss": "Первый запрос: сначала проверяется Redis - и это промах",
+    "The client's read now stops at Redis before anything else. The key isn't there yet, so go-redis returns the sentinel error redis.Nil - not a crash, just \"not cached yet.\"": "Теперь чтение клиента сначала останавливается в Redis. Ключа там пока нет, поэтому go-redis возвращает сигнальную ошибку redis.Nil - не сбой, просто «ещё не закэшировано».",
+    "Treating a miss as a normal, expected outcome - not an error to panic on - is what makes this pattern safe to use on every read, not just the lucky ones.": "Обращение с промахом как с нормальным, ожидаемым результатом - а не ошибкой, на которую нужно паниковать - делает этот паттерн безопасным для каждого чтения, а не только удачных.",
+    "The answer comes back - and gets cached with a TTL": "Ответ приходит - и кэшируется с TTL",
+    "The database returns the real value. Before handing it to the client, the code writes it into Redis with an expiration attached - e.g. 60 seconds.": "База данных возвращает настоящее значение. Перед тем как отдать его клиенту, код записывает его в Redis со сроком истечения - например, 60 секунд.",
+    "Attaching a TTL at write time is what bounds how wrong this cached copy is allowed to become. Nobody has to remember to clean it up later - Redis does it alone.": "Прикрепление TTL в момент записи ограничивает то, насколько неверной может стать эта закэшированная копия. Никому не нужно помнить о её очистке позже - Redis делает это сам.",
+    "Second request: cache hit - the database is never touched": "Второй запрос: попадание в кэш - база данных не тронута",
     "The exact same key is requested again. This time Redis has it: the client gets an answer in well under a millisecond, and the database does nothing at all.": "Запрашивается тот же самый ключ. На этот раз он есть в Redis: клиент получает ответ значительно быстрее миллисекунды, а база данных вообще ничего не делает.",
-    "This is the entire payoff of cache-aside — the expensive path runs once per TTL window, no matter how many times the value is actually read in that window.": "Вот вся выгода cache-aside — дорогой путь выполняется один раз за окно TTL, независимо от того, сколько раз значение реально читается в этом окне.",
-    "The TTL runs out — and the next request is a miss again": "TTL истекает — и следующий запрос снова промах",
-    "60 seconds pass. Redis quietly deletes the key on its own. The next client to ask for it gets a miss, exactly like the very first request did.": "Проходит 60 секунд. Redis тихо удаляет ключ сам. Следующий клиент, запросивший его, получает промах — точно как самый первый запрос.",
+    "This is the entire payoff of cache-aside - the expensive path runs once per TTL window, no matter how many times the value is actually read in that window.": "Вот вся выгода cache-aside - дорогой путь выполняется один раз за окно TTL, независимо от того, сколько раз значение реально читается в этом окне.",
+    "The TTL runs out - and the next request is a miss again": "TTL истекает - и следующий запрос снова промах",
+    "60 seconds pass. Redis quietly deletes the key on its own. The next client to ask for it gets a miss, exactly like the very first request did.": "Проходит 60 секунд. Redis тихо удаляет ключ сам. Следующий клиент, запросивший его, получает промах - точно как самый первый запрос.",
     "This is the cache-aside lifecycle closing the loop: hit, hit, hit… until the TTL ends, then one miss repopulates it and the cycle simply continues.": "Это цикл cache-aside, замыкающий петлю: попадание, попадание, попадание… пока не закончится TTL, затем один промах заново заполняет кэш, и цикл просто продолжается.",
     "Atomic SETNX: five callers race, exactly one wins": "Атомарный SETNX: пять вызывающих сторон соревнуются, побеждает ровно одна",
-    "Five clients call SET … NX on the same lock key at the same instant. Because Redis executes one command at a time, exactly one of them creates the key and gets the lock — the other four fail immediately.": "Пять клиентов вызывают SET … NX на один и тот же ключ блокировки в один и тот же момент. Поскольку Redis выполняет по одной команде за раз, ровно один из них создаёт ключ и получает блокировку — остальные четыре немедленно проваливаются.",
-    "No extra coordination code was added anywhere. This atomicity is a free property of how Redis executes commands — it's what makes one Redis instance a correct distributed lock.": "Никакой дополнительный код координации не был добавлен нигде. Эта атомарность — бесплатное свойство того, как Redis выполняет команды — именно оно делает один инстанс Redis корректной распределённой блокировкой.",
+    "Five clients call SET … NX on the same lock key at the same instant. Because Redis executes one command at a time, exactly one of them creates the key and gets the lock - the other four fail immediately.": "Пять клиентов вызывают SET … NX на один и тот же ключ блокировки в один и тот же момент. Поскольку Redis выполняет по одной команде за раз, ровно один из них создаёт ключ и получает блокировку - остальные четыре немедленно проваливаются.",
+    "No extra coordination code was added anywhere. This atomicity is a free property of how Redis executes commands - it's what makes one Redis instance a correct distributed lock.": "Никакой дополнительный код координации не был добавлен нигде. Эта атомарность - бесплатное свойство того, как Redis выполняет команды - именно оно делает один инстанс Redis корректной распределённой блокировкой.",
   };
 
   function lang() { return (typeof window !== "undefined" && window.__LANG__) || "en"; }
@@ -730,7 +730,7 @@
   const lerp = (a, b, t) => a + (b - a) * t;
   const easeInOut = (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
   const easeOut = (t) => 1 - Math.pow(1 - t, 3);
-  // overshoot ease — for playful pop-in scale effects (badges, arrivals, "aha" moments)
+  // overshoot ease - for playful pop-in scale effects (badges, arrivals, "aha" moments)
   const easeOutBack = (t) => {
     const c1 = 1.70158, c3 = c1 + 1;
     return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
@@ -812,10 +812,10 @@
      A small toolkit of playful, purely time-of-p-driven effects so the
      climax of a step (a hit, a commit, a trip, a resume) gets a visible
      flourish instead of just a color swap. Everything here is a pure
-     function of its progress argument — safe to scrub/seek/replay,
+     function of its progress argument - safe to scrub/seek/replay,
      exactly like the rest of this deterministic timeline engine. */
 
-  // expanding "ping" ring — one clean pulse announcing "this just happened".
+  // expanding "ping" ring - one clean pulse announcing "this just happened".
   // p: 0..1 local progress since the triggering moment (call within(...) at the call site).
   function ring(ctx, x, y, color, p, opts = {}) {
     const p2 = clamp(p, 0, 1);
@@ -827,7 +827,7 @@
     ctx.restore();
   }
 
-  // deterministic particle burst — small dots flying outward from (x,y), fading out.
+  // deterministic particle burst - small dots flying outward from (x,y), fading out.
   // No Math.random(): angles/radii come from a fixed, seeded-looking pattern so
   // scrubbing back and forth always redraws the exact same burst.
   function burst(ctx, x, y, color, p, n = 10) {
@@ -848,7 +848,7 @@
     }
   }
 
-  // a breathing halo behind "the thing to look at right now" — draws attention
+  // a breathing halo behind "the thing to look at right now" - draws attention
   // without stealing focus. t: continuous global time (seconds), any float works.
   function glowPulse(ctx, x, y, r, color, t) {
     const k = 0.55 + 0.45 * Math.sin(t * 2.4);
@@ -861,7 +861,7 @@
     ctx.restore();
   }
 
-  // a directional connector with marching-ants motion — makes "this is where
+  // a directional connector with marching-ants motion - makes "this is where
   // data/control is flowing, in this direction" immediately legible.
   // t: continuous global time (seconds); pass the same t already given to render().
   function flow(ctx, x1, y1, x2, y2, color, lw, t) {
@@ -873,7 +873,7 @@
     ctx.restore();
   }
 
-  // scale factor for a pop-in entrance (badges, nodes, arrivals) — 0..1 local progress.
+  // scale factor for a pop-in entrance (badges, nodes, arrivals) - 0..1 local progress.
   function pop(p) { return clamp(easeOutBack(clamp(p, 0, 1)), 0, 1.15); }
 
   /* ----------------------------------------------- step-by-step render
@@ -1001,9 +1001,9 @@
         if (col === "grey") { fill = "rgba(245,177,76,.85)"; stroke = c.warn; fg = "#1c1406"; }
         if (col === "black") { fill = "rgba(0,173,216,.9)"; stroke = c.go; fg = "#04121c"; }
         if (n.g && sweepA === 0 && marking && frontier >= 4) stroke = c.bad;
-        // grey = "actively being scanned right now" — a soft breathing halo pulls the eye there.
+        // grey = "actively being scanned right now" - a soft breathing halo pulls the eye there.
         if (col === "grey") u.glowPulse(ctx, x, y, R, "rgba(245,177,76,.55)", u.t || 0);
-        // sweeping a garbage node reclaims it — a small dissolving puff instead of just fading.
+        // sweeping a garbage node reclaims it - a small dissolving puff instead of just fading.
         if (n.g && sweepA > 0 && sweepA < 1) u.burst(ctx, x, y, c.dim, sweepA, 7);
         ctx.globalAlpha = gone ? 1 - sweepA : 1;
         if (n.root) {
@@ -1024,13 +1024,13 @@
         t: 0,
         title: "The heap is a graph of objects",
         desc: "Two roots (global variables / goroutine stacks) point into a web of objects. Some objects (right side) aren't pointed to by anything reachable from a root.",
-        why: "The collector's whole job is to tell live objects apart from dead ones — and 'reachable from a root' is the only definition of 'live' it needs.",
+        why: "The collector's whole job is to tell live objects apart from dead ones - and 'reachable from a root' is the only definition of 'live' it needs.",
         draw(ctx, p, w, h, c, u) { drawHeap(ctx, c, u, w, h, 0, false, 0); },
       },
       {
         t: 2.0,
         title: "Start at the roots, mark them black",
-        desc: "Marking begins at the roots — they're live by definition. Whatever they directly point to turns grey: 'reachable, but not yet scanned.'",
+        desc: "Marking begins at the roots - they're live by definition. Whatever they directly point to turns grey: 'reachable, but not yet scanned.'",
         why: "Starting only from roots guarantees you never mark something live unless there's an actual chain of pointers reaching it.",
         draw(ctx, p, w, h, c, u) { drawHeap(ctx, c, u, w, h, u.clamp(p, 0, 1) * 0.9, true, 0); },
       },
@@ -1044,7 +1044,7 @@
       {
         t: 7.0,
         title: "White = dead",
-        desc: "Once no grey objects remain, the wave is finished. Everything still white — including the cluster on the right — was never touched, because nothing live points to it.",
+        desc: "Once no grey objects remain, the wave is finished. Everything still white - including the cluster on the right - was never touched, because nothing live points to it.",
         why: "This is the proof of garbage: not 'looks unused', but 'provably unreachable from any root.'",
         draw(ctx, p, w, h, c, u) { drawHeap(ctx, c, u, w, h, 4, true, 0); },
       },
@@ -1052,7 +1052,7 @@
         t: 9.4,
         title: "Sweep: reclaim the white objects",
         desc: "The collector walks the heap one more time and frees every object still marked white. Black (live) objects are never touched.",
-        why: "Marking and sweeping are kept as separate passes so the collector never frees something while it might still be mid-scan — correctness over speed.",
+        why: "Marking and sweeping are kept as separate passes so the collector never frees something while it might still be mid-scan - correctness over speed.",
         draw(ctx, p, w, h, c, u) { drawHeap(ctx, c, u, w, h, 4, true, u.clamp(p, 0, 1)); },
       },
     ];
@@ -1096,8 +1096,8 @@
     const STEPS = [
       {
         t: 0,
-        title: "The program runs — a call tree",
-        desc: "A request flows main → handleRequest → a handful of child functions. Some of those calls are cheap, some are expensive — but just reading the code, you can't tell which.",
+        title: "The program runs - a call tree",
+        desc: "A request flows main → handleRequest → a handful of child functions. Some of those calls are cheap, some are expensive - but just reading the code, you can't tell which.",
         why: "Without measurement, optimization is guessing. Profiling replaces guessing with evidence.",
         draw(ctx, p, w, h, c, u) {
           const tree = [["main", 0, 0], ["handleRequest", 1, 0], ["parseJSON", 2, -1], ["validate", 2, 0], ["writeLog", 2, 1], ["reflectWalk", 3, -1.3], ["jsonAlloc", 3, -0.5]];
@@ -1124,7 +1124,7 @@
         t: 2.4,
         title: "The sampler ticks ~100×/second",
         desc: "Rather than instrument every call, pprof just peeks at whatever stack is CURRENTLY running, many times a second, and records it.",
-        why: "Sampling is statistical, not exhaustive — that's exactly what makes it cheap enough to run in production without slowing the program down.",
+        why: "Sampling is statistical, not exhaustive - that's exactly what makes it cheap enough to run in production without slowing the program down.",
         draw(ctx, p, w, h, c, u) {
           const cx0 = w / 2;
           u.text(ctx, "sampler", cx0, h * 0.18, { align: "center", color: c.warn, size: 13, weight: 700 });
@@ -1147,8 +1147,8 @@
       {
         t: 5.4,
         title: "Samples aggregate into a flame graph",
-        desc: "Every captured stack stacks its frames into bars — a box sits inside its caller, and the more samples landed in a function, the WIDER its box grows.",
-        why: "Width directly encodes time spent, so the visual shape of the graph IS the measurement — no separate legend to decode.",
+        desc: "Every captured stack stacks its frames into bars - a box sits inside its caller, and the more samples landed in a function, the WIDER its box grows.",
+        why: "Width directly encodes time spent, so the visual shape of the graph IS the measurement - no separate legend to decode.",
         draw(ctx, p, w, h, c, u) {
           drawFlame(ctx, c, u, w, h, u.easeOut(u.clamp(p, 0, 1)), false);
           u.text(ctx, "width = share of samples in that function", 24, h - 18, { color: c.dim, size: 11.5 });
@@ -1156,9 +1156,9 @@
       },
       {
         t: 7.8,
-        title: "Find the widest box — that's the hotspot",
+        title: "Find the widest box - that's the hotspot",
         desc: "reflectWalk is the widest leaf frame: roughly 40% of all CPU samples landed inside it. The tall, narrow stacks next to it barely register.",
-        why: "Optimizing the widest box gives the biggest win for the least effort — optimizing a narrow box can't help much even if you make it instant.",
+        why: "Optimizing the widest box gives the biggest win for the least effort - optimizing a narrow box can't help much even if you make it instant.",
         draw(ctx, p, w, h, c, u) {
           // pre-compute geometry from the same constants drawFlame uses, so the glow sits BEHIND the box
           const x0g = 24, plotWg = w - 48, rowHg = 34, bottomYg = h - 50;
@@ -1169,7 +1169,7 @@
           if (p < 0.5) u.burst(ctx, x0g + hotWg / 2, hotYg + rowHg / 2, c.bad, u.easeOut(u.clamp(p / 0.5, 0, 1)), 9);
           const a = u.clamp(p / 0.4, 0, 1);
           u.fillRR(ctx, x0, 64, 340, 32, 8, "rgba(255,107,107,.12)", c.bad, 1.6);
-          u.text(ctx, "▲ reflectWalk ≈ 40% of CPU — optimize here first", x0 + 12, 85, { color: c.bad, size: 12, weight: 700, alpha: a });
+          u.text(ctx, "▲ reflectWalk ≈ 40% of CPU - optimize here first", x0 + 12, 85, { color: c.bad, size: 12, weight: 700, alpha: a });
         },
       },
     ];
@@ -1205,7 +1205,7 @@
         t: 0,
         title: "A table of cases",
         desc: "Each row is one input pair plus the expected (want) result for the SAME function, Add(a, b).",
-        why: "Separating 'what to test' (the table) from 'how to test it' (one shared piece of logic) means adding a new case is just adding a row — no new code.",
+        why: "Separating 'what to test' (the table) from 'how to test it' (one shared piece of logic) means adding a new case is just adding a row - no new code.",
         draw(ctx, p, w, h, c, u) {
           const top = h * 0.2, rowH = 56, lx = w * 0.18, rw = w * 0.64;
           cases.forEach((cs, i) => {
@@ -1218,7 +1218,7 @@
       {
         t: 2.2,
         title: "go test runs each case as an isolated subtest",
-        desc: "t.Run wraps each row as its own named subtest — go test -run TestAdd/negatives can target just one, and one failing case never stops the others from running.",
+        desc: "t.Run wraps each row as its own named subtest - go test -run TestAdd/negatives can target just one, and one failing case never stops the others from running.",
         why: "Isolation means a single bad case gives you a precise failure (\"TestAdd/negatives\"), not a vague \"something in TestAdd broke.\"",
         draw(ctx, p, w, h, c, u) {
           const top = h * 0.22, rowH = 56, lx = w * 0.18, rw = w * 0.64;
@@ -1230,7 +1230,7 @@
         t: 4.4,
         title: "Inputs flow into the function",
         desc: "For the active case, a(=2) and b(=3) are passed into Add(a, b), which computes a+b.",
-        why: "The function under test never knows it's being tested through a table — it just gets called like normal code, which is why this pattern adds no production complexity.",
+        why: "The function under test never knows it's being tested through a table - it just gets called like normal code, which is why this pattern adds no production complexity.",
         draw(ctx, p, w, h, c, u) {
           const cs = cases[0];
           const lx = w * 0.1, rowY = h * 0.25, fx = w / 2 - 75, fy = h * 0.55, fw = 150, fh = 56;
@@ -1247,7 +1247,7 @@
         t: 6.6,
         title: "Compare got vs want",
         desc: "The function returns got = 5. The test compares it to want = 5 from the table row. Equal → the case passes.",
-        why: "The comparison — not the function — is what decides pass/fail. A mismatch fails loudly with both values printed, so you see exactly what diverged.",
+        why: "The comparison - not the function - is what decides pass/fail. A mismatch fails loudly with both values printed, so you see exactly what diverged.",
         draw(ctx, p, w, h, c, u) {
           const cs = cases[0];
           const lx = w * 0.1, rowY = h * 0.25, fx = w / 2 - 75, fy = h * 0.55, fw = 150, fh = 56, rx = w * 0.62;
@@ -1269,7 +1269,7 @@
         t: 8.6,
         title: "The same flow runs for every case",
         desc: "go test repeats exactly this input → function → compare flow for each remaining row, fully independently.",
-        why: "This is the payoff: one test function plus N table rows covers N scenarios — no copy-pasted test functions to maintain.",
+        why: "This is the payoff: one test function plus N table rows covers N scenarios - no copy-pasted test functions to maintain.",
         draw(ctx, p, w, h, c, u) {
           const top = h * 0.22, rowH = 56, lx = w * 0.18, rw = w * 0.64;
           const done = Math.min(cases.length, Math.floor(p * (cases.length + 1)));
@@ -1283,7 +1283,7 @@
       {
         t: 10.4,
         title: "Summary",
-        desc: "go test reports one line: how many passed, and coverage. Run it constantly — `go test -race -cover ./...` — so a regression is caught the moment it's introduced.",
+        desc: "go test reports one line: how many passed, and coverage. Run it constantly - `go test -race -cover ./...` - so a regression is caught the moment it's introduced.",
         why: "A fast, table-driven suite is cheap enough to run on every save, which is what makes 'catch it immediately' realistic instead of aspirational.",
         draw(ctx, p, w, h, c, u) {
           const a = u.clamp(p / 0.3, 0, 1);
@@ -1303,7 +1303,7 @@
   };
 
   /* =================================================================== */
-  /* F4. WORKER POOL — FAN-OUT / FAN-IN                                  */
+  /* F4. WORKER POOL - FAN-OUT / FAN-IN                                  */
   /* =================================================================== */
   ANIM["worker-pool"] = (canvas) => {
     function jobDot(ctx, c, u, x, y, label, color, ring) {
@@ -1316,7 +1316,7 @@
       {
         t: 0,
         title: "Six jobs wait on a buffered channel",
-        desc: "Work items sit in a channel, ready to be picked up. Nothing is processing yet — this is just a queue.",
+        desc: "Work items sit in a channel, ready to be picked up. Nothing is processing yet - this is just a queue.",
         why: "A channel decouples producing work from consuming it: the producer doesn't need to know or care how many workers exist.",
         draw(ctx, p, w, h, c, u) {
           const qx = w * 0.16, top = h * 0.26, sp = 44;
@@ -1331,7 +1331,7 @@
       {
         t: 2.0,
         title: "Three workers pull from the SAME channel",
-        desc: "Each worker goroutine independently calls `job := <-jobs` in a loop. The channel itself decides which worker gets which job — no coordination code needed.",
+        desc: "Each worker goroutine independently calls `job := <-jobs` in a loop. The channel itself decides which worker gets which job - no coordination code needed.",
         why: "This is fan-out: identical workers competing for jobs on one channel is enough to spread work across goroutines safely.",
         draw(ctx, p, w, h, c, u) {
           const qx = w * 0.16, top = h * 0.22, sp = 44;
@@ -1349,7 +1349,7 @@
       {
         t: 4.4,
         title: "Up to three jobs process at once",
-        desc: "Each busy worker is running its own job concurrently — never more than 3 in flight, because there are only 3 workers.",
+        desc: "Each busy worker is running its own job concurrently - never more than 3 in flight, because there are only 3 workers.",
         why: "The number of workers is a deliberate dial: it caps concurrency so you don't overwhelm downstream resources, while still getting real parallelism.",
         draw(ctx, p, w, h, c, u) {
           const wx = w / 2 - 75, wTop = h * 0.18, wSp = 90, wW = 150, wH = 56;
@@ -1366,8 +1366,8 @@
       {
         t: 6.6,
         title: "Fan-in: every worker sends to ONE results channel",
-        desc: "When a worker finishes, it sends its result to a shared results channel — the same channel every other worker also writes to.",
-        why: "The collector reading results doesn't need to know which worker produced what, or even how many workers there are — fan-in merges them for free.",
+        desc: "When a worker finishes, it sends its result to a shared results channel - the same channel every other worker also writes to.",
+        why: "The collector reading results doesn't need to know which worker produced what, or even how many workers there are - fan-in merges them for free.",
         draw(ctx, p, w, h, c, u) {
           const wx = w * 0.14, wTop = h * 0.2, wSp = 90, wW = 150, wH = 56;
           const rx = w * 0.82, rTop = h * 0.24, rSp = 40;
@@ -1385,7 +1385,7 @@
         t: 9.0,
         title: "Drained: every job ran exactly once",
         desc: "All six jobs were processed, never more than three at a time, and the results all merged onto one channel for the collector.",
-        why: "No locks, no shared mutable state, no manual bookkeeping — the channel's blocking send/receive IS the synchronization.",
+        why: "No locks, no shared mutable state, no manual bookkeeping - the channel's blocking send/receive IS the synchronization.",
         draw(ctx, p, w, h, c, u) {
           const a = u.clamp(p / 0.3, 0, 1);
           if (p < 0.45) u.burst(ctx, w / 2, h * 0.36 + 22, c.good, u.easeOut(u.clamp(p / 0.45, 0, 1)), 12);
@@ -1443,29 +1443,29 @@
       {
         t: 0,
         title: "A request creates a root context",
-        desc: "Every cancellation tree starts from one context at the top — typically derived from the incoming request.",
+        desc: "Every cancellation tree starts from one context at the top - typically derived from the incoming request.",
         why: "Having ONE source of truth for 'should this request keep going' is what makes it possible to cancel an entire call tree with a single action later.",
         draw(ctx, p, w, h, c, u) { drawTree(ctx, c, u, w, h, 0, () => false); },
       },
       {
         t: 2.0,
         title: "Children derive their own contexts",
-        desc: "Each branch derives a child context — WithCancel, WithTimeout — rather than creating an unrelated one from scratch.",
+        desc: "Each branch derives a child context - WithCancel, WithTimeout - rather than creating an unrelated one from scratch.",
         why: "Deriving (not creating fresh) is what wires the child to the parent: cancel the parent, and every derived child is automatically cancelled too.",
         draw(ctx, p, w, h, c, u) { drawTree(ctx, c, u, w, h, 1, () => false); },
       },
       {
         t: 4.0,
         title: "Goroutines attach at the leaves",
-        desc: "Worker goroutines hold the leaf contexts and do real work — an HTTP call, a DB query — while watching ctx.Done() for a cancellation signal.",
+        desc: "Worker goroutines hold the leaf contexts and do real work - an HTTP call, a DB query - while watching ctx.Done() for a cancellation signal.",
         why: "This is the realistic shape of a Go service: a deep tree of derived contexts with actual work happening only at the edges.",
         draw(ctx, p, w, h, c, u) { drawTree(ctx, c, u, w, h, 2, () => false); },
       },
       {
         t: 6.0,
         title: "The deadline fires at the root",
-        desc: "2 seconds elapse (or someone calls the root's cancel() function) — the root's Done() channel closes.",
-        why: "Only the root needs to know WHY the request is ending (timeout, client disconnect, explicit cancel) — everything below just reacts to one signal.",
+        desc: "2 seconds elapse (or someone calls the root's cancel() function) - the root's Done() channel closes.",
+        why: "Only the root needs to know WHY the request is ending (timeout, client disconnect, explicit cancel) - everything below just reacts to one signal.",
         draw(ctx, p, w, h, c, u) {
           drawTree(ctx, c, u, w, h, 2, (n) => n.d === 0);
           const f = 0.5 + 0.5 * Math.sin(p * 26);
@@ -1478,8 +1478,8 @@
       {
         t: 7.6,
         title: "Cancellation propagates down every edge",
-        desc: "The signal flows from root to children to grandchildren — each derived context's Done() closes in turn, depth by depth.",
-        why: "This is automatic precisely BECAUSE children were derived, not created independently — there's no manual fan-out code that has to remember every goroutine.",
+        desc: "The signal flows from root to children to grandchildren - each derived context's Done() closes in turn, depth by depth.",
+        why: "This is automatic precisely BECAUSE children were derived, not created independently - there's no manual fan-out code that has to remember every goroutine.",
         draw(ctx, p, w, h, c, u) {
           const wave = u.clamp(p, 0, 1) * 2;
           drawTree(ctx, c, u, w, h, 2, (n) => wave >= n.d);
@@ -1494,7 +1494,7 @@
       },
       {
         t: 9.6,
-        title: "Clean shutdown — no goroutine leak",
+        title: "Clean shutdown - no goroutine leak",
         desc: "Cancellation reached every descendant. Every worker observed ctx.Done() closing and returned.",
         why: "This is the payoff this whole module (and M7's leak detector) cares about: a goroutine that never learns its work is unwanted is a goroutine that never exits.",
         draw(ctx, p, w, h, c, u) {
@@ -1503,7 +1503,7 @@
             const N = (fx) => 24 + fx * (w - 48), M = (fy) => 64 + fy * (h - 120);
             ["g1", "g2", "g3", "g4"].forEach((k) => u.burst(ctx, N(nodes[k].x), M(nodes[k].y), c.good, u.easeOut(u.clamp(p / 0.5, 0, 1)), 6));
           }
-          u.text(ctx, "✓ every goroutine returned — no leaks", w / 2, h - 16, { align: "center", color: c.good, size: 13, weight: 700, alpha: u.clamp(p / 0.3, 0, 1) });
+          u.text(ctx, "✓ every goroutine returned - no leaks", w / 2, h - 16, { align: "center", color: c.good, size: 13, weight: 700, alpha: u.clamp(p / 0.3, 0, 1) });
         },
       },
     ];
@@ -1539,7 +1539,7 @@
         t: 0,
         title: "A request arrives",
         desc: "GET /api/v1/ledger/42 enters Go's native net/http router.",
-        why: "The router's only job is mapping this one string to the right handler, fast — everything in this module is about how it does that without regular expressions.",
+        why: "The router's only job is mapping this one string to the right handler, fast - everything in this module is about how it does that without regular expressions.",
         draw(ctx, p, w, h, c, u) {
           const a = u.clamp(p / 0.5, 0, 1);
           u.fillRR(ctx, w / 2 - 160, h * 0.4, 320, 40, 9, c.panel, c.go, 1.8);
@@ -1549,7 +1549,7 @@
       {
         t: 2.0,
         title: "The router walks a trie, segment by segment",
-        desc: "ServeMux matches each path segment against the trie one node at a time — /api, then /v1, then /ledger — until it can't go any deeper.",
+        desc: "ServeMux matches each path segment against the trie one node at a time - /api, then /v1, then /ledger - until it can't go any deeper.",
         why: "A trie turns routing into a fixed number of cheap segment comparisons instead of testing the path against every registered pattern in turn.",
         draw(ctx, p, w, h, c, u) {
           const active = Math.floor(u.clamp(p, 0, 1) * 3.999);
@@ -1559,8 +1559,8 @@
       {
         t: 4.4,
         title: "{id} captures the wildcard segment",
-        desc: 'The trie\'s last node is a wildcard — it matches ANY segment and captures it as "42", readable in the handler via r.PathValue("id").',
-        why: "A typed wildcard node is what lets one route handle /ledger/42, /ledger/99, /ledger/anything — without falling back to slower regexp matching.",
+        desc: 'The trie\'s last node is a wildcard - it matches ANY segment and captures it as "42", readable in the handler via r.PathValue("id").',
+        why: "A typed wildcard node is what lets one route handle /ledger/42, /ledger/99, /ledger/anything - without falling back to slower regexp matching.",
         draw(ctx, p, w, h, c, u) {
           drawTrie(ctx, c, u, w, h, 4, h * 0.32);
           const a = u.clamp(p / 0.5, 0, 1);
@@ -1584,8 +1584,8 @@
       {
         t: 8.4,
         title: "os.Root: a directory you can't escape",
-        desc: 'A handler that reads files opens them through os.Root("data") instead of the raw filesystem — every path it resolves is forced to stay inside data/.',
-        why: "Path traversal (`../../etc/passwd`) is a classic vulnerability — os.Root makes 'escaping the jail' a type error, not a runtime check you might forget.",
+        desc: 'A handler that reads files opens them through os.Root("data") instead of the raw filesystem - every path it resolves is forced to stay inside data/.',
+        why: "Path traversal (`../../etc/passwd`) is a classic vulnerability - os.Root makes 'escaping the jail' a type error, not a runtime check you might forget.",
         draw(ctx, p, w, h, c, u) {
           const jx = w * 0.2, jy = h * 0.22, jw = w * 0.6, jh = h * 0.5;
           const a = u.clamp(p / 0.5, 0, 1);
@@ -1620,8 +1620,8 @@
       {
         t: 12.4,
         title: "Legitimate reads still succeed",
-        desc: 'root.Open("config.json") resolves inside the jail and works exactly like a normal file read — no extra code in the handler.',
-        why: "The safety is structural: code that only ever has an *os.Root, never a raw path, cannot accidentally escape the jail — there's no boundary check to forget.",
+        desc: 'root.Open("config.json") resolves inside the jail and works exactly like a normal file read - no extra code in the handler.',
+        why: "The safety is structural: code that only ever has an *os.Root, never a raw path, cannot accidentally escape the jail - there's no boundary check to forget.",
         draw(ctx, p, w, h, c, u) {
           const jx = w * 0.5, jy = h * 0.22, jw = w * 0.3, jh = h * 0.5;
           u.fillRR(ctx, jx, jy, jw, jh, 12, "rgba(58,210,159,0.06)", c.good, 2);
@@ -1650,15 +1650,15 @@
   /* M2. SWISS TABLE vs LEGACY MAP                                       */
   /* =================================================================== */
   ANIM["swiss-table"] = (canvas) => {
-    const slots = ["EUR", "GBP", "JPY", "CHF", "USD", "—"];
-    const ctrl = ["h0", "h1", "USD", "h3", "h4", "h5", "—", "—"];
+    const slots = ["EUR", "GBP", "JPY", "CHF", "USD", "-"];
+    const ctrl = ["h0", "h1", "USD", "h3", "h4", "h5", "-", "-"];
 
     const STEPS = [
       {
         t: 0,
         title: 'The same lookup: m["USD"]',
         desc: "We'll trace this one lookup through two implementations: Go's legacy map, and the new Swiss Table design.",
-        why: "The map TYPE never changes in your code — only the internal layout does. Seeing both traces side by side (in time, not space) shows exactly what that internal change buys you.",
+        why: "The map TYPE never changes in your code - only the internal layout does. Seeing both traces side by side (in time, not space) shows exactly what that internal change buys you.",
         draw(ctx, p, w, h, c, u) {
           const a = u.clamp(p / 0.5, 0, 1);
           u.fillRR(ctx, w / 2 - 110, h * 0.4, 220, 44, 10, c.panel, c.go, 1.8);
@@ -1669,7 +1669,7 @@
         t: 2.0,
         title: "Legacy map: probe slot by slot",
         desc: "The old map walks its bucket one entry at a time, comparing keys, until it finds USD or runs out of entries.",
-        why: "Each entry lives at a different memory address, so each check that misses is very likely its OWN separate cache miss — the cost adds up linearly.",
+        why: "Each entry lives at a different memory address, so each check that misses is very likely its OWN separate cache miss - the cost adds up linearly.",
         draw(ctx, p, w, h, c, u) {
           const x0 = w * 0.3, top = h * 0.14, rowH = 36;
           const probe = Math.floor(u.clamp(p, 0, 1) * slots.length);
@@ -1691,12 +1691,12 @@
       {
         t: 5.2,
         title: "Swiss Table: jump straight to one group of 8",
-        desc: "The hash picks a single 8-slot group, and its 8 one-byte 'control bytes' — a tiny fingerprint per slot — all live together in ONE cache line.",
-        why: "Loading 8 slots' worth of metadata costs the same one cache-line fetch as loading just one — the layout was designed around that fact.",
+        desc: "The hash picks a single 8-slot group, and its 8 one-byte 'control bytes' - a tiny fingerprint per slot - all live together in ONE cache line.",
+        why: "Loading 8 slots' worth of metadata costs the same one cache-line fetch as loading just one - the layout was designed around that fact.",
         draw(ctx, p, w, h, c, u) {
           const cellW = Math.min(90, (w * 0.8) / 8), sx = (w - cellW * 8) / 2, cy = h * 0.32;
           const reveal = u.clamp(p / 0.7, 0, 1);
-          u.text(ctx, "control bytes — one cache line:", sx, cy - 16, { color: c.dim, size: 12.5 });
+          u.text(ctx, "control bytes - one cache line:", sx, cy - 16, { color: c.dim, size: 12.5 });
           for (let i = 0; i < 8; i++) {
             const a = u.clamp((reveal - i * 0.08) / 0.3, 0, 1);
             if (a <= 0) continue;
@@ -1710,7 +1710,7 @@
         t: 7.8,
         title: "SIMD compares all 8 tags in one operation",
         desc: "Instead of checking slot 0, then slot 1, then slot 2…, one SIMD-style instruction compares the target's fingerprint against all 8 control bytes simultaneously.",
-        why: "This is the structural win: legacy map cost scales with HOW MANY entries you check; Swiss Table cost is closer to constant — one fetch, one compare, almost always.",
+        why: "This is the structural win: legacy map cost scales with HOW MANY entries you check; Swiss Table cost is closer to constant - one fetch, one compare, almost always.",
         draw(ctx, p, w, h, c, u) {
           const cellW = Math.min(90, (w * 0.8) / 8), sx = (w - cellW * 8) / 2, cy = h * 0.28;
           for (let i = 0; i < 8; i++) {
@@ -1728,9 +1728,9 @@
       },
       {
         t: 10.0,
-        title: "Match found — one cache line touched, total",
-        desc: 'USD sits in slot 2 of the group — found immediately. The whole lookup cost ONE cache-line fetch, versus up to 5 for the legacy map.',
-        why: "This is why the Swiss Table redesign matters in practice: hot map lookups in a request path get measurably faster purely from this layout change — no code changes required.",
+        title: "Match found - one cache line touched, total",
+        desc: 'USD sits in slot 2 of the group - found immediately. The whole lookup cost ONE cache-line fetch, versus up to 5 for the legacy map.',
+        why: "This is why the Swiss Table redesign matters in practice: hot map lookups in a request path get measurably faster purely from this layout change - no code changes required.",
         draw(ctx, p, w, h, c, u) {
           const a = u.clamp(p / 0.4, 0, 1);
           if (p < 0.35) u.burst(ctx, w / 2, h * 0.3 + 20, c.good, u.easeOut(u.clamp(p / 0.35, 0, 1)), 10);
@@ -1783,8 +1783,8 @@
       {
         t: 0,
         title: "The object is alive",
-        desc: "A *Conn lives inside a parent span. The stack holds a reference to it, so the garbage collector considers it reachable — alive.",
-        why: "Reachability from a root is the ONLY thing that keeps an object alive in Go — not how recently it was used, not its size, just 'can a root still get to it.'",
+        desc: "A *Conn lives inside a parent span. The stack holds a reference to it, so the garbage collector considers it reachable - alive.",
+        why: "Reachability from a root is the ONLY thing that keeps an object alive in Go - not how recently it was used, not its size, just 'can a root still get to it.'",
         draw(ctx, p, w, h, c, u) {
           const { cx, midY, ox } = scene(ctx, c, u, w, h, 1, "rgba(0,173,216,0.14)", c.go, 1);
           const a = u.clamp(p / 0.5, 0, 1);
@@ -1795,8 +1795,8 @@
       {
         t: 2.0,
         title: "The last reference drops",
-        desc: "Whatever held that reference returns or goes out of scope. The *Conn is now unreachable from any root — eligible for collection, but not yet collected.",
-        why: "'Unreachable' and 'freed' are NOT the same moment in Go — there's a gap, and that gap is exactly what the next two steps are about.",
+        desc: "Whatever held that reference returns or goes out of scope. The *Conn is now unreachable from any root - eligible for collection, but not yet collected.",
+        why: "'Unreachable' and 'freed' are NOT the same moment in Go - there's a gap, and that gap is exactly what the next two steps are about.",
         draw(ctx, p, w, h, c, u) {
           const { midY, ox } = scene(ctx, c, u, w, h, 1, "rgba(107,124,153,0.15)", c.dim, 1);
           u.line(ctx, w * 0.06 + 110, midY, w * 0.06 + 136, midY, c.line, 1.5, [3, 4]);
@@ -1808,8 +1808,8 @@
       {
         t: 4.0,
         title: "The GC's next mark pass finds it dead",
-        desc: "The concurrent collector sweeps through live memory tracing from the roots. The *Conn is never reached this time — it's now PROVABLY garbage, not just assumed.",
-        why: "Go won't free an object the instant it looks unused — it waits for the mark pass to confirm it, which is what makes collection safe even with concurrent mutation.",
+        desc: "The concurrent collector sweeps through live memory tracing from the roots. The *Conn is never reached this time - it's now PROVABLY garbage, not just assumed.",
+        why: "Go won't free an object the instant it looks unused - it waits for the mark pass to confirm it, which is what makes collection safe even with concurrent mutation.",
         draw(ctx, p, w, h, c, u) {
           const { sy, sh } = scene(ctx, c, u, w, h, 1, "rgba(107,124,153,0.15)", c.dim, 1);
           const gx = u.lerp(w * 0.08, w * 0.92, u.clamp(p, 0, 1));
@@ -1823,8 +1823,8 @@
       {
         t: 6.4,
         title: "The registered cleanup runs exactly once",
-        desc: "runtime.AddCleanup fires: syscall.Close(7). It captured the file descriptor by VALUE when registered — not the object itself, so it can run safely even though *Conn is gone.",
-        why: "Unlike the legacy SetFinalizer, AddCleanup never resurrects the object and never silently skips a cycle — it's a plain function call guaranteed to run once, on a dead object.",
+        desc: "runtime.AddCleanup fires: syscall.Close(7). It captured the file descriptor by VALUE when registered - not the object itself, so it can run safely even though *Conn is gone.",
+        why: "Unlike the legacy SetFinalizer, AddCleanup never resurrects the object and never silently skips a cycle - it's a plain function call guaranteed to run once, on a dead object.",
         draw(ctx, p, w, h, c, u) {
           const { cx, midY } = scene(ctx, c, u, w, h, 1, "rgba(107,124,153,0.15)", c.dim, 1);
           const flash = 0.5 + 0.5 * Math.sin(p * 24);
@@ -1836,7 +1836,7 @@
       {
         t: 8.4,
         title: "Memory freed, no extra delay",
-        desc: "The parent span is reclaimed in the SAME cycle that proved the object dead — no resurrection pass, no waiting an extra GC cycle.",
+        desc: "The parent span is reclaimed in the SAME cycle that proved the object dead - no resurrection pass, no waiting an extra GC cycle.",
         why: "This is the practical reason AddCleanup replaced finalizers for resource cleanup: deterministic, single-cycle reclamation means file descriptors and connections don't linger.",
         draw(ctx, p, w, h, c, u) {
           const fade = 1 - u.clamp(p / 0.5, 0, 1);
@@ -1881,7 +1881,7 @@
       {
         t: 0,
         title: "Goroutines start inside an isolated bubble",
-        desc: "Three goroutines run inside a synctest bubble — a sandbox with its OWN fake clock, separate from real wall-clock time.",
+        desc: "Three goroutines run inside a synctest bubble - a sandbox with its OWN fake clock, separate from real wall-clock time.",
         why: "Isolating both the goroutines AND time itself is what will let the test fast-forward through delays instead of actually waiting for them.",
         draw(ctx, p, w, h, c, u) {
           clocks(ctx, c, u, w, "0.000", "0.000");
@@ -1901,8 +1901,8 @@
       {
         t: 2.0,
         title: "Each one runs, then blocks",
-        desc: "G1 sleeps for 0.5s, G2 for 0.8s, G3 for 1.0s (or waits on a channel) — each parks the moment it has nothing left to do.",
-        why: "A real test would have to actually wait out the slowest of these — that's the time cost synctest is about to eliminate.",
+        desc: "G1 sleeps for 0.5s, G2 for 0.8s, G3 for 1.0s (or waits on a channel) - each parks the moment it has nothing left to do.",
+        why: "A real test would have to actually wait out the slowest of these - that's the time cost synctest is about to eliminate.",
         draw(ctx, p, w, h, c, u) {
           clocks(ctx, c, u, w, "0.000", "0.000");
           const { tlx, tlw, baseY, bh } = bubbleBox(ctx, c, u, w, h);
@@ -1921,7 +1921,7 @@
       {
         t: 4.4,
         title: "synctest.Wait: a precise barrier",
-        desc: "The test calls synctest.Wait, which blocks until EVERY goroutine in the bubble is durably parked — not 'probably done', but provably done.",
+        desc: "The test calls synctest.Wait, which blocks until EVERY goroutine in the bubble is durably parked - not 'probably done', but provably done.",
         why: "This replaces a guessed time.Sleep(100*time.Millisecond) 'hope it's enough' with an exact, race-free synchronization point.",
         draw(ctx, p, w, h, c, u) {
           clocks(ctx, c, u, w, "0.000", "0.000");
@@ -1944,7 +1944,7 @@
       {
         t: 6.4,
         title: "The fake clock jumps to the next timer",
-        desc: "With every goroutine confirmed blocked, the bubble's clock fast-forwards directly to whenever the next timer fires — instantly, no real waiting.",
+        desc: "With every goroutine confirmed blocked, the bubble's clock fast-forwards directly to whenever the next timer fires - instantly, no real waiting.",
         why: "Real time and bubble time are decoupled: the test can simulate 5 real-world seconds of timers in microseconds of actual CPU time.",
         draw(ctx, p, w, h, c, u) {
           const bubbleVal = u.lerp(0, 5, u.clamp(p / 0.6, 0, 1)).toFixed(3);
@@ -1977,13 +1977,13 @@
       {
         t: 9.4,
         title: "No flakes: wall ≈ 0s, bubble = 5s",
-        desc: "The whole test simulated 5 seconds of timers while real wall-clock time barely moved — fully deterministic, every run, every machine.",
-        why: "No time.Sleep means no 'flaky on a slow CI box' — the test's correctness no longer depends on how fast the test runner happens to be today.",
+        desc: "The whole test simulated 5 seconds of timers while real wall-clock time barely moved - fully deterministic, every run, every machine.",
+        why: "No time.Sleep means no 'flaky on a slow CI box' - the test's correctness no longer depends on how fast the test runner happens to be today.",
         draw(ctx, p, w, h, c, u) {
           clocks(ctx, c, u, w, "0.002", "5.000");
           const { bx, by, bw, bh } = bubbleBox(ctx, c, u, w, h);
           if (p < 0.4) u.burst(ctx, bx + bw / 2, by + bh - 24, c.good, u.easeOut(u.clamp(p / 0.4, 0, 1)), 10);
-          u.text(ctx, "✓ deterministic — no time.Sleep, no CI flake", bx + bw / 2, by + bh - 16, { align: "center", color: c.good, size: 13, weight: 700, alpha: u.clamp(p / 0.3, 0, 1) });
+          u.text(ctx, "✓ deterministic - no time.Sleep, no CI flake", bx + bw / 2, by + bh - 16, { align: "center", color: c.good, size: 13, weight: 700, alpha: u.clamp(p / 0.3, 0, 1) });
         },
       },
     ];
@@ -2017,8 +2017,8 @@
       {
         t: 0,
         title: "Two transfers want the same account",
-        desc: "T1 and T2 are both transactions trying to move money — and both need to touch account A at the same moment.",
-        why: "This exact scenario — concurrent writers, shared row — is what row-level locking exists to make safe.",
+        desc: "T1 and T2 are both transactions trying to move money - and both need to touch account A at the same moment.",
+        why: "This exact scenario - concurrent writers, shared row - is what row-level locking exists to make safe.",
         draw(ctx, p, w, h, c, u) {
           const a = u.clamp(p / 0.5, 0, 1);
           u.fillRR(ctx, w * 0.16, h * 0.3, 180, 46, 9, c.panel, c.go, 1.6);
@@ -2031,8 +2031,8 @@
       {
         t: 2.0,
         title: "T1 locks account A",
-        desc: "T1 runs SELECT … FOR UPDATE, which takes a lock on just that one row — not the whole table.",
-        why: "Locking only the specific row means transfers touching DIFFERENT accounts can still run fully in parallel — the lock's scope is as narrow as correctness allows.",
+        desc: "T1 runs SELECT … FOR UPDATE, which takes a lock on just that one row - not the whole table.",
+        why: "Locking only the specific row means transfers touching DIFFERENT accounts can still run fully in parallel - the lock's scope is as narrow as correctness allows.",
         draw(ctx, p, w, h, c, u) {
           u.fillRR(ctx, w * 0.1, h * 0.32, 170, 44, 9, "rgba(0,173,216,0.12)", c.go, 1.6);
           u.text(ctx, "T1  transfer", w * 0.1 + 18, h * 0.32 + 28, { color: c.go, size: 12.5, weight: 700, mono: true });
@@ -2045,8 +2045,8 @@
       {
         t: 4.2,
         title: "T2 blocks behind the lock",
-        desc: "T2 also needs account A, so it simply waits — Postgres won't let it read until T1's transaction finishes.",
-        why: "If T2 read A mid-transfer, it could see a half-finished state (debited but not yet credited) — blocking prevents that entirely.",
+        desc: "T2 also needs account A, so it simply waits - Postgres won't let it read until T1's transaction finishes.",
+        why: "If T2 read A mid-transfer, it could see a half-finished state (debited but not yet credited) - blocking prevents that entirely.",
         draw(ctx, p, w, h, c, u) {
           u.fillRR(ctx, w * 0.1, h * 0.32, 170, 44, 9, "rgba(245,177,76,0.14)", c.warn, 1.6);
           u.text(ctx, "T2  transfer", w * 0.1 + 18, h * 0.32 + 28, { color: c.warn, size: 12.5, weight: 700, mono: true });
@@ -2058,8 +2058,8 @@
       {
         t: 6.4,
         title: "Inside the transaction: debit and credit together",
-        desc: "T1 subtracts $100 from A and adds $100 to B — both statements run inside the SAME transaction, so they can never land separately.",
-        why: "This is double-entry: if the process crashed between the two writes, the whole transaction rolls back — you never end up with money debited from A but never credited to B.",
+        desc: "T1 subtracts $100 from A and adds $100 to B - both statements run inside the SAME transaction, so they can never land separately.",
+        why: "This is double-entry: if the process crashed between the two writes, the whole transaction rolls back - you never end up with money debited from A but never credited to B.",
         draw(ctx, p, w, h, c, u) {
           const debit = u.lerp(0, 100, u.clamp(p, 0, 1));
           accounts(ctx, c, u, w, h, (500 - debit).toFixed(0), (300 + debit).toFixed(0), true);
@@ -2071,7 +2071,7 @@
       {
         t: 8.6,
         title: "COMMIT releases the lock",
-        desc: "T1 commits — its changes become permanent, and the row lock on account A is released immediately.",
+        desc: "T1 commits - its changes become permanent, and the row lock on account A is released immediately.",
         why: "The lock is held for the shortest time that's still correct: exactly as long as T1's transaction is open, no longer.",
         draw(ctx, p, w, h, c, u) {
           accounts(ctx, c, u, w, h, "400", "400", u.clamp(p / 0.4, 0, 1) < 1);
@@ -2083,7 +2083,7 @@
       },
       {
         t: 10.4,
-        title: "T2 proceeds — the invariant held",
+        title: "T2 proceeds - the invariant held",
         desc: "T2 now reads fresh, consistent balances and runs its own transfer. Through all of this, the total money in the system never changed.",
         why: "This is the proof the pattern works: concurrent access was serialized just enough to keep Σ(balances) constant, without serializing the WHOLE database.",
         draw(ctx, p, w, h, c, u) {
@@ -2120,8 +2120,8 @@
       {
         t: 0,
         title: "Two handshakes, same shape, different math",
-        desc: "Channel A negotiates a classical X25519 key. Channel B negotiates a hybrid key — classical X25519 PLUS a lattice-based ML-KEM-768 key, combined.",
-        why: "Both look identical at the protocol level — a normal TLS handshake. The difference that matters is invisible: what hard math problem the key relies on.",
+        desc: "Channel A negotiates a classical X25519 key. Channel B negotiates a hybrid key - classical X25519 PLUS a lattice-based ML-KEM-768 key, combined.",
+        why: "Both look identical at the protocol level - a normal TLS handshake. The difference that matters is invisible: what hard math problem the key relies on.",
         draw(ctx, p, w, h, c, u) {
           const colW = (w - 80) / 2;
           channelHead(ctx, c, u, 40, colW, "Channel A · Classic (X25519)", c.accent);
@@ -2136,11 +2136,11 @@
       {
         t: 2.4,
         title: "An attacker harvests today's ciphertext",
-        desc: "A passive adversary doesn't try to break the key right now — it just records both encrypted sessions and stores them.",
+        desc: "A passive adversary doesn't try to break the key right now - it just records both encrypted sessions and stores them.",
         why: "This is 'harvest now, decrypt later': the attack doesn't need to be feasible TODAY, only by the time a quantum computer exists.",
         draw(ctx, p, w, h, c, u) {
           const a = u.clamp(p / 0.3, 0, 1);
-          u.text(ctx, "harvester — recording ciphertext from both channels", w / 2, h * 0.3, { align: "center", color: c.warn, size: 13, weight: 600, alpha: a });
+          u.text(ctx, "harvester - recording ciphertext from both channels", w / 2, h * 0.3, { align: "center", color: c.warn, size: 13, weight: 600, alpha: a });
           for (let i = 0; i < 8; i++) {
             const ia = u.clamp((p - i * 0.08) / 0.3, 0, 1);
             if (ia <= 0) continue;
@@ -2165,7 +2165,7 @@
       {
         t: 7.0,
         title: "Channel A's classical key falls",
-        desc: "Shor's algorithm efficiently solves the discrete-log problem that X25519's security rests on — the recorded session decrypts.",
+        desc: "Shor's algorithm efficiently solves the discrete-log problem that X25519's security rests on - the recorded session decrypts.",
         why: "This is exactly why 'classical-only' key exchange is a liability for any data that needs to stay secret for years: today's strong key becomes tomorrow's broken one.",
         draw(ctx, p, w, h, c, u) {
           const colW = w * 0.6, x = w / 2 - colW / 2;
@@ -2180,8 +2180,8 @@
       {
         t: 9.0,
         title: "Channel B's hybrid key holds",
-        desc: "The ML-KEM-768 lattice key has no known efficient quantum attack — so even though the ciphertext was recorded, it stays unreadable.",
-        why: "Hybrid means EITHER half failing is survivable: it's only broken if BOTH the classical AND the lattice problem fall — a much higher bar than relying on one algorithm alone.",
+        desc: "The ML-KEM-768 lattice key has no known efficient quantum attack - so even though the ciphertext was recorded, it stays unreadable.",
+        why: "Hybrid means EITHER half failing is survivable: it's only broken if BOTH the classical AND the lattice problem fall - a much higher bar than relying on one algorithm alone.",
         draw(ctx, p, w, h, c, u) {
           const colW = w * 0.6, x = w / 2 - colW / 2;
           u.text(ctx, "ML-KEM-768 lattice key", x, h * 0.26, { color: c.dim, size: 12 });
@@ -2193,7 +2193,7 @@
           }
           u.glowPulse(ctx, x + colW * 0.78, h * 0.42, 22, "rgba(58,210,159,.4)", u.t || 0);
           drawLock(ctx, x + colW * 0.78, h * 0.42, c.good, true, u);
-          u.text(ctx, "quantum-resistant — stays secret", x + colW * 0.78, h * 0.42 + 56, { align: "center", color: c.good, size: 12.5, weight: 700, alpha: u.clamp(p / 0.6, 0, 1) });
+          u.text(ctx, "quantum-resistant - stays secret", x + colW * 0.78, h * 0.42 + 56, { align: "center", color: c.good, size: 12.5, weight: 700, alpha: u.clamp(p / 0.6, 0, 1) });
         },
       },
     ];
@@ -2253,14 +2253,14 @@
         t: 0,
         title: "A live goroutine graph",
         desc: "Goroutines are nodes; the channels and contexts connecting them are the edges. This is the shape the leak analyzer reasons about.",
-        why: "Most goroutine leaks aren't a mystery once you can SEE the dependency graph — they're usually one missing edge.",
+        why: "Most goroutine leaks aren't a mystery once you can SEE the dependency graph - they're usually one missing edge.",
         draw(ctx, p, w, h, c, u) { drawGraph(ctx, c, u, w, { leakEdge: false, blocked: false, rootFound: false, pulseT: 0 }); },
       },
       {
         t: 2.4,
         title: "G4 is stuck forever",
-        desc: "G4 is parked on <-results — and tracing the graph, NOTHING will ever send on that channel. It will wait until the process dies.",
-        why: "A blocked goroutine isn't automatically a leak — other goroutines block briefly all the time. It's a leak specifically because nothing can ever wake it.",
+        desc: "G4 is parked on <-results - and tracing the graph, NOTHING will ever send on that channel. It will wait until the process dies.",
+        why: "A blocked goroutine isn't automatically a leak - other goroutines block briefly all the time. It's a leak specifically because nothing can ever wake it.",
         draw(ctx, p, w, h, c, u) {
           drawGraph(ctx, c, u, w, { leakEdge: true, blocked: true, rootFound: false, pulseT: p * 10 });
           u.badge(ctx, w / 2 - 70, 276 + 26, "⏸ blocked on <-results", c.bad, "#fff");
@@ -2269,8 +2269,8 @@
       {
         t: 4.6,
         title: "The analyzer traces backward",
-        desc: "Starting from the blocked goroutine, the analyzer walks the channel graph backward — G4 ← G3 — hunting for whoever was supposed to send.",
-        why: "Walking the graph backward from the symptom is exactly how you'd debug this by hand — the analyzer just does it instantly and exhaustively.",
+        desc: "Starting from the blocked goroutine, the analyzer walks the channel graph backward - G4 ← G3 - hunting for whoever was supposed to send.",
+        why: "Walking the graph backward from the symptom is exactly how you'd debug this by hand - the analyzer just does it instantly and exhaustively.",
         draw(ctx, p, w, h, c, u) {
           const N = drawGraph(ctx, c, u, w, { leakEdge: true, blocked: true, rootFound: false, pulseT: p * 10 });
           const seg1 = u.clamp(p * 1.6, 0, 1), a = N("g4"), b = N("g3");
@@ -2288,7 +2288,7 @@
           const a = u.clamp(p / 0.3, 0, 1);
           u.fillRR(ctx, w * 0.1, h * 0.78, w * 0.8, 70, 12, "rgba(206,50,98,0.08)", c.accent, 1.8);
           u.text(ctx, "ROOT CAUSE", w * 0.1 + 18, h * 0.78 + 22, { color: c.accent, size: 12, weight: 800, alpha: a });
-          u.text(ctx, "G2 dispatch never sends on results ch — context had no deadline.", w * 0.1 + 18, h * 0.78 + 42, { color: c.text, size: 12.5, alpha: a });
+          u.text(ctx, "G2 dispatch never sends on results ch - context had no deadline.", w * 0.1 + 18, h * 0.78 + 42, { color: c.text, size: 12.5, alpha: a });
           u.text(ctx, "fix: ctx, cancel := context.WithTimeout(...) ; defer cancel()", w * 0.1 + 18, h * 0.78 + 60, { color: c.good, size: 11.5, mono: true, alpha: a });
         },
       },
@@ -2319,7 +2319,7 @@
         t: 0,
         title: "Same work, two engines",
         desc: "We'll process the same 32-element array two ways: a plain scalar loop, one element at a time, and a SIMD vector loop.",
-        why: "Comparing them on identical work isolates exactly what the vector hardware buys you — nothing about the task itself changes.",
+        why: "Comparing them on identical work isolates exactly what the vector hardware buys you - nothing about the task itself changes.",
         draw(ctx, p, w, h, c, u) {
           const a = u.clamp(p / 0.5, 0, 1);
           u.text(ctx, "scalar loop", w / 2, h * 0.4, { align: "center", color: c.warn, size: 16, weight: 700, alpha: a });
@@ -2330,11 +2330,11 @@
       {
         t: 2.0,
         title: "Scalar: one element per cycle",
-        desc: "The plain loop touches a single array element each iteration — the pointer crawls along one cell at a time.",
+        desc: "The plain loop touches a single array element each iteration - the pointer crawls along one cell at a time.",
         why: "This is the baseline: N elements means N cycles of work, no matter how simple each individual step is.",
         draw(ctx, p, w, h, c, u) {
           const N = 32, done = Math.floor(u.clamp(p, 0, 1) * N);
-          u.text(ctx, "scalar — 1 element / cycle", 40, h * 0.3, { color: c.warn, size: 13, weight: 600 });
+          u.text(ctx, "scalar - 1 element / cycle", 40, h * 0.3, { color: c.warn, size: 13, weight: 600 });
           const { gx, cell } = cellRow(ctx, c, u, w, h * 0.36, N, done, c.warn);
           if (done < N) { const px = gx + done * cell; u.line(ctx, px, h * 0.32, px, h * 0.36 + 32, c.warn, 2.2); }
           u.text(ctx, tr("cycles: ") + done, w - 40, h * 0.3, { align: "right", color: c.warn, size: 12.5, mono: true, weight: 700 });
@@ -2343,11 +2343,11 @@
       {
         t: 4.4,
         title: "SIMD: sixteen elements per cycle",
-        desc: "One vector instruction loads and processes a whole 16-element lane at once — the same array, far fewer trips through the loop.",
-        why: "The CPU has dedicated wide registers and circuits for this — it's not 'doing 16 things fast', it's doing them in the SAME instruction.",
+        desc: "One vector instruction loads and processes a whole 16-element lane at once - the same array, far fewer trips through the loop.",
+        why: "The CPU has dedicated wide registers and circuits for this - it's not 'doing 16 things fast', it's doing them in the SAME instruction.",
         draw(ctx, p, w, h, c, u) {
           const N = 32, done = Math.floor(u.clamp(p, 0, 1) * N);
-          u.text(ctx, "SIMD — 16 elements / cycle", 40, h * 0.3, { color: c.go, size: 13, weight: 700 });
+          u.text(ctx, "SIMD - 16 elements / cycle", 40, h * 0.3, { color: c.go, size: 13, weight: 700 });
           cellRow(ctx, c, u, w, h * 0.36, N, done, c.go);
           if (p < 0.55) {
             const cell = (w - 80) / N;
@@ -2360,7 +2360,7 @@
       {
         t: 6.8,
         title: "Same result, ~16× fewer cycles",
-        desc: "Both loops produce the identical output — only the number of cycles spent getting there differs.",
+        desc: "Both loops produce the identical output - only the number of cycles spent getting there differs.",
         why: "This is why hot numeric loops (hashing, checksums, image/byte processing) are worth vectorizing: the speedup is structural, not a micro-optimization.",
         draw(ctx, p, w, h, c, u) {
           const a = u.clamp(p / 0.3, 0, 1);
@@ -2380,7 +2380,7 @@
         t: 9.2,
         title: "Green Tea GC sweeps contiguous spans",
         desc: "Switching topics: the new collector marks memory in contiguous 8 KiB spans in parallel, instead of chasing one scattered object at a time.",
-        why: "Spans are physically contiguous in memory — exactly the layout that lets a sweep be both vectorizable AND cache-friendly, the same idea as the SIMD loop above.",
+        why: "Spans are physically contiguous in memory - exactly the layout that lets a sweep be both vectorizable AND cache-friendly, the same idea as the SIMD loop above.",
         draw(ctx, p, w, h, c, u) {
           const cols = 16, rows = 4, sp = (w - 80) / cols, sw = sp - 5, gx = 40, gy = h * 0.32;
           const swept = Math.floor(u.clamp(p, 0, 1) * cols * rows);
@@ -2395,7 +2395,7 @@
         t: 11.4,
         title: "Cache-friendly and scales with cores",
         desc: "Sequential span scanning avoids the scattered cache misses of object-by-object marking, and multiple cores can sweep different spans in parallel.",
-        why: "This connects directly back to M10: contiguous memory is what makes both a SIMD loop AND a GC sweep fast — the hardware always rewards sequential access.",
+        why: "This connects directly back to M10: contiguous memory is what makes both a SIMD loop AND a GC sweep fast - the hardware always rewards sequential access.",
         draw(ctx, p, w, h, c, u) {
           const a = u.clamp(p / 0.4, 0, 1);
           if (p < 0.3) u.burst(ctx, w / 2, h * 0.42 - 8, c.good, u.easeOut(u.clamp(p / 0.3, 0, 1)), 10);
@@ -2430,7 +2430,7 @@
       const col = colors(c);
       states.forEach((st, i) => {
         const x = 40 + i * (podW + gap), pc = col[st.status] || c.line, isReady = st.status === "ready";
-        if (st.status === "empty") { u.fillRR(ctx, x, slotY, podW, 64, 12, "transparent", c.line, 1.2); u.text(ctx, "—", x + podW / 2, slotY + 38, { align: "center", color: c.dim, size: 16 }); }
+        if (st.status === "empty") { u.fillRR(ctx, x, slotY, podW, 64, 12, "transparent", c.line, 1.2); u.text(ctx, "-", x + podW / 2, slotY + 38, { align: "center", color: c.dim, size: 16 }); }
         else {
           u.fillRR(ctx, x, slotY, podW, 64, 12, "rgba(255,255,255,0.02)", pc, isReady ? 2.2 : 1.6);
           u.text(ctx, tr("pod ") + st.ver, x + podW / 2, slotY + 26, { align: "center", color: c.text, size: 13, weight: 700, mono: true });
@@ -2452,14 +2452,14 @@
         t: 0,
         title: "Three healthy v1 pods serve traffic",
         desc: "The load balancer spreads incoming requests across every Ready pod. This is the steady state before a rollout begins.",
-        why: "A rollout always starts from a known-good baseline — that's what makes it safe to compare against as the upgrade proceeds.",
+        why: "A rollout always starts from a known-good baseline - that's what makes it safe to compare against as the upgrade proceeds.",
         draw(ctx, p, w, h, c, u) {
           pods(ctx, c, u, w, [{ ver: "v1", status: "ready" }, { ver: "v1", status: "ready" }, { ver: "v1", status: "ready" }], true, p * 10);
         },
       },
       {
         t: 2.4,
-        title: "A new v2 pod starts — but gets no traffic yet",
+        title: "A new v2 pod starts - but gets no traffic yet",
         desc: "A 4th pod boots running v2. Its readiness probe hasn't passed, so the load balancer deliberately routes it nothing.",
         why: "Sending live traffic to a pod that isn't ready (still loading config, warming caches) would mean real users hitting errors.",
         draw(ctx, p, w, h, c, u) {
@@ -2471,7 +2471,7 @@
       {
         t: 4.6,
         title: "Readiness probe passes → pod joins rotation",
-        desc: "Once the probe succeeds, the load balancer adds the v2 pod to rotation immediately — it starts receiving its share of traffic.",
+        desc: "Once the probe succeeds, the load balancer adds the v2 pod to rotation immediately - it starts receiving its share of traffic.",
         why: "This is the gate that makes rollouts safe: 'started' and 'ready to serve' are different states, and only the second one earns traffic.",
         draw(ctx, p, w, h, c, u) {
           pods(ctx, c, u, w, [{ ver: "v1", status: "ready" }, { ver: "v1", status: "ready" }, { ver: "v1", status: "ready" }, { ver: "v2", status: "ready" }], true, p * 10);
@@ -2485,7 +2485,7 @@
         t: 6.6,
         title: "An old v1 pod drains",
         desc: "Now that v2 is carrying load, one v1 pod stops receiving NEW requests but keeps running until its in-flight requests finish.",
-        why: "Draining (not killing) is what guarantees zero dropped requests — a request that's already in progress always gets to complete.",
+        why: "Draining (not killing) is what guarantees zero dropped requests - a request that's already in progress always gets to complete.",
         draw(ctx, p, w, h, c, u) {
           pods(ctx, c, u, w, [{ ver: "v1", status: "draining" }, { ver: "v1", status: "ready" }, { ver: "v1", status: "ready" }, { ver: "v2", status: "ready" }], true, p * 10);
           u.text(ctx, "finishing in-flight requests…", 40 + 60, h0 + 130 + 80, { align: "center", color: c.accent, size: 11, mono: true });
@@ -2494,7 +2494,7 @@
       {
         t: 8.6,
         title: "The slot comes back as v2",
-        desc: "Once drained, the old pod terminates and a fresh v2 pod boots in its place — going through the same starting → ready sequence.",
+        desc: "Once drained, the old pod terminates and a fresh v2 pod boots in its place - going through the same starting → ready sequence.",
         why: "Replacing pods ONE AT A TIME (not all at once) means the fleet never drops below enough healthy capacity to serve current load.",
         draw(ctx, p, w, h, c, u) {
           const startingDone = p > 0.5;
@@ -2505,7 +2505,7 @@
         t: 10.6,
         title: "Repeat until the whole fleet is upgraded",
         desc: "The same start → probe → join → drain → replace cycle repeats pod by pod until every pod runs v2.",
-        why: "Zero dropped requests, throughout an entire version upgrade, with no maintenance window — that's the payoff of doing it incrementally.",
+        why: "Zero dropped requests, throughout an entire version upgrade, with no maintenance window - that's the payoff of doing it incrementally.",
         draw(ctx, p, w, h, c, u) {
           pods(ctx, c, u, w, [{ ver: "v2", status: "ready" }, { ver: "v2", status: "ready" }, { ver: "v1", status: "ready" }, { ver: "v2", status: "ready" }], true, p * 10);
           const pct = Math.round(u.clamp(p / 0.6, 0, 1) * 100);
@@ -2550,7 +2550,7 @@
         t: 0,
         title: "Small & fast, down to big & slow",
         desc: "Memory is a pyramid: L1 is tiny but ~1 ns, RAM is huge but ~100 ns. Each step down is roughly 10× bigger and 10× slower.",
-        why: "On-chip caches are small because fast memory is expensive to build — so the CPU keeps only the hottest data there and falls back to slower, bigger memory for the rest.",
+        why: "On-chip caches are small because fast memory is expensive to build - so the CPU keeps only the hottest data there and falls back to slower, bigger memory for the rest.",
         draw(ctx, p, w, h, c, u) {
           const maxW = maxW0(w);
           const shown = Math.min(levels.length, Math.ceil(p * levels.length + 0.001));
@@ -2570,7 +2570,7 @@
         t: 2.6,
         title: "A miss escalates one level at a time",
         desc: "The CPU asks L1 first. Not there? Ask L2. Not there? Ask L3. Each 'no' costs a little more time before moving down.",
-        why: "Each cache only stores a recent subset of memory — checking the small, fast one first is cheap insurance before paying for a slower lookup.",
+        why: "Each cache only stores a recent subset of memory - checking the small, fast one first is cheap insurance before paying for a slower lookup.",
         draw(ctx, p, w, h, c, u) {
           drawLevels(ctx, c, u, w, null);
           const wins = [[0, 0.30], [0.36, 0.62], [0.68, 0.94]];
@@ -2601,8 +2601,8 @@
       {
         t: 5.0,
         title: "RAM answers with a whole 64-byte line",
-        desc: "RAM never hands back a single value — it returns the full 64-byte block containing it, and that block fills L3, then L2, then L1 on the way back up.",
-        why: "Fetching one extra value is almost free once the bus is already moving data, so hardware always moves in line-sized chunks — betting that nearby bytes will be used soon too.",
+        desc: "RAM never hands back a single value - it returns the full 64-byte block containing it, and that block fills L3, then L2, then L1 on the way back up.",
+        why: "Fetching one extra value is almost free once the bus is already moving data, so hardware always moves in line-sized chunks - betting that nearby bytes will be used soon too.",
         draw(ctx, p, w, h, c, u) {
           const ascendP = u.seg(p, 0.05, 0.85, u.easeInOut);
           const filled = [ascendP >= 1, ascendP >= 2 / 3, ascendP >= 1 / 3];
@@ -2618,7 +2618,7 @@
         t: 7.6,
         title: "The next 7 reads are now nearly free",
         desc: "Those values were strangers a moment ago; now they live in L1 with the one we asked for. Reading them costs ~1 ns each instead of ~100 ns.",
-        why: "This is why sequential, contiguous access (slices) is so much faster than scattered access (linked lists, pointer-chasing) — it cashes in on a line you already paid to fetch.",
+        why: "This is why sequential, contiguous access (slices) is so much faster than scattered access (linked lists, pointer-chasing) - it cashes in on a line you already paid to fetch.",
         draw(ctx, p, w, h, c, u) {
           const fx = leftX, fy = h * 0.32;
           u.text(ctx, "the 64-byte line, now resident in L1:", fx, fy, { color: c.text, size: 13.5, weight: 600 });
@@ -2637,7 +2637,7 @@
             u.fillRR(ctx, fx, barY, barMaxW, 22, 5, "rgba(206,50,98,0.25)", c.accent, 1.4);
             u.text(ctx, "1st read · ~100 ns (RAM)", fx + 10, barY + 15, { color: c.text, size: 11.5, mono: true });
             u.fillRR(ctx, fx, barY + 34, Math.max(6, barMaxW * 0.01), 22, 5, "rgba(0,173,216,0.35)", c.go, 1.4);
-            u.text(ctx, "next 7 · ~1 ns each (L1) — ~100× faster", fx + Math.max(6, barMaxW * 0.01) + 10, barY + 34 + 15, { color: c.go, size: 11.5, weight: 600, mono: true });
+            u.text(ctx, "next 7 · ~1 ns each (L1) - ~100× faster", fx + Math.max(6, barMaxW * 0.01) + 10, barY + 34 + 15, { color: c.go, size: 11.5, weight: 600, mono: true });
           }
         },
       },
@@ -2678,7 +2678,7 @@
         t: 0,
         title: "One instruction, five stages",
         desc: "Every instruction passes through 5 fixed stations: Fetch the instruction, Decode it, Execute it, access Memory, Write the result back.",
-        why: "Splitting the work into small fixed stages is what lets the next instruction start before this one finishes — that's the whole trick of pipelining.",
+        why: "Splitting the work into small fixed stages is what lets the next instruction start before this one finishes - that's the whole trick of pipelining.",
         draw(ctx, p, w, h, c, u) {
           drawTrack(ctx, c, u, w, trackTop);
           const pos = u.clamp(p, 0, 1) * 4.6;
@@ -2690,7 +2690,7 @@
       {
         t: 2.2,
         title: "The next instruction starts one cycle later",
-        desc: "While I1 moves to Decode, I2 enters Fetch right behind it — they're in different stages of the SAME pipe at the same time.",
+        desc: "While I1 moves to Decode, I2 enters Fetch right behind it - they're in different stages of the SAME pipe at the same time.",
         why: "If the core waited for I1 to fully finish before starting I2, four of the five stages would sit idle the whole time. Overlap keeps every stage busy.",
         draw(ctx, p, w, h, c, u) {
           drawTrack(ctx, c, u, w, trackTop);
@@ -2702,7 +2702,7 @@
       {
         t: 4.6,
         title: "Steady state: ~1 instruction retires per cycle",
-        desc: "Once the pipe is full, a NEW instruction finishes Write-back almost every cycle — even though any single one still takes 5 cycles start to finish.",
+        desc: "Once the pipe is full, a NEW instruction finishes Write-back almost every cycle - even though any single one still takes 5 cycles start to finish.",
         why: "This is the payoff: pipelining doesn't make one instruction faster, it overlaps many so the average THROUGHPUT approaches one per cycle.",
         draw(ctx, p, w, h, c, u) {
           const sw = drawTrack(ctx, c, u, w, trackTop);
@@ -2714,14 +2714,14 @@
             chip(ctx, c, u, w, trackTop, pos, labels[i], "rgba(0,173,216,0.30)", c.go, c.text);
             if (pos >= 4 && pos < 4.6) retiring = true;
           }
-          u.text(ctx, retiring ? "✓ retiring this cycle" : "pipe full — overlapping instructions", x0, trackTop - 26, { color: retiring ? c.good : c.dim, size: 13, weight: 600 });
+          u.text(ctx, retiring ? "✓ retiring this cycle" : "pipe full - overlapping instructions", x0, trackTop - 26, { color: retiring ? c.good : c.dim, size: 13, weight: 600 });
         },
       },
       {
         t: 7.2,
         title: "A branch enters the pipe",
-        desc: "I5 is a conditional branch (an `if`). Its true outcome — which way execution should go next — isn't known until it reaches Execute.",
-        why: "But Fetch can't just sit idle waiting 2 stages for that answer — every idle stage is wasted throughput.",
+        desc: "I5 is a conditional branch (an `if`). Its true outcome - which way execution should go next - isn't known until it reaches Execute.",
+        why: "But Fetch can't just sit idle waiting 2 stages for that answer - every idle stage is wasted throughput.",
         draw(ctx, p, w, h, c, u) {
           drawTrack(ctx, c, u, w, trackTop);
           const pos = u.clamp(p, 0, 1) * 2.0;
@@ -2732,7 +2732,7 @@
       {
         t: 9.0,
         title: "Speculate: guess, and keep going",
-        desc: "A branch predictor guesses the outcome (e.g. 'taken', based on history) and the pipeline fetches the NEXT instructions down that guessed path — before the branch is actually resolved.",
+        desc: "A branch predictor guesses the outcome (e.g. 'taken', based on history) and the pipeline fetches the NEXT instructions down that guessed path - before the branch is actually resolved.",
         why: "A good predictor is right >95% of the time on real code, so guessing and running ahead wins far more cycles than it costs when wrong.",
         draw(ctx, p, w, h, c, u) {
           drawTrack(ctx, c, u, w, trackTop);
@@ -2746,7 +2746,7 @@
       {
         t: 11.0,
         title: "Misprediction: the guess was wrong",
-        desc: "I5 resolves in Execute — and it went the OTHER way. Everything fetched on the guessed path (I6, I7) was working on instructions that should never have run.",
+        desc: "I5 resolves in Execute - and it went the OTHER way. Everything fetched on the guessed path (I6, I7) was working on instructions that should never have run.",
         why: "Correctness comes first: the CPU cannot let wrong-path work touch real registers or memory, so it must be found and discarded immediately.",
         draw(ctx, p, w, h, c, u) {
           drawTrack(ctx, c, u, w, trackTop);
@@ -2761,15 +2761,15 @@
       {
         t: 12.8,
         title: "Flush, refetch, and refill",
-        desc: "The wrong-path instructions are flushed out, Fetch restarts at the CORRECT target address, and the pipeline gradually fills back up — a short bubble of idle stages, then back to full speed.",
-        why: "The cost of a misprediction is only this refill delay (~15–20 cycles on real hardware) — far cheaper than stalling on every single branch and never speculating at all.",
+        desc: "The wrong-path instructions are flushed out, Fetch restarts at the CORRECT target address, and the pipeline gradually fills back up - a short bubble of idle stages, then back to full speed.",
+        why: "The cost of a misprediction is only this refill delay (~15–20 cycles on real hardware) - far cheaper than stalling on every single branch and never speculating at all.",
         draw(ctx, p, w, h, c, u) {
           drawTrack(ctx, c, u, w, trackTop);
           const pos = u.clamp(p, 0, 1) * 4.8;
           chip(ctx, c, u, w, trackTop, pos, "I6′", "rgba(58,210,159,0.30)", c.good, c.text);
           if (pos > 1) chip(ctx, c, u, w, trackTop, pos - 1, "I7′", "rgba(58,210,159,0.30)", c.good, c.text);
           if (pos >= 1 && p < 0.65) u.burst(ctx, x0, trackTop - 34, c.good, u.easeOut(u.clamp((p - 0.55) / 0.1, 0, 1)), 7);
-          u.text(ctx, pos < 1 ? "bubble — refetching the correct path" : "back to full speed", x0, trackTop - 26, { color: pos < 1 ? c.warn : c.good, size: 13, weight: 600 });
+          u.text(ctx, pos < 1 ? "bubble - refetching the correct path" : "back to full speed", x0, trackTop - 26, { color: pos < 1 ? c.warn : c.good, size: 13, weight: 600 });
         },
       },
     ];
@@ -2804,21 +2804,21 @@
       {
         t: 0,
         title: "Three roles: G, M and P",
-        desc: "G is a goroutine — a tiny, cheap unit of work (~2 KB stack). M is an OS thread — the thing the kernel actually runs. P is a processor — a scheduling slot with its own queue; the number of Ps equals GOMAXPROCS.",
+        desc: "G is a goroutine - a tiny, cheap unit of work (~2 KB stack). M is an OS thread - the thing the kernel actually runs. P is a processor - a scheduling slot with its own queue; the number of Ps equals GOMAXPROCS.",
         why: "Separating 'work' (G) from 'who runs it' (M) from 'how many run at once' (P) is what lets Go run a million goroutines on a handful of threads.",
         draw(ctx, p, w, h, c, u) {
           const cx0 = w / 2, gy = h * 0.30, py = h * 0.5, my = h * 0.7;
           const a1 = u.clamp(p / 0.3, 0, 1), a2 = u.clamp((p - 0.3) / 0.3, 0, 1), a3 = u.clamp((p - 0.6) / 0.3, 0, 1);
-          ctx.globalAlpha = a1; gChip(ctx, c, u, cx0 - 11, gy - 11); u.text(ctx, "G — goroutine: cheap work to run", cx0, gy + 30, { align: "center", color: c.purple, size: 12.5 }); ctx.globalAlpha = 1;
-          ctx.globalAlpha = a2; pBox(ctx, c, u, cx0 - 50, py - 20, "P"); u.text(ctx, "P — processor: a queue + the right to run Go code", cx0, py + 36, { align: "center", color: c.go, size: 12.5 }); ctx.globalAlpha = 1;
-          ctx.globalAlpha = a3; mBox(ctx, c, u, cx0 - 55, my - 18, "M"); u.text(ctx, "M — OS thread: what the kernel actually schedules", cx0, my + 34, { align: "center", color: c.good, size: 12.5 }); ctx.globalAlpha = 1;
+          ctx.globalAlpha = a1; gChip(ctx, c, u, cx0 - 11, gy - 11); u.text(ctx, "G - goroutine: cheap work to run", cx0, gy + 30, { align: "center", color: c.purple, size: 12.5 }); ctx.globalAlpha = 1;
+          ctx.globalAlpha = a2; pBox(ctx, c, u, cx0 - 50, py - 20, "P"); u.text(ctx, "P - processor: a queue + the right to run Go code", cx0, py + 36, { align: "center", color: c.go, size: 12.5 }); ctx.globalAlpha = 1;
+          ctx.globalAlpha = a3; mBox(ctx, c, u, cx0 - 55, my - 18, "M"); u.text(ctx, "M - OS thread: what the kernel actually schedules", cx0, my + 34, { align: "center", color: c.good, size: 12.5 }); ctx.globalAlpha = 1;
         },
       },
       {
         t: 2.6,
-        title: "Each P drains its own queue — no shared lock",
+        title: "Each P drains its own queue - no shared lock",
         desc: "A P pulls goroutines one at a time from its OWN local queue and hands each to its M to run. Other Ps never need to touch this queue.",
-        why: "A private queue per P means most scheduling needs zero synchronization with other Ps — that's what keeps the hot path fast.",
+        why: "A private queue per P means most scheduling needs zero synchronization with other Ps - that's what keeps the hot path fast.",
         draw(ctx, p, w, h, c, u) {
           const cx0 = w / 2;
           pBox(ctx, c, u, cx0 - 50, 110, "P1");
@@ -2834,7 +2834,7 @@
         t: 5.0,
         title: "An idle P steals work instead of waiting",
         desc: "P2's queue runs dry while P1 still has plenty queued. Rather than sit idle, P2 steals half of P1's remaining goroutines.",
-        why: "No central scheduler decides this — each idle P independently grabs work from a busy neighbor, so load balances itself without a bottleneck.",
+        why: "No central scheduler decides this - each idle P independently grabs work from a busy neighbor, so load balances itself without a bottleneck.",
         draw(ctx, p, w, h, c, u) {
           const x1 = w * 0.28, x2 = w * 0.72;
           pBox(ctx, c, u, x1 - 50, 110, "P1"); pBox(ctx, c, u, x2 - 50, 110, "P2");
@@ -2845,7 +2845,7 @@
           queueRow(ctx, c, u, x2, 70, p2Count, 8);
           u.text(ctx, p1Count + tr(" queued"), x1, 100, { align: "center", color: c.dim, size: 11.5 });
           u.text(ctx, p2Count + tr(" queued"), x2, 100, { align: "center", color: c.dim, size: 11.5 });
-          if (p < 0.45) u.text(ctx, "P2 is empty — P1 still has work", w / 2, 168, { align: "center", color: c.warn, size: 13, weight: 600 });
+          if (p < 0.45) u.text(ctx, "P2 is empty - P1 still has work", w / 2, 168, { align: "center", color: c.warn, size: 13, weight: 600 });
           else {
             u.text(ctx, "stealing half of P1's queue →", w / 2, 168, { align: "center", color: c.purple, size: 13, weight: 600 });
             u.flow(ctx, x1 + 40, 82, x2 - 40, 82, "rgba(169,139,255,.55)", 2, u.t || 0);
@@ -2861,16 +2861,16 @@
         t: 8.0,
         title: "A blocking syscall can't be allowed to block the P",
         desc: "M3 makes a slow syscall (e.g. reading a file) and the OS genuinely blocks that thread for its duration.",
-        why: "If P3 stayed attached to the blocked M3, every OTHER goroutine queued on P3 would starve until the syscall returns — possibly milliseconds of wasted parallelism.",
+        why: "If P3 stayed attached to the blocked M3, every OTHER goroutine queued on P3 would starve until the syscall returns - possibly milliseconds of wasted parallelism.",
         draw(ctx, p, w, h, c, u) {
           const cx0 = w / 2;
           pBox(ctx, c, u, cx0 - 50, 110, "P3");
           queueRow(ctx, c, u, cx0, 70, 4, 8);
-          u.text(ctx, "4 queued — going nowhere while M3 is stuck", cx0, 100, { align: "center", color: c.dim, size: 11.5 });
+          u.text(ctx, "4 queued - going nowhere while M3 is stuck", cx0, 100, { align: "center", color: c.dim, size: 11.5 });
           const blockedP = u.clamp(p / 0.5, 0, 1);
           const fill = blockedP > 0 ? "rgba(255,107,107,0.18)" : "rgba(58,210,159,0.14)";
           const stroke = blockedP > 0 ? c.bad : c.good;
-          mBox(ctx, c, u, cx0 - 55, 190, blockedP > 0 ? "M3 — blocked in syscall" : "M3", fill, stroke);
+          mBox(ctx, c, u, cx0 - 55, 190, blockedP > 0 ? "M3 - blocked in syscall" : "M3", fill, stroke);
           u.line(ctx, cx0, 150, cx0, 190, c.line, 1.4, [3, 4]);
           if (blockedP > 0.5) u.text(ctx, "P3's other goroutines are stuck behind it", cx0, 240, { align: "center", color: c.bad, size: 13, weight: 600 });
         },
@@ -2885,7 +2885,7 @@
           const moveP = u.clamp(p / 0.5, 0, 1);
           const px = u.lerp(cx0, cx0 + 70, moveP);
           pBox(ctx, c, u, px - 50, 110, "P3");
-          mBox(ctx, c, u, cx0 - 175, 190, "M3 — still blocked", "rgba(255,107,107,0.14)", c.bad);
+          mBox(ctx, c, u, cx0 - 175, 190, "M3 - still blocked", "rgba(255,107,107,0.14)", c.bad);
           if (moveP > 0.5) {
             const a = u.clamp((moveP - 0.5) * 2, 0, 1);
             ctx.globalAlpha = a; mBox(ctx, c, u, px - 55, 190, "M4 (fresh)", "rgba(169,139,255,0.18)", c.purple); ctx.globalAlpha = 1;
@@ -2918,8 +2918,8 @@
       {
         t: 0,
         title: "The problem: a data race",
-        desc: "Two goroutines run `n++` on the same variable with no coordination at all. Both read the old value, both compute +1, both write — one update is silently lost.",
-        why: "This isn't just 'sometimes wrong' — the Go memory model calls it undefined behavior, because the compiler and CPU are free to reorder these operations however they like.",
+        desc: "Two goroutines run `n++` on the same variable with no coordination at all. Both read the old value, both compute +1, both write - one update is silently lost.",
+        why: "This isn't just 'sometimes wrong' - the Go memory model calls it undefined behavior, because the compiler and CPU are free to reorder these operations however they like.",
         draw(ctx, p, w, h, c, u) {
           const cx0 = w / 2, valY = h * 0.3;
           u.fillRR(ctx, cx0 - 40, valY - 22, 80, 44, 10, "rgba(255,107,107,0.16)", c.bad, 2);
@@ -2932,14 +2932,14 @@
           u.text(ctx, "goroutine B", g2x, gy + 5, { align: "center", color: c.text, size: 11.5 });
           u.line(ctx, g1x, gy - 18, cx0 - 30, valY + 10, c.bad, 1.4, [3, 4]);
           u.line(ctx, g2x, gy - 18, cx0 + 30, valY + 10, c.bad, 1.4, [3, 4]);
-          if (pp > 0.4) u.text(ctx, "both read n, both compute n+1, both write — one increment vanishes", cx0, h * 0.85, { align: "center", color: c.bad, size: 13, weight: 600, alpha: u.clamp((pp - 0.4) / 0.4, 0, 1) });
+          if (pp > 0.4) u.text(ctx, "both read n, both compute n+1, both write - one increment vanishes", cx0, h * 0.85, { align: "center", color: c.bad, size: 13, weight: 600, alpha: u.clamp((pp - 0.4) / 0.4, 0, 1) });
         },
       },
       {
         t: 2.6,
         title: "Atomic: a lock-free compare-and-swap",
         desc: "A goroutine reads the current value, computes the new one, then asks the CPU to swap it in 'only if nobody changed it since I read it.' If it lost the race, it just retries.",
-        why: "No goroutine ever blocks or sleeps — the whole update is one indivisible CPU instruction. It's the cheapest tool, but it only protects a single word.",
+        why: "No goroutine ever blocks or sleeps - the whole update is one indivisible CPU instruction. It's the cheapest tool, but it only protects a single word.",
         draw(ctx, p, w, h, c, u) {
           const cx0 = w / 2, valY = h * 0.32;
           u.fillRR(ctx, cx0 - 40, valY - 22, 80, 44, 10, "rgba(0,173,216,0.18)", c.go, 2);
@@ -2948,15 +2948,15 @@
           const gx = cyc < half ? u.lerp(cx0 + 170, cx0 + 60, cyc / half) : cx0 + 60;
           if (cyc >= half) u.ring(ctx, gx, valY, c.good, (cyc - half) / (0.5 - half), { from: 4, to: 26, lw: 1.8 });
           u.dot(ctx, gx, valY, 8, cyc >= half ? c.good : c.warn, "rgba(0,173,216,0.3)");
-          u.text(ctx, cyc >= half ? "CAS ✓ — swapped in" : "compute n+1…", gx, valY - 26, { align: "center", color: cyc >= half ? c.good : c.warn, size: 12, weight: 700 });
-          u.text(ctx, "atomic.Int64 — every update is one CPU instruction, never a wait", cx0, h * 0.7, { align: "center", color: c.dim, size: 12.5 });
+          u.text(ctx, cyc >= half ? "CAS ✓ - swapped in" : "compute n+1…", gx, valY - 26, { align: "center", color: cyc >= half ? c.good : c.warn, size: 12, weight: 700 });
+          u.text(ctx, "atomic.Int64 - every update is one CPU instruction, never a wait", cx0, h * 0.7, { align: "center", color: c.dim, size: 12.5 });
         },
       },
       {
         t: 5.2,
         title: "Mutex: one goroutine in the critical section at a time",
         desc: "A goroutine must acquire the lock before touching shared state, and release it when done. Anyone else who wants in simply waits their turn.",
-        why: "Use this when an INVARIANT spans more than one field (e.g. a balance and a log entry that must change together) — something a single atomic can never guarantee.",
+        why: "Use this when an INVARIANT spans more than one field (e.g. a balance and a log entry that must change together) - something a single atomic can never guarantee.",
         draw(ctx, p, w, h, c, u) {
           const cx0 = w / 2, lockY = h * 0.34;
           u.fillRR(ctx, cx0 - 36, lockY - 20, 72, 40, 10, "rgba(245,177,76,0.18)", c.warn, 2);
@@ -2976,7 +2976,7 @@
       {
         t: 7.8,
         title: "Channel: ownership moves with the value",
-        desc: "Instead of two goroutines sharing one variable, the producer sends the value down a channel — the consumer is now the only one who can touch it.",
+        desc: "Instead of two goroutines sharing one variable, the producer sends the value down a channel - the consumer is now the only one who can touch it.",
         why: "'Don't communicate by sharing memory; share memory by communicating.' There's no shared state left to race on, because only one goroutine ever owns the value at a time.",
         draw(ctx, p, w, h, c, u) {
           const py = h * 0.34, prodX = w * 0.22, consX = w * 0.78;
@@ -2993,7 +2993,7 @@
       {
         t: 10.0,
         title: "Pick by the shape of the problem",
-        desc: "All three are race-free — the right choice depends on what you're protecting, not on habit.",
+        desc: "All three are race-free - the right choice depends on what you're protecting, not on habit.",
         why: "Reaching for the wrong tool still 'works' but costs clarity or performance: an atomic-per-field can't keep two fields consistent; a mutex around a single counter is needless overhead; a channel as a lock is heavier than either.",
         draw(ctx, p, w, h, c, u) {
           const rows = [
@@ -3042,8 +3042,8 @@
       {
         t: 0,
         title: "One request, three services",
-        desc: "A request enters Service A, which calls Service B, which calls Service C — a normal cross-service call chain.",
-        why: "Once a request crosses service boundaries, no single process can see the whole picture anymore — that's the gap observability exists to close.",
+        desc: "A request enters Service A, which calls Service B, which calls Service C - a normal cross-service call chain.",
+        why: "Once a request crosses service boundaries, no single process can see the whole picture anymore - that's the gap observability exists to close.",
         draw(ctx, p, w, h, c, u) {
           const { ax, bx, cx2, svcY, svcH } = services(ctx, c, u, w, h * 0.18);
           const legs = [[0, 0.34, ax, bx], [0.34, 0.66, bx, cx2], [0.66, 1, cx2, bx]];
@@ -3057,12 +3057,12 @@
         t: 2.4,
         title: "Each hop opens a child span",
         desc: "Service A's span covers the whole request. When it calls B, B opens its OWN span nested inside A's. The nesting mirrors the call stack across services.",
-        why: "A trace is just this tree of spans — it's how you see exactly which hop the time went to, instead of one opaque total latency number.",
+        why: "A trace is just this tree of spans - it's how you see exactly which hop the time went to, instead of one opaque total latency number.",
         draw(ctx, p, w, h, c, u) {
           const gx0 = w * 0.14, gy0 = h * 0.28, barH = 28, barGap = 18, scale = (w * 0.72) / 3;
           const spans = [
-            { label: "Service A — root span", row: 0, color: c.go, len: 1 },
-            { label: "Service B — child span", row: 1, color: c.purple, len: 0.62 },
+            { label: "Service A - root span", row: 0, color: c.go, len: 1 },
+            { label: "Service B - child span", row: 1, color: c.purple, len: 0.62 },
           ];
           const reveal = u.clamp(p / 0.85, 0, 1);
           spans.forEach((sp, i) => {
@@ -3078,8 +3078,8 @@
       {
         t: 5.0,
         title: "Metrics: cheap aggregates that answer 'is it broken?'",
-        desc: "Every request bumps a counter and records its duration in a histogram — tiny, constant-cost numbers no matter how much traffic flows through.",
-        why: "Metrics are cheap enough to keep forever and alert on continuously — they're the first signal that something is wrong, even before anyone looks at a trace.",
+        desc: "Every request bumps a counter and records its duration in a histogram - tiny, constant-cost numbers no matter how much traffic flows through.",
+        why: "Metrics are cheap enough to keep forever and alert on continuously - they're the first signal that something is wrong, even before anyone looks at a trace.",
         draw(ctx, p, w, h, c, u) {
           const cx0 = w / 2, top = h * 0.3;
           const n = Math.floor(u.clamp(p / 0.5, 0, 1) * 247);
@@ -3094,7 +3094,7 @@
       {
         t: 7.6,
         title: "Logs: structured detail for one specific event",
-        desc: "Each service emits a key/value log line for what it actually did — not a sentence to parse, but searchable fields.",
+        desc: "Each service emits a key/value log line for what it actually did - not a sentence to parse, but searchable fields.",
         why: "Metrics tell you something's wrong; logs are where you read exactly what happened in the one request you're debugging.",
         draw(ctx, p, w, h, c, u) {
           const x0 = w * 0.12, top = h * 0.26, lh = 26;
@@ -3113,7 +3113,7 @@
       {
         t: 10.0,
         title: "Correlated by one trace_id",
-        desc: "The same trace_id is stamped on the span, the log lines, and (as a label) the metric for this request — so you can jump from a metric alert, to the slow trace, to the exact log line that explains it.",
+        desc: "The same trace_id is stamped on the span, the log lines, and (as a label) the metric for this request - so you can jump from a metric alert, to the slow trace, to the exact log line that explains it.",
         why: "Without a shared ID, the three pillars are three disconnected views. With it, they become one investigation: alert → trace → root cause.",
         draw(ctx, p, w, h, c, u) {
           const cx0 = w / 2;
@@ -3165,7 +3165,7 @@
         t: 0,
         title: "Closed: calls flow normally",
         desc: "In the default CLOSED state, every call passes straight through to the service. The breaker just quietly counts failures in the background.",
-        why: "Most of the time the dependency is healthy, so the breaker should add zero overhead — just watch, don't interfere.",
+        why: "Most of the time the dependency is healthy, so the breaker should add zero overhead - just watch, don't interfere.",
         draw(ctx, p, w, h, c, u) {
           const { clientX, breakerX, serviceX, callY } = scene(ctx, c, u, w, h);
           const cyc = p % 0.45, half = 0.22;
@@ -3177,8 +3177,8 @@
       {
         t: 2.6,
         title: "Failures climb toward the trip threshold",
-        desc: "The downstream service starts erroring. Each failed call still goes all the way out and back — the breaker just increments its counter.",
-        why: "The breaker needs real evidence the dependency is unhealthy (not one blip) before it changes behavior — that's what the threshold is for.",
+        desc: "The downstream service starts erroring. Each failed call still goes all the way out and back - the breaker just increments its counter.",
+        why: "The breaker needs real evidence the dependency is unhealthy (not one blip) before it changes behavior - that's what the threshold is for.",
         draw(ctx, p, w, h, c, u) {
           const { clientX, breakerX, serviceX, callY } = scene(ctx, c, u, w, h);
           const cyc = p % 0.32, half = 0.16;
@@ -3192,7 +3192,7 @@
       {
         t: 5.2,
         title: "Trip → OPEN: fail fast, don't even ask",
-        desc: "The breaker trips OPEN. Calls now fail INSTANTLY at the breaker itself — they never even reach the struggling service.",
+        desc: "The breaker trips OPEN. Calls now fail INSTANTLY at the breaker itself - they never even reach the struggling service.",
         why: "Waiting on a timeout from a service you already know is down just wastes time and adds more load to it. Failing fast is strictly better once you're sure it's unhealthy.",
         draw(ctx, p, w, h, c, u) {
           const { clientX, breakerX, callY } = scene(ctx, c, u, w, h);
@@ -3200,14 +3200,14 @@
           const x = cyc < half ? u.lerp(clientX, breakerX, cyc / half) : u.lerp(breakerX, clientX, (cyc - half) / half);
           call(ctx, u, x, callY, c.bad, false);
           if (p < 0.2) u.burst(ctx, breakerX, callY, c.bad, u.easeOut(u.clamp(p / 0.2, 0, 1)), 10);
-          u.text(ctx, "OPEN — bounced at the breaker", breakerX, h * 0.5, { align: "center", color: c.bad, size: 14, weight: 700 });
+          u.text(ctx, "OPEN - bounced at the breaker", breakerX, h * 0.5, { align: "center", color: c.bad, size: 14, weight: 700 });
         },
       },
       {
         t: 7.6,
         title: "Cooldown: giving the dependency room to breathe",
-        desc: "For a fixed window, every call keeps failing fast — no traffic reaches the service at all.",
-        why: "A struggling service often just needs time (to restart, drain a queue, recover from a spike) — sending it zero traffic for a bit is what lets it actually recover.",
+        desc: "For a fixed window, every call keeps failing fast - no traffic reaches the service at all.",
+        why: "A struggling service often just needs time (to restart, drain a queue, recover from a spike) - sending it zero traffic for a bit is what lets it actually recover.",
         draw(ctx, p, w, h, c, u) {
           const { breakerX, callY } = scene(ctx, c, u, w, h);
           const remain = Math.max(0, Math.ceil((1 - p) * 5));
@@ -3218,21 +3218,21 @@
       {
         t: 9.6,
         title: "Half-Open: let exactly one probe through",
-        desc: "Once the cooldown ends, the breaker allows a single real call through to test the water — everything else still waits.",
+        desc: "Once the cooldown ends, the breaker allows a single real call through to test the water - everything else still waits.",
         why: "This answers 'has it recovered?' with minimal risk: if the service is still down, only one call pays the price, not a full flood.",
         draw(ctx, p, w, h, c, u) {
           const { clientX, breakerX, serviceX, callY } = scene(ctx, c, u, w, h);
           const half = 0.5;
           const x = p < half ? u.lerp(clientX, serviceX, p / half) : u.lerp(serviceX, clientX, (p - half) / half);
           call(ctx, u, x, callY, c.warn, false);
-          u.text(ctx, "HALF-OPEN — one probe call", breakerX, h * 0.5, { align: "center", color: c.warn, size: 14, weight: 700 });
+          u.text(ctx, "HALF-OPEN - one probe call", breakerX, h * 0.5, { align: "center", color: c.warn, size: 14, weight: 700 });
         },
       },
       {
         t: 11.4,
         title: "Probe succeeds → back to Closed",
         desc: "The probe comes back healthy, so the breaker closes again and lets traffic flow normally. (Had it failed, the breaker would re-open and wait another cooldown.)",
-        why: "This Closed → Open → Half-Open → Closed cycle is the whole pattern: protect the dependency when it's down, and self-heal automatically once it recovers — no human required.",
+        why: "This Closed → Open → Half-Open → Closed cycle is the whole pattern: protect the dependency when it's down, and self-heal automatically once it recovers - no human required.",
         draw(ctx, p, w, h, c, u) {
           const nodes = [
             { name: "CLOSED", x: w * 0.22, y: h * 0.42, on: true },
@@ -3264,7 +3264,7 @@
   };
 
   /* =================================================================== */
-  /* F1 (extra). GOROUTINES — go SPAWNS CHEAP CONCURRENT WORK            */
+  /* F1 (extra). GOROUTINES - go SPAWNS CHEAP CONCURRENT WORK            */
   /* =================================================================== */
   ANIM["goroutine-spawn"] = (canvas) => {
     const N = 6;
@@ -3308,7 +3308,7 @@
         t: 0,
         title: "Every program starts as one goroutine",
         desc: "A Go program begins with a single goroutine running main(). Nothing is concurrent yet.",
-        why: "A goroutine is NOT an OS thread — it's a lightweight task (~2 KB stack) the Go runtime multiplexes onto a small pool of real threads.",
+        why: "A goroutine is NOT an OS thread - it's a lightweight task (~2 KB stack) the Go runtime multiplexes onto a small pool of real threads.",
         draw(ctx, p, w, h, c, u) {
           mainBox(ctx, c, u, w, h, "main goroutine", true);
           u.text(ctx, "func main() { … }", w / 2, h * 0.5, { align: "center", color: c.dim, size: 14, mono: true, alpha: u.clamp(p / 0.4, 0, 1) });
@@ -3316,9 +3316,9 @@
       },
       {
         t: 2.0,
-        title: "go func() launches goroutines — almost free",
+        title: "go func() launches goroutines - almost free",
         desc: "Each `go f()` starts a new goroutine that runs independently. Here main spawns six of them in a loop.",
-        why: "Spawning costs a few KB and no syscall, so a server can keep hundreds of thousands of goroutines alive at once — unthinkable with OS threads.",
+        why: "Spawning costs a few KB and no syscall, so a server can keep hundreds of thousands of goroutines alive at once - unthinkable with OS threads.",
         draw(ctx, p, w, h, c, u) {
           const M = mainBox(ctx, c, u, w, h, "main goroutine", true);
           const shown = u.clamp(p, 0, 1);
@@ -3337,7 +3337,7 @@
         t: 4.2,
         title: "They all run concurrently",
         desc: "The six goroutines execute at the same time, interleaved across a handful of OS threads by the scheduler.",
-        why: "You do NOT control the order they run in — assuming an order is the single most common concurrency bug in Go.",
+        why: "You do NOT control the order they run in - assuming an order is the single most common concurrency bug in Go.",
         draw(ctx, p, w, h, c, u) {
           mainBox(ctx, c, u, w, h, "main goroutine", true);
           wgBadge(ctx, c, u, w, h, N);
@@ -3349,7 +3349,7 @@
         t: 6.4,
         title: "wg.Wait() blocks main until each Done()",
         desc: "main parks on wg.Wait(). As every goroutine finishes it calls wg.Done(), dropping the counter one by one.",
-        why: "Without a WaitGroup (or a channel) main could return early — and when main returns, the whole program exits, killing the other goroutines mid-work.",
+        why: "Without a WaitGroup (or a channel) main could return early - and when main returns, the whole program exits, killing the other goroutines mid-work.",
         draw(ctx, p, w, h, c, u) {
           mainBox(ctx, c, u, w, h, "main ⏸ wg.Wait()", false);
           const prog = u.clamp(p, 0, 1) * (N + 0.5), done = Math.min(N, Math.floor(prog));
@@ -3364,7 +3364,7 @@
       {
         t: 8.8,
         title: "All done → main resumes",
-        desc: "The counter hits zero, wg.Wait() returns, and main continues past it — now guaranteed every goroutine has finished.",
+        desc: "The counter hits zero, wg.Wait() returns, and main continues past it - now guaranteed every goroutine has finished.",
         why: "WaitGroup is the simplest way to fan out a fixed set of goroutines and join back safely; for streaming results you'd reach for a channel instead.",
         draw(ctx, p, w, h, c, u) {
           const M = mainBox(ctx, c, u, w, h, "main resumes ✓", true);
@@ -3383,7 +3383,7 @@
   };
 
   /* =================================================================== */
-  /* F1 (extra). CHANNELS — HANDSHAKE, BUFFERING & SELECT                */
+  /* F1 (extra). CHANNELS - HANDSHAKE, BUFFERING & SELECT                */
   /* =================================================================== */
   ANIM["channel-flow"] = (canvas) => {
     function actor(ctx, c, u, x, y, label, color, active) {
@@ -3405,7 +3405,7 @@
         t: 0,
         title: "Unbuffered channel: the sender waits",
         desc: "A goroutine runs `ch <- v` on an unbuffered channel. With no one receiving yet, the send simply blocks.",
-        why: "An unbuffered channel has zero storage — a send can't complete until another goroutine is ready to receive. Blocking IS the synchronization.",
+        why: "An unbuffered channel has zero storage - a send can't complete until another goroutine is ready to receive. Blocking IS the synchronization.",
         draw(ctx, p, w, h, c, u) {
           const sx = w * 0.17, rx = w * 0.83, my = h * 0.42;
           actor(ctx, c, u, sx, my, "sender", c.go, true);
@@ -3415,14 +3415,14 @@
           const jitter = 20 * (0.5 + 0.5 * Math.sin((u.t || 0) * 6));
           u.dot(ctx, sx + 58 + jitter, my, 7, c.warn, "rgba(245,177,76,.4)");
           u.text(ctx, "ch <- v", sx, my - 40, { align: "center", color: c.go, size: 11, mono: true });
-          u.text(ctx, "⏸ send blocks — no receiver yet", w / 2, my + 58, { align: "center", color: c.warn, size: 13, weight: 700, alpha: u.clamp(p / 0.3, 0, 1) });
+          u.text(ctx, "⏸ send blocks - no receiver yet", w / 2, my + 58, { align: "center", color: c.warn, size: 13, weight: 700, alpha: u.clamp(p / 0.3, 0, 1) });
         },
       },
       {
         t: 2.2,
         title: "Receiver arrives → a single handshake",
         desc: "Another goroutine runs `v := <-ch`. The value crosses and BOTH goroutines unblock at the same instant.",
-        why: "This rendezvous is a guarantee: after the handshake, the sender knows the value was received — no lost messages, no polling.",
+        why: "This rendezvous is a guarantee: after the handshake, the sender knows the value was received - no lost messages, no polling.",
         draw(ctx, p, w, h, c, u) {
           const sx = w * 0.17, rx = w * 0.83, my = h * 0.42;
           actor(ctx, c, u, sx, my, "sender", c.go, true);
@@ -3433,7 +3433,7 @@
           u.dot(ctx, vx, my, 7, c.go, "rgba(0,173,216,.4)");
           if (frac >= 1) {
             u.ring(ctx, rx - 58, my, c.good, u.clamp((p - 0.7) / 0.3, 0, 1), { from: 5, to: 28, lw: 2 });
-            u.text(ctx, "✓ received — both goroutines proceed", w / 2, my + 58, { align: "center", color: c.good, size: 13, weight: 700 });
+            u.text(ctx, "✓ received - both goroutines proceed", w / 2, my + 58, { align: "center", color: c.good, size: 13, weight: 700 });
           } else {
             u.text(ctx, "value crosses in one handshake (rendezvous)", w / 2, my + 58, { align: "center", color: c.dim, size: 12.5 });
           }
@@ -3442,11 +3442,11 @@
       {
         t: 4.4,
         title: "A buffered channel holds values",
-        desc: "make(chan T, 4) gives the channel a buffer. Sends succeed immediately while there's free space — the sender doesn't wait.",
+        desc: "make(chan T, 4) gives the channel a buffer. Sends succeed immediately while there's free space - the sender doesn't wait.",
         why: "A buffer decouples sender and receiver timing: bursts of work can queue up instead of forcing a lock-step handshake every time.",
         draw(ctx, p, w, h, c, u) {
           const my = h * 0.44;
-          u.text(ctx, "buffered ch — cap 4", w / 2, my - 30, { align: "center", color: c.dim, size: 12 });
+          u.text(ctx, "buffered ch - cap 4", w / 2, my - 30, { align: "center", color: c.dim, size: 12 });
           const filled = Math.min(3, Math.floor(u.clamp(p / 0.85, 0, 1) * 3 + 0.001));
           slots(ctx, c, u, w, my, 4, filled);
           u.text(ctx, "ch <- v   (×3)", w / 2, my - 48, { align: "center", color: c.go, size: 11, mono: true });
@@ -3460,7 +3460,7 @@
         why: "Backpressure is a feature: a fast producer is forced to slow to the consumer's pace instead of exhausting memory with an unbounded queue.",
         draw(ctx, p, w, h, c, u) {
           const my = h * 0.44;
-          u.text(ctx, "buffered ch — cap 4", w / 2, my - 30, { align: "center", color: c.dim, size: 12 });
+          u.text(ctx, "buffered ch - cap 4", w / 2, my - 30, { align: "center", color: c.dim, size: 12 });
           const g = slots(ctx, c, u, w, my, 4, 4);
           const jitter = 16 * (0.5 + 0.5 * Math.sin((u.t || 0) * 6));
           u.dot(ctx, g.sx + g.totalW + 22 + jitter, my + 19, 7, c.warn, "rgba(245,177,76,.4)");
@@ -3470,8 +3470,8 @@
       {
         t: 8.8,
         title: "select waits on whichever is ready",
-        desc: "select blocks on several channel operations at once and proceeds with the FIRST one that becomes ready — here, chA.",
-        why: "select is how one goroutine juggles many channels — combine it with a ctx.Done() case and you get clean timeouts and cancellation.",
+        desc: "select blocks on several channel operations at once and proceeds with the FIRST one that becomes ready - here, chA.",
+        why: "select is how one goroutine juggles many channels - combine it with a ctx.Done() case and you get clean timeouts and cancellation.",
         draw(ctx, p, w, h, c, u) {
           const selx = w / 2, sely = h * 0.5, chAx = w * 0.16, chAy = h * 0.3, chBx = w * 0.16, chBy = h * 0.7;
           const chosen = p > 0.4;
@@ -3517,8 +3517,8 @@
       {
         t: 0,
         title: "Without a cache, every read hits the database directly",
-        desc: "The client asks for a value and there is nowhere faster to check first — every single request pays the full cost of a real database query.",
-        why: "This is the baseline we're about to beat. Nothing here is wrong, it's just slow — and 'slow, every time' is expensive once traffic grows.",
+        desc: "The client asks for a value and there is nowhere faster to check first - every single request pays the full cost of a real database query.",
+        why: "This is the baseline we're about to beat. Nothing here is wrong, it's just slow - and 'slow, every time' is expensive once traffic grows.",
         draw(ctx, p, w, h, c, u) {
           const { clientX, dbX, rowY } = scene(ctx, c, u, w, h, false);
           const cyc = p % 0.6, half = 0.42;
@@ -3529,9 +3529,9 @@
       },
       {
         t: 2.4,
-        title: "First request: Redis is checked first — and it's a miss",
-        desc: "The client's read now stops at Redis before anything else. The key isn't there yet, so go-redis returns the sentinel error redis.Nil — not a crash, just \"not cached yet.\"",
-        why: "Treating a miss as a normal, expected outcome — not an error to panic on — is what makes this pattern safe to use on every read, not just the lucky ones.",
+        title: "First request: Redis is checked first - and it's a miss",
+        desc: "The client's read now stops at Redis before anything else. The key isn't there yet, so go-redis returns the sentinel error redis.Nil - not a crash, just \"not cached yet.\"",
+        why: "Treating a miss as a normal, expected outcome - not an error to panic on - is what makes this pattern safe to use on every read, not just the lucky ones.",
         draw(ctx, p, w, h, c, u) {
           const { clientX, cacheX, dbX, rowY } = scene(ctx, c, u, w, h, true);
           const seg1 = u.clamp(p / 0.45, 0, 1), seg2 = u.clamp((p - 0.5) / 0.5, 0, 1);
@@ -3542,9 +3542,9 @@
       },
       {
         t: 4.8,
-        title: "The answer comes back — and gets cached with a TTL",
-        desc: "The database returns the real value. Before handing it to the client, the code writes it into Redis with an expiration attached — e.g. 60 seconds.",
-        why: "Attaching a TTL at write time is what bounds how wrong this cached copy is allowed to become. Nobody has to remember to clean it up later — Redis does it alone.",
+        title: "The answer comes back - and gets cached with a TTL",
+        desc: "The database returns the real value. Before handing it to the client, the code writes it into Redis with an expiration attached - e.g. 60 seconds.",
+        why: "Attaching a TTL at write time is what bounds how wrong this cached copy is allowed to become. Nobody has to remember to clean it up later - Redis does it alone.",
         draw(ctx, p, w, h, c, u) {
           const { clientX, cacheX, dbX, rowY } = scene(ctx, c, u, w, h, true);
           const seg1 = u.clamp(p / 0.55, 0, 1), seg2 = u.clamp((p - 0.6) / 0.4, 0, 1);
@@ -3555,9 +3555,9 @@
       },
       {
         t: 7.2,
-        title: "Second request: cache hit — the database is never touched",
+        title: "Second request: cache hit - the database is never touched",
         desc: "The exact same key is requested again. This time Redis has it: the client gets an answer in well under a millisecond, and the database does nothing at all.",
-        why: "This is the entire payoff of cache-aside — the expensive path runs once per TTL window, no matter how many times the value is actually read in that window.",
+        why: "This is the entire payoff of cache-aside - the expensive path runs once per TTL window, no matter how many times the value is actually read in that window.",
         draw(ctx, p, w, h, c, u) {
           const { clientX, cacheX, dbX, rowY } = scene(ctx, c, u, w, h, true);
           u.fillRR(ctx, cacheX - 44, rowY + 26, 88, 22, 6, "rgba(58,210,159,0.16)", c.good, 1.4);
@@ -3575,7 +3575,7 @@
       },
       {
         t: 9.6,
-        title: "The TTL runs out — and the next request is a miss again",
+        title: "The TTL runs out - and the next request is a miss again",
         desc: "60 seconds pass. Redis quietly deletes the key on its own. The next client to ask for it gets a miss, exactly like the very first request did.",
         why: "This is the cache-aside lifecycle closing the loop: hit, hit, hit… until the TTL ends, then one miss repopulates it and the cycle simply continues.",
         draw(ctx, p, w, h, c, u) {
@@ -3592,8 +3592,8 @@
       {
         t: 12.0,
         title: "Atomic SETNX: five callers race, exactly one wins",
-        desc: "Five clients call SET … NX on the same lock key at the same instant. Because Redis executes one command at a time, exactly one of them creates the key and gets the lock — the other four fail immediately.",
-        why: "No extra coordination code was added anywhere. This atomicity is a free property of how Redis executes commands — it's what makes one Redis instance a correct distributed lock.",
+        desc: "Five clients call SET … NX on the same lock key at the same instant. Because Redis executes one command at a time, exactly one of them creates the key and gets the lock - the other four fail immediately.",
+        why: "No extra coordination code was added anywhere. This atomicity is a free property of how Redis executes commands - it's what makes one Redis instance a correct distributed lock.",
         draw(ctx, p, w, h, c, u) {
           const cacheX = w / 2, cacheY = h * 0.24;
           u.fillRR(ctx, cacheX - 52, cacheY - 20, 104, 40, 9, "rgba(206,50,98,0.14)", c.accent, 1.8);

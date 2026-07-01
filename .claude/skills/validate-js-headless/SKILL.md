@@ -1,6 +1,6 @@
 ---
 name: validate-js-headless
-description: Validate go-professional's JS files (js/data.js, js/data.ru.js, js/lessons.js, js/lessons.ru.js, js/animations.js, js/strings.js, js/app.js) for syntax errors, shape mismatches, and runtime exceptions, without Node.js and without opening a browser. Use this any time you edit those files, add or edit a course module, add or edit an animation, or touch the i18n merge logic in app.js — run it before telling the user a change is done, not just when something looks broken. This repo has no Node/npm toolchain by design (see AGENTS.md), so this is the only fast feedback loop besides manually opening index.html.
+description: Validate go-professional's JS files (js/data.js, js/data.ru.js, js/lessons.js, js/lessons.ru.js, js/animations.js, js/strings.js, js/app.js) for syntax errors, shape mismatches, and runtime exceptions, without Node.js and without opening a browser. Use this any time you edit those files, add or edit a course module, add or edit an animation, or touch the i18n merge logic in app.js - run it before telling the user a change is done, not just when something looks broken. This repo has no Node/npm toolchain by design (see AGENTS.md), so this is the only fast feedback loop besides manually opening index.html.
 ---
 
 # Validate go-professional JS headlessly
@@ -39,14 +39,14 @@ Each run prints:
 - Per-animation `OK <id>` or `FAIL <id> :: <error>` as it drives every `ANIM["id"]` through `seek(0..1)` across 12 sample points.
 - A final `RESULT: ALL PASS (<lang>)` or `RESULT: N FAILURES (<lang>)`.
 
-Run both languages, not just one. A change that's correct in English can still throw in Russian (or vice versa) because of the `mergeCourse`/`mergeModule` fallback logic and the `CANVAS_RU` dictionary lookup — see `AGENTS.md`'s i18n section for how those work.
+Run both languages, not just one. A change that's correct in English can still throw in Russian (or vice versa) because of the `mergeCourse`/`mergeModule` fallback logic and the `CANVAS_RU` dictionary lookup - see `AGENTS.md`'s i18n section for how those work.
 
 ## Interpreting failures
 
-- **`TypeError: ctx.<method> is not a function`** — the stub context in `scripts/validate.js` is missing a canvas API the real code now calls. Add a no-op stub for it in `makeCtx()` in that script, then re-run. This is a harness gap, not a bug in the site.
-- **`ReferenceError: X is not defined`** inside an animation — almost always a missing dictionary entry (`CANVAS_RU`) or a typo'd variable name introduced while editing `animations.js`.
-- **Module/key counts mismatched between en/ru** — one of the `*_RU` mirror files is missing an entry that the English original has. `mergeModule`/`mergeCourse` will silently fall back to English for that one field, which can hide the gap until you specifically diff counts like this.
-- **Everything passes but new text still shows in English on the Russian page** — the string is very likely being built dynamically (e.g. `"cycles: " + done`) rather than passed as a literal, so the `tr()` exact-match lookup in `animations.js` never fires. Fix at the call site by wrapping the static portion in `tr(...)`, per the pattern already used throughout `animations.js`. This check won't flag it as a failure since nothing throws — you have to actually read the render or check the dictionary coverage.
+- **`TypeError: ctx.<method> is not a function`** - the stub context in `scripts/validate.js` is missing a canvas API the real code now calls. Add a no-op stub for it in `makeCtx()` in that script, then re-run. This is a harness gap, not a bug in the site.
+- **`ReferenceError: X is not defined`** inside an animation - almost always a missing dictionary entry (`CANVAS_RU`) or a typo'd variable name introduced while editing `animations.js`.
+- **Module/key counts mismatched between en/ru** - one of the `*_RU` mirror files is missing an entry that the English original has. `mergeModule`/`mergeCourse` will silently fall back to English for that one field, which can hide the gap until you specifically diff counts like this.
+- **Everything passes but new text still shows in English on the Russian page** - the string is very likely being built dynamically (e.g. `"cycles: " + done`) rather than passed as a literal, so the `tr()` exact-match lookup in `animations.js` never fires. Fix at the call site by wrapping the static portion in `tr(...)`, per the pattern already used throughout `animations.js`. This check won't flag it as a failure since nothing throws - you have to actually read the render or check the dictionary coverage.
 
 ## After validating
 
