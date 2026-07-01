@@ -1,7 +1,7 @@
 /* =====================================================================
    INTERACTIVE ANIMATIONS  (canvas 2D, no dependencies)
    A deterministic, scrubbable timeline engine with explicit STEPS, plus
-   14 visualizations. Each animation renders its full state as a pure
+   25 visualizations. Each animation renders its full state as a pure
    function of time t, so play / pause / step / scrub / step-jump all work.
    Each def declares `phases: [{t, title, desc}]` so the UI can show a
    numbered, narrated walkthrough synced to the visual.
@@ -72,6 +72,46 @@
     "samples captured: ": "собрано сэмплов: ",
     "width = share of samples in that function": "ширина = доля сэмплов в этой функции",
     "▲ reflectWalk ≈ 40% of CPU - optimize here first": "▲ reflectWalk ≈ 40% CPU - оптимизировать в первую очередь",
+    "go tool pprof · choosing the right profile": "go tool pprof · выбор правильного профиля",
+    "go tool pprof · profile picker": "go tool pprof · выбор профиля",
+    "symptom": "симптом",
+    "profile": "профиль",
+    "question answered": "какой вопрос закрывает",
+    "CPU hot path": "горячий CPU-путь",
+    "heap pressure": "давление на кучу",
+    "goroutine leak": "утечка горутин",
+    "sync waiting": "ожидание sync",
+    "cpu": "cpu",
+    "heap": "heap",
+    "goroutine": "goroutine",
+    "block / mutex": "block / mutex",
+    "where is CPU time spent?": "где тратится CPU-время?",
+    "what allocates or stays live?": "что аллоцирует или остаётся живым?",
+    "where are goroutines stuck?": "где застряли горутины?",
+    "where do goroutines wait?": "где горутины ждут?",
+    "30s CPU sample": "30-секундный CPU-сэмпл",
+    "inuse_space / alloc_space": "inuse_space / alloc_space",
+    "stack dump": "дамп стеков",
+    "contention time": "время конкуренции",
+    "pick the profile that answers the question": "выберите профиль, отвечающий на вопрос",
+    "go tool pprof · measure, change one thing, measure again": "go tool pprof · измерить, изменить одно, измерить снова",
+    "go tool pprof · optimize loop": "go tool pprof · цикл оптимизации",
+    "benchmark/load test": "бенчмарк/нагрузочный тест",
+    "cpu.out": "cpu.out",
+    "go tool pprof": "go tool pprof",
+    "top": "top",
+    "list": "list",
+    "flame": "flame",
+    "top · list · flame": "top · list · flame",
+    "hotspot": "горячая точка",
+    "one code change": "одно изменение в коде",
+    "before": "до",
+    "after": "после",
+    "measure": "измерить",
+    "fix": "исправить",
+    "re-profile": "профилировать снова",
+    "prove the win": "доказать выигрыш",
+    "flat enough - stop": "достаточно ровно - стоп",
     // test-runner
     "got ": "получено ",
     " == want ": " == ожидалось ",
@@ -293,6 +333,33 @@
     "Find the widest box - that's the hotspot": "Найдите самый широкий блок - это и есть горячая точка",
     "reflectWalk is the widest leaf frame: roughly 40% of all CPU samples landed inside it. The tall, narrow stacks next to it barely register.": "reflectWalk - самый широкий листовой фрейм: примерно 40% всех сэмплов CPU попали именно в него. Высокие узкие стеки рядом почти незаметны.",
     "Optimizing the widest box gives the biggest win for the least effort - optimizing a narrow box can't help much even if you make it instant.": "Оптимизация самого широкого блока даёт наибольший выигрыш при наименьших усилиях - оптимизация узкого блока не поможет много, даже если сделать его мгновенным.",
+    "Start from the symptom": "Начните с симптома",
+    "The symptom is your first filter. A service can be slow because it is burning CPU, allocating too much, leaking goroutines, or waiting on locks/channels.": "Симптом - ваш первый фильтр. Сервис может тормозить из-за сжигания CPU, лишних аллокаций, утечки горутин или ожидания на lock/channel.",
+    "Choosing the profile by symptom prevents you from staring at the wrong evidence.": "Выбор профиля по симптому не даёт вам часами смотреть на неправильные факты.",
+    "CPU profile answers: where is time spent?": "CPU-профиль отвечает: где тратится время?",
+    "For a hot request path, collect a CPU profile. pprof samples the currently running stack and ranks functions by how often they were on-CPU.": "Для горячего пути запроса снимите CPU-профиль. pprof сэмплирует текущий выполняющийся стек и ранжирует функции по тому, как часто они были на CPU.",
+    "This is the profile for throughput work: algorithms, reflection, parsing, serialization, hashing, and tight loops.": "Это профиль для работы над пропускной способностью: алгоритмы, reflection, парсинг, сериализация, хеширование и горячие циклы.",
+    "Heap profile answers: what owns memory?": "Heap-профиль отвечает: кто владеет памятью?",
+    "If RSS climbs or GC burns CPU, switch to heap. inuse_space shows what is live now; alloc_space shows allocation churn that feeds the GC.": "Если RSS растёт или GC сжигает CPU, переключайтесь на heap. inuse_space показывает, что живо сейчас; alloc_space показывает поток аллокаций, который кормит GC.",
+    "Memory problems need ownership evidence - a CPU flame graph can hide the allocation site that actually creates pressure.": "Проблемам памяти нужны факты о владении - CPU flame-граф может скрыть место аллокации, которое реально создаёт давление.",
+    "Goroutine profile answers: who is stuck?": "Goroutine-профиль отвечает: кто застрял?",
+    "When goroutine count keeps rising, dump the goroutine profile. It shows every stack, so leaked workers and forgotten receives become visible.": "Когда число горутин растёт, снимите goroutine-профиль. Он показывает каждый стек, поэтому утёкшие воркеры и забытые receive становятся видны.",
+    "A leak is usually a lifetime bug, not a CPU bug - you need the parked stack, not a timing aggregate.": "Утечка обычно проблема времени жизни, а не CPU - нужен припаркованный стек, а не агрегат времени.",
+    "Block and mutex profiles answer: who waits?": "Block и mutex-профили отвечают: кто ждёт?",
+    "If CPU is low but latency is high, enable block or mutex profiling. The profile points at channel sends, receives, selects, and locks that consume wait time.": "Если CPU низкий, а задержка высокая, включите block или mutex-профилирование. Профиль указывает на channel send/receive/select и lock, где тратится время ожидания.",
+    "Waiting time is invisible in a normal CPU profile because blocked goroutines are not on-CPU.": "Время ожидания невидимо в обычном CPU-профиле, потому что заблокированные горутины не находятся на CPU.",
+    "Reproduce the slow path": "Воспроизведите медленный путь",
+    "Start with a benchmark or representative load test. The profile is only useful if the workload exercises the behavior you actually need to improve.": "Начните с бенчмарка или репрезентативного нагрузочного теста. Профиль полезен только если нагрузка воспроизводит поведение, которое вам реально нужно улучшить.",
+    "A clean reproduction turns performance work from folklore into an experiment you can repeat.": "Чистое воспроизведение превращает работу над производительностью из фольклора в повторяемый эксперимент.",
+    "Collect evidence, then inspect it": "Соберите факты, затем изучите их",
+    "Write cpu.out, open it with go tool pprof, and move between top, list, and the flame graph until one hotspot is concrete.": "Запишите cpu.out, откройте его через go tool pprof и переключайтесь между top, list и flame-графом, пока одна горячая точка не станет конкретной.",
+    "The toolchain gives you several views of the same samples: table for ranking, source listing for the line, flame graph for shape.": "Инструменты дают несколько видов одних и тех же сэмплов: таблицу для ранжирования, исходник для строки, flame-граф для формы.",
+    "Change one hotspot": "Измените одну горячую точку",
+    "Make one targeted change where the profile is widest: swap an algorithm, remove reflection, preallocate, cache, or move work out of the loop.": "Сделайте одно точное изменение там, где профиль шире всего: смените алгоритм, уберите reflection, заранее выделите память, закэшируйте или вынесите работу из цикла.",
+    "One change at a time keeps causality intact - if the profile improves, you know what did it.": "Одно изменение за раз сохраняет причинность - если профиль улучшился, вы знаете почему.",
+    "Re-profile and compare shapes": "Снимите профиль снова и сравните форму",
+    "Run the same workload again. The before graph had one dominant box; the after graph should be flatter or expose the next real bottleneck.": "Запустите ту же нагрузку снова. На графе до был один доминирующий блок; после граф должен стать ровнее или показать следующий реальный узкий участок.",
+    "The only optimization that counts is the one that survives a second measurement.": "Засчитывается только та оптимизация, которая пережила второе измерение.",
 
     // test-runner
     "A table of cases": "Таблица случаев",
@@ -1178,6 +1245,217 @@
       duration: 10.4,
       phases: STEPS.map((s) => ({ t: s.t, title: s.title, desc: s.desc, why: s.why })),
       render: stepRender(STEPS, 10.4, "go tool pprof · CPU flame graph"),
+    });
+  };
+
+  /* =================================================================== */
+  /* F2. PICK THE RIGHT PPROF PROFILE                                    */
+  /* =================================================================== */
+  ANIM["pprof-profile-types"] = (canvas) => {
+    const rows = [
+      { symptom: "CPU hot path", profile: "cpu", question: "where is CPU time spent?", detail: "30s CPU sample", color: "go" },
+      { symptom: "heap pressure", profile: "heap", question: "what allocates or stays live?", detail: "inuse_space / alloc_space", color: "warn" },
+      { symptom: "goroutine leak", profile: "goroutine", question: "where are goroutines stuck?", detail: "stack dump", color: "purple" },
+      { symptom: "sync waiting", profile: "block / mutex", question: "where do goroutines wait?", detail: "contention time", color: "bad" },
+    ];
+
+    function rowColor(c, r) {
+      return r.color === "go" ? c.go : r.color === "warn" ? c.warn : r.color === "purple" ? c.purple : c.bad;
+    }
+
+    function drawRows(ctx, p, w, h, c, u, active) {
+      const narrow = w < 560;
+      const x = 24, rw = w - 48, top = narrow ? 76 : 82, rowH = narrow ? 47 : 50, gap = narrow ? 5 : 10;
+      u.text(ctx, "symptom", x + 10, 73, { color: c.dim, size: 10.5, weight: 700, mono: true });
+      if (!narrow) {
+        u.text(ctx, "profile", x + rw * .38, 73, { color: c.dim, size: 10.5, weight: 700, mono: true });
+        u.text(ctx, "question answered", x + rw * .62, 73, { color: c.dim, size: 10.5, weight: 700, mono: true });
+      }
+      rows.forEach((r, i) => {
+        const appear = active < 0 ? 1 : u.clamp((p - i * 0.09) / 0.25, 0, 1);
+        if (appear <= 0) return;
+        const y = top + i * (rowH + gap);
+        const on = active === i;
+        const col = rowColor(c, r);
+        if (on) u.glowPulse(ctx, x + rw / 2, y + rowH / 2, Math.min(86, rw * .23), col + "66", u.t || 0);
+        ctx.save();
+        ctx.globalAlpha = appear;
+        u.fillRR(ctx, x, y, rw, rowH, 9, on ? "rgba(0,173,216,.08)" : c.panel, on ? col : c.line, on ? 2.2 : 1.3);
+        u.text(ctx, r.symptom, x + 14, y + (narrow ? 16 : 20), { color: c.text, size: narrow ? 11.2 : 12.5, weight: 700, mono: true });
+        u.text(ctx, r.detail, narrow ? x + rw - 14 : x + 14, y + (narrow ? 42 : 38), { align: narrow ? "right" : "left", color: c.dim, size: narrow ? 9.3 : 10.5, weight: 500, mono: true });
+        const bx = narrow ? x + rw - 118 : x + rw * .38;
+        u.badge(ctx, bx, y + (narrow ? 6 : 10), r.profile, col, r.color === "warn" || r.color === "go" ? "#06121f" : "#fff");
+        const qx = narrow ? x + 128 : x + rw * .62;
+        const qy = narrow ? y + 31 : y + 31;
+        u.text(ctx, r.question, narrow ? x + 14 : qx, qy, { color: on ? col : c.text, size: narrow ? 9.6 : 11.5, weight: on ? 700 : 600 });
+        if (on) {
+          const sx = x + 122, sy = y + rowH / 2, ex = narrow ? bx - 8 : bx - 12;
+          u.flow(ctx, sx, sy, ex, sy, col, 2, u.t || 0);
+          if (p < .75) u.ring(ctx, bx + 18, y + 24, col, u.clamp((p - .1) / .55, 0, 1), { from: 8, to: 30, lw: 1.7 });
+        }
+        ctx.restore();
+      });
+      u.text(ctx, "pick the profile that answers the question", x, h - 16, { color: c.dim, size: narrow ? 9.5 : 11.5, weight: 600 });
+    }
+
+    const STEPS = [
+      {
+        t: 0,
+        title: "Start from the symptom",
+        desc: "The symptom is your first filter. A service can be slow because it is burning CPU, allocating too much, leaking goroutines, or waiting on locks/channels.",
+        why: "Choosing the profile by symptom prevents you from staring at the wrong evidence.",
+        draw(ctx, p, w, h, c, u) { drawRows(ctx, p, w, h, c, u, -1); },
+      },
+      {
+        t: 2.2,
+        title: "CPU profile answers: where is time spent?",
+        desc: "For a hot request path, collect a CPU profile. pprof samples the currently running stack and ranks functions by how often they were on-CPU.",
+        why: "This is the profile for throughput work: algorithms, reflection, parsing, serialization, hashing, and tight loops.",
+        draw(ctx, p, w, h, c, u) { drawRows(ctx, 1, w, h, c, u, 0); },
+      },
+      {
+        t: 4.7,
+        title: "Heap profile answers: what owns memory?",
+        desc: "If RSS climbs or GC burns CPU, switch to heap. inuse_space shows what is live now; alloc_space shows allocation churn that feeds the GC.",
+        why: "Memory problems need ownership evidence - a CPU flame graph can hide the allocation site that actually creates pressure.",
+        draw(ctx, p, w, h, c, u) { drawRows(ctx, 1, w, h, c, u, 1); },
+      },
+      {
+        t: 7.2,
+        title: "Goroutine profile answers: who is stuck?",
+        desc: "When goroutine count keeps rising, dump the goroutine profile. It shows every stack, so leaked workers and forgotten receives become visible.",
+        why: "A leak is usually a lifetime bug, not a CPU bug - you need the parked stack, not a timing aggregate.",
+        draw(ctx, p, w, h, c, u) { drawRows(ctx, 1, w, h, c, u, 2); },
+      },
+      {
+        t: 9.7,
+        title: "Block and mutex profiles answer: who waits?",
+        desc: "If CPU is low but latency is high, enable block or mutex profiling. The profile points at channel sends, receives, selects, and locks that consume wait time.",
+        why: "Waiting time is invisible in a normal CPU profile because blocked goroutines are not on-CPU.",
+        draw(ctx, p, w, h, c, u) { drawRows(ctx, 1, w, h, c, u, 3); },
+      },
+    ];
+
+    return makeTimeline(canvas, {
+      duration: 12.0,
+      phases: STEPS.map((s) => ({ t: s.t, title: s.title, desc: s.desc, why: s.why })),
+      render: stepRender(STEPS, 12.0, "go tool pprof · profile picker"),
+    });
+  };
+
+  /* =================================================================== */
+  /* F2. PROFILE → FIX → RE-PROFILE                                      */
+  /* =================================================================== */
+  ANIM["pprof-optimize-loop"] = (canvas) => {
+    const nodes = [
+      { label: "measure", sub: "benchmark/load test", x: .20, y: .30, color: "go" },
+      { label: "cpu.out", sub: "go tool pprof", x: .42, y: .30, color: "warn" },
+      { label: "hotspot", sub: "top · list · flame", x: .64, y: .30, color: "bad" },
+      { label: "fix", sub: "one code change", x: .78, y: .62, color: "purple" },
+      { label: "re-profile", sub: "prove the win", x: .36, y: .62, color: "go" },
+    ];
+
+    function nodeColor(c, n) {
+      return n.color === "go" ? c.go : n.color === "warn" ? c.warn : n.color === "purple" ? c.purple : c.bad;
+    }
+
+    function drawMiniFlame(ctx, c, u, x, y, w, hot, label) {
+      const rowH = 18;
+      u.text(ctx, label, x, y - 9, { color: c.dim, size: 10.5, weight: 700, mono: true });
+      u.fillRR(ctx, x, y + rowH * 3, w, rowH, 3, c.go, "rgba(0,0,0,.14)", 1);
+      u.fillRR(ctx, x, y + rowH * 2, w, rowH, 3, c.goSoft, "rgba(0,0,0,.14)", 1);
+      u.fillRR(ctx, x, y + rowH, w * (hot ? .54 : .28), rowH, 3, hot ? "rgba(255,107,107,.88)" : c.warn, hot ? c.bad : "rgba(0,0,0,.14)", hot ? 2 : 1);
+      u.fillRR(ctx, x + w * (hot ? .54 : .28), y + rowH, w * (hot ? .25 : .34), rowH, 3, c.warn, "rgba(0,0,0,.14)", 1);
+      u.fillRR(ctx, x, y, w * (hot ? .43 : .18), rowH, 3, hot ? "rgba(255,107,107,.88)" : c.purple, hot ? c.bad : "rgba(0,0,0,.14)", hot ? 2 : 1);
+      u.text(ctx, hot ? "reflectWalk" : "parseJSON", x + 6, y + 13, { color: hot ? "#fff" : "#06121f", size: 9.5, weight: 700, mono: true });
+    }
+
+    function drawLoop(ctx, p, w, h, c, u, active) {
+      const narrow = w < 560;
+      const pos = narrow
+        ? nodes.map((n, i) => ({ n, x: w / 2, y: 84 + i * 39 }))
+        : nodes.map((n) => ({ n, x: 28 + n.x * (w - 56), y: 72 + n.y * (h - 130) }));
+      for (let i = 0; i < pos.length; i++) {
+        const a = pos[i], b = pos[(i + 1) % pos.length];
+        const on = active >= i || active === 4;
+        u.flow(ctx, a.x, a.y, b.x, b.y, on ? nodeColor(c, a.n) : c.line, on ? 2.4 : 1.4, u.t || 0);
+      }
+      pos.forEach((pt, i) => {
+        const appear = u.clamp((p - i * .08) / .28, 0, 1);
+        if (appear <= 0) return;
+        const col = nodeColor(c, pt.n);
+        const on = i === active;
+        if (on) u.glowPulse(ctx, pt.x, pt.y, 34, col + "66", u.t || 0);
+        const cardW = narrow ? Math.min(w - 72, 230) : 132;
+        const cardH = narrow ? 32 : 50;
+        ctx.save();
+        ctx.globalAlpha = appear;
+        u.fillRR(ctx, pt.x - cardW / 2, pt.y - cardH / 2, cardW, cardH, 10, on ? "rgba(0,173,216,.09)" : c.panel, on ? col : c.line, on ? 2.2 : 1.3);
+        u.text(ctx, pt.n.label, pt.x, pt.y + (narrow ? 4 : -2), { align: "center", color: on ? col : c.text, size: narrow ? 10.5 : 12, weight: 800, mono: true });
+        if (!narrow) u.text(ctx, pt.n.sub, pt.x, pt.y + 15, { align: "center", color: c.dim, size: 9.6, weight: 600, mono: true });
+        ctx.restore();
+      });
+    }
+
+    const STEPS = [
+      {
+        t: 0,
+        title: "Reproduce the slow path",
+        desc: "Start with a benchmark or representative load test. The profile is only useful if the workload exercises the behavior you actually need to improve.",
+        why: "A clean reproduction turns performance work from folklore into an experiment you can repeat.",
+        draw(ctx, p, w, h, c, u) {
+          drawLoop(ctx, 1, w, h, c, u, 0);
+          u.badge(ctx, 28, h - 46, "benchmark/load test", "rgba(0,173,216,.9)", "#06121f");
+        },
+      },
+      {
+        t: 2.5,
+        title: "Collect evidence, then inspect it",
+        desc: "Write cpu.out, open it with go tool pprof, and move between top, list, and the flame graph until one hotspot is concrete.",
+        why: "The toolchain gives you several views of the same samples: table for ranking, source listing for the line, flame graph for shape.",
+        draw(ctx, p, w, h, c, u) {
+          drawLoop(ctx, 1, w, h, c, u, p < .5 ? 1 : 2);
+          const x = 28, y = h - 74;
+          ["top", "list", "flame"].forEach((label, i) => {
+            u.badge(ctx, x + i * 86, y, label, i === Math.floor(p * 3) ? c.warn : c.panel, i === Math.floor(p * 3) ? "#06121f" : c.text);
+          });
+        },
+      },
+      {
+        t: 5.1,
+        title: "Change one hotspot",
+        desc: "Make one targeted change where the profile is widest: swap an algorithm, remove reflection, preallocate, cache, or move work out of the loop.",
+        why: "One change at a time keeps causality intact - if the profile improves, you know what did it.",
+        draw(ctx, p, w, h, c, u) {
+          drawLoop(ctx, 1, w, h, c, u, 3);
+          const x = 30, y = h - 92, boxW = Math.min(260, w - 60);
+          u.fillRR(ctx, x, y, boxW, 46, 8, "rgba(169,139,255,.10)", c.purple, 1.5);
+          u.text(ctx, "hotspot", x + 12, y + 17, { color: c.purple, size: 11, weight: 800, mono: true });
+          u.text(ctx, "reflectWalk", x + 92, y + 17, { color: c.text, size: 11, weight: 700, mono: true });
+          u.text(ctx, "one code change", x + 12, y + 35, { color: c.dim, size: 10.5, weight: 600, mono: true });
+          if (p < .75) u.burst(ctx, x + boxW - 26, y + 23, c.purple, u.clamp(p / .75, 0, 1), 9);
+        },
+      },
+      {
+        t: 7.7,
+        title: "Re-profile and compare shapes",
+        desc: "Run the same workload again. The before graph had one dominant box; the after graph should be flatter or expose the next real bottleneck.",
+        why: "The only optimization that counts is the one that survives a second measurement.",
+        draw(ctx, p, w, h, c, u) {
+          drawLoop(ctx, 1, w, h, c, u, 4);
+          const gap = 26, fw = Math.min(220, (w - 74) / 2), y = h - 122, x1 = 28, x2 = x1 + fw + gap;
+          drawMiniFlame(ctx, c, u, x1, y, fw, true, "before");
+          u.arrow(ctx, x1 + fw + 5, y + 32, x2 - 10, y + 32, c.go, 2);
+          drawMiniFlame(ctx, c, u, x2, y, fw, false, "after");
+          if (p > .45) u.badge(ctx, Math.max(28, w - 178), h - 38, "flat enough - stop", "rgba(58,210,159,.88)", "#06121f");
+        },
+      },
+    ];
+
+    return makeTimeline(canvas, {
+      duration: 10.2,
+      phases: STEPS.map((s) => ({ t: s.t, title: s.title, desc: s.desc, why: s.why })),
+      render: stepRender(STEPS, 10.2, "go tool pprof · optimize loop"),
     });
   };
 

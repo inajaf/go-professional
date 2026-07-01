@@ -216,6 +216,26 @@ b.Reset(); defer bufPool.Put(b)`,
       blurb:
         "See the sampler snapshot the running call stack ~100×/second, watch those samples stack up into a flame graph, and spot the widest box - your hotspot.",
     },
+    animations: [
+      {
+        id: "pprof-flame",
+        title: "CPU Sampling → Flame Graph",
+        blurb:
+          "See the sampler snapshot the running call stack ~100×/second, watch those samples stack up into a flame graph, and spot the widest box - your hotspot.",
+      },
+      {
+        id: "pprof-profile-types",
+        title: "Pick the Right pprof Profile",
+        blurb:
+          "Match the symptom to the profile: CPU for burned cycles, heap for memory pressure, goroutine for leaks, and block/mutex for waiting.",
+      },
+      {
+        id: "pprof-optimize-loop",
+        title: "Profile → Fix → Re-profile",
+        blurb:
+          "Walk the production optimization loop: reproduce the slow path, collect evidence, change one hotspot, and confirm the graph actually got flatter.",
+      },
+    ],
     concepts: [
       {
         title: "The profile types",
