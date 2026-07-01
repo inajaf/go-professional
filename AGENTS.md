@@ -35,8 +35,10 @@ Later files assume earlier globals already exist.
 
 ## Course content model
 
-20 modules total: `f1`-`f5` (Foundations track) and `m1`-`m15` (Part 1 to 3, the hardcore syllabus).
-Each module has: `title/short/level/summary/plain/animation{title,blurb}/concepts[]{title,body,code?}/ai/practice-or-capstone/pitfalls/takeaways/checklist`, plus a `GLOSSARY` entry, an `ASSIGNMENTS` entry, a `LESSONS` section list (`{h, p}` shape), and a `WORKED_EXAMPLES` entry (`{title, intro, steps: [{title, concept, code, lang, why}]}`).
+20 modules total, keyed by stable opaque ids `f1`-`f5` and `m1`-`m15`.
+Note: those ids are NO LONGER in learning order — the course sequence (sidebar, home, prev/next) is defined entirely by `PARTS` and each part's `modules` list (6 parts, a single beginner→principal ramp), and `app.js` derives an `ORDERED` list from `PARTS` for navigation. A module's `code`/`num`/`part` fields carry its displayed label/position; edit those + `PARTS`/`PARTS_RU` to reorder, never rely on the physical `MODULES` array order.
+Each module has: `title/short/level/summary/plain/animation{id,title,blurb}/concepts[]{title,body,code?}/ai/practice-or-capstone/pitfalls/takeaways/checklist`, plus a `GLOSSARY` entry, an `ASSIGNMENTS` entry, a `LESSONS` section list (`{h, p}` shape), and a `WORKED_EXAMPLES` entry (`{title, intro, steps: [{title, concept, code, lang, why}]}`).
+A module may ALSO carry an optional `animations: [{id,title,blurb}, ...]` array to render several visualizations on one page (the first module does this); when present it takes precedence over the single `animation` for the module page, while `animation` stays the representative shown on the home card. `app.js` deep-merges `animations` per-index for RU just like `WORKED_EXAMPLES` steps, so RU entries need only `title`/`blurb`.
 
 When adding or editing a `WORKED_EXAMPLES` step, the `code` field must be an actually runnable Go snippet.
 Compile and run it yourself with the local Go toolchain (`go run`, `go test`) in a scratch directory before it goes into `lessons.js`.

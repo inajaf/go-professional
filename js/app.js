@@ -38,6 +38,13 @@
     if (!rm) return em;
     const out = Object.assign({}, em, rm);
     if (rm.animation) out.animation = Object.assign({}, em.animation, rm.animation);
+    // A module can carry multiple visualizations (out.animations). Deep-merge
+    // per index so a partial RU translation keeps the EN title/blurb it omits,
+    // exactly like the per-step WORKED_EXAMPLES merge below.
+    if (em.animations) {
+      out.animations = em.animations.map((ea, i) =>
+        (rm.animations && rm.animations[i]) ? Object.assign({}, ea, rm.animations[i]) : ea);
+    }
     if (rm.ai) out.ai = Object.assign({}, em.ai, rm.ai);
     if (rm.capstone) out.capstone = Object.assign({}, em.capstone, rm.capstone);
     if (rm.practice) {
@@ -86,6 +93,13 @@
   const WORKED_EXAMPLES = COURSE.WORKED_EXAMPLES || {};
   const moduleById = Object.fromEntries(MODULES.map((m) => [m.id, m]));
   const partById = Object.fromEntries(PARTS.map((p) => [p.id, p]));
+  // The course sequence (sidebar order, home order, prev/next) is defined by
+  // PARTS + each part's `modules` list — NOT by the physical MODULES array
+  // order. Flatten it once so navigation follows the intended learning ramp.
+  const ORDERED = PARTS.flatMap((p) => p.modules).map((id) => moduleById[id]).filter(Boolean);
+  // Every module renders one or more visualizations. Older data uses a single
+  // `animation`; a module may instead (or also) provide an `animations` array.
+  const animsOf = (m) => (m.animations && m.animations.length ? m.animations : [m.animation]);
 
   function checksFor(m) {
     if (!state.checks[m.id]) state.checks[m.id] = m.checklist.map(() => false);
@@ -223,9 +237,9 @@
   /* ---------------------------------------------------------- home */
   function renderHome() {
     const done = overallDone(), pct = done / MODULES.length;
-    const cont = state.last && moduleById[state.last] ? state.last : MODULES[0].id;
+    const cont = state.last && moduleById[state.last] ? state.last : ORDERED[0].id;
     const contM = moduleById[cont];
-    const animationCount = new Set(MODULES.map((m) => m.animation.id)).size;
+    const animationCount = new Set(MODULES.flatMap((m) => animsOf(m).map((a) => a.id))).size;
     let cards = "";
     PARTS.forEach((p) => {
       cards += `<div class="part-block">
@@ -242,7 +256,7 @@
           <p>${m.summary}</p>
           <div class="mod-card-foot">
             <span class="chip">${m.level}</span><span class="chip ghost">${m.duration}</span>
-            <span class="mod-anim-tag">🎬 ${m.animation.title}</span>
+            <span class="mod-anim-tag">🎬 ${animsOf(m).length > 1 ? animsOf(m).length + " " + esc(UI.animations) : m.animation.title}</span>
           </div>
           <div class="mod-card-bar"><span style="width:${pr * 100}%"></span></div>
         </a>`;
@@ -413,13 +427,13 @@
   }
 
   /* -------------------------------------------------------- module */
-  let activeAnim = null;
+  let activeAnims = [];
   function renderModule(m) {
     state.last = m.id;
     state.started[m.id] = true;
     save();
-    const idx = MODULES.indexOf(m);
-    const prev = MODULES[idx - 1], next = MODULES[idx + 1];
+    const idx = ORDERED.indexOf(m);
+    const prev = ORDERED[idx - 1], next = ORDERED[idx + 1];
     const part = partById[m.part];
     const checks = checksFor(m);
 
@@ -515,26 +529,7 @@
 
         ${plainHtml}
 
-        <section class="viz card">
-          <div class="viz-head">
-            <div><span class="viz-tag">${esc(UI.interactiveViz)}</span>
-              <h2>${m.animation.title}</h2></div>
-          </div>
-          <p class="viz-blurb">${m.animation.blurb}</p>
-          <div class="viz-stage">
-            <canvas id="viz-canvas"></canvas>
-          </div>
-          <div class="viz-steps" id="viz-steps"></div>
-          <div class="viz-caption" id="viz-caption">—</div>
-          <div class="viz-controls">
-            <button class="vc-btn" id="vc-reset" title="${esc(UI.resetToStart)}">⟲</button>
-            <button class="vc-btn" id="vc-step-b" title="${esc(UI.nudgeBack)}">⟨</button>
-            <button class="vc-btn play" id="vc-play" title="${esc(UI.playPause)}">▶</button>
-            <button class="vc-btn" id="vc-step-f" title="${esc(UI.nudgeForward)}">⟩</button>
-            <input type="range" id="vc-scrub" min="0" max="1000" value="0" aria-label="scrub" />
-            <button class="vc-btn speed" id="vc-speed" title="${esc(UI.playbackSpeed)}">0.75×</button>
-          </div>
-        </section>
+        ${animsOf(m).map((a, i) => vizSectionHtml(a, i, animsOf(m).length)).join("")}
 
         ${lessonHtml}
 
@@ -597,7 +592,7 @@
 
     wireModule(m);
     wireAssignments(m);
-    setupAnim(m);
+    setupAnims(m);
   }
 
   function wireModule(m) {
@@ -633,25 +628,63 @@
 
   /* ---------------------------------------------------- animation */
   const SPEEDS = [0.5, 0.75, 1, 1.5];
-  function setupAnim(m) {
-    if (activeAnim) activeAnim.destroy();
-    const canvas = $("#viz-canvas");
-    const factory = window.ANIMATIONS[m.animation.id];
+
+  // One viz section per animation. All element ids are suffixed with the
+  // animation's index so several players can coexist on one module page.
+  function vizSectionHtml(a, i, total) {
+    const counter = total > 1
+      ? `<span class="viz-count">${i + 1} / ${total}</span>` : "";
+    return `
+        <section class="viz card">
+          <div class="viz-head">
+            <div><span class="viz-tag">${esc(UI.interactiveViz)}</span>
+              <h2>${a.title}</h2></div>
+            ${counter}
+          </div>
+          <p class="viz-blurb">${a.blurb}</p>
+          <div class="viz-stage">
+            <canvas id="viz-canvas-${i}"></canvas>
+          </div>
+          <div class="viz-steps" id="viz-steps-${i}"></div>
+          <div class="viz-caption" id="viz-caption-${i}">—</div>
+          <div class="viz-controls">
+            <button class="vc-btn" id="vc-reset-${i}" title="${esc(UI.resetToStart)}">⟲</button>
+            <button class="vc-btn" id="vc-step-b-${i}" title="${esc(UI.nudgeBack)}">⟨</button>
+            <button class="vc-btn play" id="vc-play-${i}" title="${esc(UI.playPause)}">▶</button>
+            <button class="vc-btn" id="vc-step-f-${i}" title="${esc(UI.nudgeForward)}">⟩</button>
+            <input type="range" id="vc-scrub-${i}" min="0" max="1000" value="0" aria-label="scrub" />
+            <button class="vc-btn speed" id="vc-speed-${i}" title="${esc(UI.playbackSpeed)}">0.75×</button>
+          </div>
+        </section>`;
+  }
+
+  function setupAnims(m) {
+    activeAnims.forEach((a) => a.destroy());
+    activeAnims = [];
+    animsOf(m).forEach((meta, i) => wireViz(meta, i));
+    window.__activeAnims = activeAnims;
+    window.__activeAnim = activeAnims[0] || null; // back-compat for resize/space
+  }
+
+  // Wire a single viz (canvas + controls + step indicator) by its index.
+  function wireViz(meta, i) {
+    const canvas = $("#viz-canvas-" + i);
+    const factory = window.ANIMATIONS[meta.id];
     if (!canvas || !factory) return;
     const anim = factory(canvas);
-    activeAnim = anim; window.__activeAnim = anim;
-    const playBtn = $("#vc-play"), scrub = $("#vc-scrub"), cap = $("#viz-caption"),
-      stepsEl = $("#viz-steps"), speedBtn = $("#vc-speed");
+    activeAnims.push(anim);
+    const playBtn = $("#vc-play-" + i), scrub = $("#vc-scrub-" + i), cap = $("#viz-caption-" + i),
+      stepsEl = $("#viz-steps-" + i), speedBtn = $("#vc-speed-" + i);
     const phases = anim.getPhases();
 
     // build the step indicator: a clickable dot per phase + current step label
     stepsEl.innerHTML =
-      `<div class="steps-dots">${phases.map((p, i) =>
-        `<button class="step-dot" data-i="${i}" title="${esc(trCap(p.title))}"><b>${i + 1}</b><span>${esc(trCap(p.title))}</span></button>`).join("")}</div>
-       <div class="steps-now"><span class="steps-badge" id="steps-badge">Step 1 / ${phases.length}</span>
-       <span class="steps-title" id="steps-title">${esc(trCap(phases[0].title))}</span></div>`;
+      `<div class="steps-dots">${phases.map((p, k) =>
+        `<button class="step-dot" data-i="${k}" title="${esc(trCap(p.title))}"><b>${k + 1}</b><span>${esc(trCap(p.title))}</span></button>`).join("")}</div>
+       <div class="steps-now"><span class="steps-badge">${UI.step} 1 / ${phases.length}</span>
+       <span class="steps-title">${esc(trCap(phases[0].title))}</span></div>`;
     const dots = $$(".step-dot", stepsEl);
-    const sBadge = $("#steps-badge"), sTitle = $("#steps-title");
+    const sBadge = $(".steps-badge", stepsEl), sTitle = $(".steps-title", stepsEl);
 
     let dragging = false, speedI = 1; // default 0.75×
     anim.setSpeed(SPEEDS[speedI]);
@@ -664,9 +697,9 @@
           (ph.why ? `<span class="viz-why"><b>${esc(UI.why)}</b> ${esc(trCap(ph.why))}</span>` : "");
         sBadge.textContent = UI.step + " " + (ph.index + 1) + " / " + ph.total;
         sTitle.textContent = trCap(ph.title);
-        dots.forEach((d, i) => {
-          d.classList.toggle("active", i === ph.index);
-          d.classList.toggle("done", i < ph.index);
+        dots.forEach((d, k) => {
+          d.classList.toggle("active", k === ph.index);
+          d.classList.toggle("done", k < ph.index);
         });
       }
       refresh();
@@ -676,9 +709,9 @@
       playBtn.classList.toggle("playing", anim.isPlaying());
     }
     playBtn.addEventListener("click", () => { anim.toggle(); refresh(); });
-    $("#vc-reset").addEventListener("click", () => { anim.reset(); refresh(); });
-    $("#vc-step-f").addEventListener("click", () => { anim.step(0.4); refresh(); });
-    $("#vc-step-b").addEventListener("click", () => { anim.step(-0.4); refresh(); });
+    $("#vc-reset-" + i).addEventListener("click", () => { anim.reset(); refresh(); });
+    $("#vc-step-f-" + i).addEventListener("click", () => { anim.step(0.4); refresh(); });
+    $("#vc-step-b-" + i).addEventListener("click", () => { anim.step(-0.4); refresh(); });
     scrub.addEventListener("input", () => { dragging = true; anim.seek(+scrub.value / 1000); refresh(); });
     scrub.addEventListener("change", () => { dragging = false; });
     dots.forEach((d) => d.addEventListener("click", () => { anim.seekPhase(+d.dataset.i); refresh(); }));
@@ -687,8 +720,9 @@
       anim.setSpeed(SPEEDS[speedI]);
       speedBtn.textContent = SPEEDS[speedI] + "×";
     });
-    // autoplay on first view of the module for that wow factor
-    setTimeout(() => { anim.resize(); anim.play(); refresh(); }, 120);
+    // autoplay only the first viz on first view — the rest wait for the user,
+    // so several players don't all animate (and burn CPU) at once.
+    setTimeout(() => { anim.resize(); if (i === 0) { anim.play(); } refresh(); }, 120);
   }
 
   /* ------------------------------------------------------- routing */
@@ -698,7 +732,7 @@
   }
   function route() {
     const r = currentRoute();
-    if (activeAnim) { activeAnim.destroy(); activeAnim = null; window.__activeAnim = null; }
+    if (activeAnims.length) { activeAnims.forEach((a) => a.destroy()); activeAnims = []; window.__activeAnim = null; window.__activeAnims = []; }
     if (r === "home" || !moduleById[r]) {
       if (r !== "home" && !moduleById[r]) location.hash = "#/home";
       renderHome();
@@ -723,11 +757,11 @@
     if (e.target.matches("input, textarea")) return;
     const r = currentRoute(), m = moduleById[r];
     if (e.key === "ArrowRight" && m) {
-      const n = MODULES[MODULES.indexOf(m) + 1]; if (n) location.hash = "#/" + n.id;
+      const n = ORDERED[ORDERED.indexOf(m) + 1]; if (n) location.hash = "#/" + n.id;
     } else if (e.key === "ArrowLeft" && m) {
-      const p = MODULES[MODULES.indexOf(m) - 1]; if (p) location.hash = "#/" + p.id;
-    } else if (e.key === " " && activeAnim) {
-      e.preventDefault(); activeAnim.toggle();
+      const p = ORDERED[ORDERED.indexOf(m) - 1]; if (p) location.hash = "#/" + p.id;
+    } else if (e.key === " " && activeAnims[0]) {
+      e.preventDefault(); activeAnims[0].toggle();
     }
   });
 
@@ -759,7 +793,7 @@
     applyTheme();
     $("#theme-btn").addEventListener("click", () => {
       state.theme = state.theme === "dark" ? "light" : "dark"; save(); applyTheme();
-      if (activeAnim) activeAnim.render();
+      activeAnims.forEach((a) => a.render());
     });
     $("#lang-btn").addEventListener("click", () => {
       state.lang = LANG === "ru" ? "en" : "ru"; saveNow();
