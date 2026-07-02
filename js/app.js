@@ -59,6 +59,12 @@
   function mergeCourse(en, ru) {
     if (!ru) return en;
     const out = Object.assign({}, en, ru);
+    out.COURSE_META = Object.assign({}, en.COURSE_META || {}, ru.COURSE_META || {});
+    out.COURSE_META.ledgerRoadmap = Object.assign(
+      {},
+      (en.COURSE_META && en.COURSE_META.ledgerRoadmap) || {},
+      (ru.COURSE_META && ru.COURSE_META.ledgerRoadmap) || {}
+    );
     out.MODULES = en.MODULES.map((em) => {
       const rm = (ru.MODULES || []).find((x) => x.id === em.id);
       return mergeModule(em, rm);
@@ -100,6 +106,8 @@
   // Every module renders one or more visualizations. Older data uses a single
   // `animation`; a module may instead (or also) provide an `animations` array.
   const animsOf = (m) => (m.animations && m.animations.length ? m.animations : [m.animation]);
+  const ledgerBuildOf = (m) =>
+    (COURSE_META.ledgerRoadmap && COURSE_META.ledgerRoadmap[m.id]) || m.capstone || m.practice || {};
 
   function checksFor(m) {
     if (!state.checks[m.id]) state.checks[m.id] = m.checklist.map(() => false);
@@ -136,6 +144,7 @@
   const GO_BUILTIN = new Set("nil true false make new len cap append copy delete panic recover error string int int8 int16 int32 int64 uint uint8 uint16 uint32 uint64 byte rune bool float32 float64 any comparable".split(" "));
   const SQL_KW = new Set("SELECT INSERT UPDATE DELETE FROM WHERE SET VALUES RETURNING AND OR NOT NULL INTO ON AS ORDER BY GROUP LIMIT JOIN LEFT INNER FOR UPDATE BEGIN COMMIT".split(" "));
   function highlight(codeRaw, lang) {
+    if (lang && lang !== "go" && lang !== "sql") return esc(codeRaw);
     const sql = lang === "sql";
     const lineComment = sql ? "--" : "//";
     // token regex: comments | strings | numbers | identifiers | ws/other
@@ -168,11 +177,15 @@
     return out;
   }
   function codeBlock(code, lang) {
-    const label = lang === "sql" ? "sql" : "go";
+    const label = lang || "go";
     return `<div class="code">
       <div class="code-head"><span class="code-lang">${label}</span>
       <button class="copy-btn" data-copy="${esc(code)}">${esc(UI.copy)}</button></div>
       <pre><code>${highlight(code, lang)}</code></pre></div>`;
+  }
+  function bindCopyButtons(root = document) {
+    $$("[data-copy]", root).forEach((b) =>
+      b.addEventListener("click", () => copy(b.dataset.copy, b)));
   }
 
   /* ----------------------------------------------------------- icons */
@@ -193,6 +206,10 @@
     bolt: "M13 2L4 14h6l-1 8 9-12h-6l1-8z",
     lightbulb: "M9 18h6M10 22h4M8 14a5 5 0 118 0c-1.5 1.2-2 2.2-2 4h-4c0-1.8-.5-2.8-2-4",
     landmark: "M3 10h18M5 10l7-5 7 5M6 10v8M10 10v8M14 10v8M18 10v8M4 18h16M3 22h18",
+    map: "M9 18l-6 3V6l6-3 6 3 6-3v15l-6 3-6-3zM9 3v15M15 6v15",
+    wrench: "M14.7 6.3a4 4 0 004.9 4.9L10 20.8a2.2 2.2 0 01-3.1-3.1l9.6-9.6a4 4 0 01-4.9-4.9 4.8 4.8 0 003.1 3.1z",
+    github: "M12 2a10 10 0 00-3.2 19c.5.1.7-.2.7-.5v-1.8c-2.9.6-3.5-1.2-3.5-1.2-.5-1.1-1.1-1.4-1.1-1.4-.9-.6.1-.6.1-.6 1 0 1.6 1 1.6 1 .9 1.5 2.3 1.1 2.9.8.1-.7.4-1.1.7-1.4-2.3-.3-4.7-1.2-4.7-5A3.9 3.9 0 016.5 8c-.1-.3-.4-1.3.1-2.8 0 0 .9-.3 2.9 1.1A9.8 9.8 0 0112 6c.9 0 1.8.1 2.6.4 2-1.4 2.9-1.1 2.9-1.1.5 1.5.2 2.5.1 2.8a3.9 3.9 0 011 2.7c0 3.9-2.4 4.7-4.7 5 .4.3.8 1 .8 2v2.9c0 .3.2.6.8.5A10 10 0 0012 2z",
+    linkedin: "M4 9h4v12H4zM6 4a2 2 0 110 4 2 2 0 010-4zM10 9h4v1.7c.6-1 1.7-1.9 3.5-1.9 3 0 4.5 2 4.5 5.2v7h-4v-6.4c0-1.7-.7-2.7-2-2.7-1.3 0-2 1-2 2.7V21h-4z",
     film: "M4 4h16v16H4zM8 4v16M16 4v16M4 8h4M4 16h4M16 8h4M16 16h4",
     clipboard: "M9 4h6M9 4a2 2 0 00-2 2v1h10V6a2 2 0 00-2-2M7 7H5v14h14V7h-2",
     alert: "M12 3l10 18H2L12 3zM12 9v5M12 17h.01",
@@ -272,6 +289,27 @@
     const contM = moduleById[cont];
     const animationCount = new Set(MODULES.flatMap((m) => animsOf(m).map((a) => a.id))).size;
     let cards = "";
+    const capstoneMap = PARTS.map((p) => {
+      const items = p.modules.map((id) => {
+        const m = moduleById[id];
+        const build = ledgerBuildOf(m);
+        return `<a class="capstone-step" href="#/${m.id}">
+          <span class="capstone-step-code">${esc(m.code)}</span>
+          <span class="capstone-step-main">
+            <b>${esc(m.short)}</b>
+            <span>${esc(build.title || m.title)}</span>
+          </span>
+          <span class="capstone-step-open">${esc(UI.capstoneRoadmapOpen)} ${ico("chevronRight", 14)}</span>
+        </a>`;
+      }).join("");
+      return `<section class="capstone-part">
+        <div class="capstone-part-head">
+          <span>${esc(p.label)}</span>
+          <b>${esc(p.title)}</b>
+        </div>
+        <div class="capstone-steps">${items}</div>
+      </section>`;
+    }).join("");
     PARTS.forEach((p) => {
       cards += `<div class="part-block">
         <div class="part-head"><div><span class="part-label">${p.label}</span>
@@ -298,6 +336,7 @@
     const verRows = VERIFICATION.map(
       (r) => `<tr><td>${esc(r[0])}</td><td>${highlightInline(r[1])}</td></tr>`
     ).join("");
+    const finalCode = finalProjectHtml();
 
     $("#main").innerHTML = `
       <section class="hero">
@@ -311,6 +350,7 @@
             <a class="btn ghost" href="#/${first.id}">${esc(UI.viewFirstModule)}</a>
           </div>
         </div>
+        <div class="hero-gopher" aria-hidden="true"><canvas id="gopher3d"></canvas></div>
         <div class="hero-ring">
           <div class="ring-wrap">${ring(pct)}
             <div class="ring-center"><span class="ring-pct">${Math.round(pct * 100)}%</span><span class="ring-lbl">${done}/${MODULES.length} ${esc(UI.modules)}</span></div>
@@ -327,19 +367,61 @@
         <div><b>${esc(UI.capstoneProject)}</b> ${esc(UI.capstoneTagline)}
         <b>${COURSE_META.capstone}</b>. ${esc(UI.capstoneFooter)}</div>
       </div>
+      <section class="capstone-map">
+        <div class="capstone-map-head">
+          <span class="cap-ico">${ico("map", 22)}</span>
+          <div>
+            <h2>${esc(UI.capstoneRoadmapTitle)}</h2>
+            <p>${esc(UI.capstoneRoadmapIntro)}</p>
+          </div>
+        </div>
+        <div class="capstone-map-grid">${capstoneMap}</div>
+      </section>
+      ${finalCode}
       <h2 class="sr-only">${esc(UI.courseModules)}</h2>
       ${cards}
       <section class="verify">
         <h3>${esc(UI.productionChecklist)}</h3>
         <table class="verify-table"><tbody>${verRows}</tbody></table>
       </section>
-      <footer class="foot">${esc(UI.footer)}</footer>
+      ${footerHtml()}
     `;
+    if (window.GOPHER3D) GOPHER3D.mount($("#gopher3d"));
+    bindCopyButtons($("#main"));
     $("#main").scrollTop = 0;
     window.scrollTo(0, 0);
   }
   function highlightInline(s) {
     return esc(s).replace(/`([^`]+)`/g, '<code class="inl">$1</code>');
+  }
+  function finalProjectHtml() {
+    const files = COURSE_META.finalProjectFiles || [];
+    if (!files.length) return "";
+    return `<section class="final-code">
+      <div class="final-code-head">
+        <span class="cap-ico">${ico("database", 22)}</span>
+        <div>
+          <h2>${esc(UI.finalProjectCodeTitle)}</h2>
+          <p>${esc(UI.finalProjectCodeIntro)}</p>
+          <span class="final-code-meta">${esc(UI.finalProjectCodeMeta)}</span>
+        </div>
+      </div>
+      <div class="project-files">
+        ${files.map((f, i) => `<details class="project-file" ${i === 0 ? "open" : ""}>
+          <summary><span>${esc(f.path)}</span><b>${esc(f.lang || "go")}</b></summary>
+          ${codeBlock(f.code, f.lang)}
+        </details>`).join("")}
+      </div>
+    </section>`;
+  }
+  function footerHtml() {
+    return `<footer class="foot">
+      <span>${esc(UI.footer)}</span>
+      <span class="foot-links">
+        <a href="https://www.linkedin.com/in/inajaf/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">${ico("linkedin", 16)}LinkedIn</a>
+        <a href="https://github.com/inajaf" target="_blank" rel="noopener noreferrer" aria-label="GitHub">${ico("github", 16)}GitHub</a>
+      </span>
+    </footer>`;
   }
 
   /* ----------------------------------------------------- assignments */
@@ -492,17 +574,16 @@
       ? `<section class="plain"><span class="plain-ic">${ico("lightbulb", 22)}</span>
            <div><span class="plain-k">${esc(UI.inPlainTerms)}</span><p>${esc(m.plain)}</p></div></section>`
       : "";
-    const rightCard = m.capstone
-      ? `<section class="card cap-card">
-           <h3><span class="dot-cap"></span>${m.capstone.title}</h3>
-           <p>${esc(m.capstone.body)}</p>
-           <div class="cap-tag">${esc(UI.ledgerBuild)} · ${m.code}</div>
-         </section>`
-      : `<section class="card practice-card">
-           <h3><span class="dot-practice"></span>${(m.practice && m.practice.title) || esc(UI.tryItYourself)}</h3>
-           <p>${esc((m.practice && m.practice.body) || "")}</p>
-           <ol class="practice-steps">${((m.practice && m.practice.steps) || []).map((s) => `<li>${esc(s)}</li>`).join("")}</ol>
-         </section>`;
+    const ledgerBuild = ledgerBuildOf(m);
+    const buildHtml = `<section class="module-build cap-build">
+       <span class="build-ic">${ico("landmark", 20)}</span>
+       <div>
+         <span class="build-k">${esc(UI.moduleBuildTitle)}</span>
+         <h2>${esc(ledgerBuild.title || UI.ledgerBuild)}</h2>
+         <p>${esc(ledgerBuild.body || "")}</p>
+         <span class="cap-tag">${esc(UI.ledgerBuild)} · ${esc(m.code)}</span>
+       </div>
+     </section>`;
     const pitfallsHtml = (m.pitfalls || []).map((p) => `<li>${esc(p)}</li>`).join("");
     const takeawaysHtml = (m.takeaways || []).map((p) => `<li>${esc(p)}</li>`).join("");
     const lesson = LESSONS[m.id] || [];
@@ -563,6 +644,8 @@
 
         ${plainHtml}
 
+        ${buildHtml}
+
         ${animsOf(m).map((a, i) => vizSectionHtml(a, i, animsOf(m).length)).join("")}
 
         ${lessonHtml}
@@ -576,8 +659,7 @@
 
         ${renderAssignments(m)}
 
-        <div class="two-col">
-          <section class="card ai-card">
+        <section class="card ai-card">
             <h3><span class="dot-ai"></span>${m.ai.title}</h3>
             <p>${m.ai.body}</p>
             <div class="prompt">
@@ -586,9 +668,7 @@
               <p class="prompt-body">${esc(m.ai.prompt)}</p>
             </div>
             <p class="prompt-note">${esc(UI.promptNote)} <em>${esc(UI.promptNoteEm)}</em> ${esc(UI.promptNoteEnd)}</p>
-          </section>
-          ${rightCard}
-        </div>
+        </section>
 
         <section class="two-col">
           <div class="card pitfalls-card">
@@ -656,9 +736,7 @@
       st.textContent = UI.saved; clearTimeout(ta._t);
       ta._t = setTimeout(() => (st.textContent = ""), 1000);
     });
-    // copy buttons
-    $$("[data-copy]").forEach((b) =>
-      b.addEventListener("click", () => copy(b.dataset.copy, b)));
+    bindCopyButtons($("#main"));
   }
 
   /* ---------------------------------------------------- animation */

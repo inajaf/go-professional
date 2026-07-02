@@ -156,6 +156,22 @@ window.COURSE_EN.LESSONS = {
       p: "Under serializable isolation the database may *refuse* a transaction that lost a race, returning SQLSTATE `40001` (serialization_failure). This is not a bug - it is the database protecting your invariant - and the correct response is to retry the whole transaction. Go 1.26's `errors.AsType[*pgconn.PgError]` lets you match the exact SQLSTATE cleanly and branch: retry `40001`, surface `23505` (unique_violation) as a duplicate, and so on. Designing for retryable failures is what makes a ledger correct *and* available under contention." },
   ],
 
+  /* =============================================================== M17 */
+  m17: [
+    { h: "Postgres is a correctness engine",
+      p: "Application code is allowed to be wrong for a moment; production data is not. A financial ledger should not depend only on Go handlers remembering every rule. Postgres can enforce parts of the domain directly: `CHECK (amount_cents > 0)`, foreign keys, unique idempotency keys, and transactional outbox rows. These constraints are not bureaucracy. They are the last line of defense when a bad deploy, duplicate request, or retry storm reaches the database." },
+    { h: "Constraints beat app-only promises",
+      p: "If an invariant is local and timeless, put it in the schema. An account balance cannot be negative; a transfer amount cannot be zero; an idempotency key must not be reused for a different transfer. Go code still validates early for good errors, but the database owns the final answer. The rule of thumb: if corrupt data would force a manual cleanup later, encode the rule where the data is written." },
+    { h: "Indexes follow query shapes",
+      p: "A production index is not 'an index on a column'. It is a contract with a query shape: equality filters first, then range/sort columns, then optional included columns that let the query avoid heap fetches. For `WHERE account_id = $1 ORDER BY posted_at DESC LIMIT 50`, `(account_id, posted_at DESC)` is the shape. Three single-column indexes rarely compose into the plan you imagined. Use `EXPLAIN (ANALYZE, BUFFERS)` to prove the planner used the path and to see whether the query still burned IO." },
+    { h: "Migrations are production events",
+      p: "A schema change is code that runs against your largest table at the worst possible time. Safe migrations use expand/backfill/contract: add nullable or compatible structure first, deploy code that can read both shapes, backfill in bounded batches, then enforce stricter constraints only after old binaries are gone. On hot tables, prefer `CREATE INDEX CONCURRENTLY` and test lock behavior before shipping. The migration that was instant on staging can still be a lock incident on real data." },
+    { h: "Locks and isolation are part of the design",
+      p: "Read Committed is a practical default, not a proof that every business invariant is safe. Multi-row invariants need explicit strategy: row locks in deterministic order, unique constraints for races, or SERIALIZABLE transactions with whole-transaction retries. Deadlocks are not random bad luck; they are usually two code paths taking the same locks in different orders. Design the order once and make every path follow it." },
+    { h: "Vacuum is not background magic",
+      p: "Postgres MVCC keeps old row versions so readers can see a stable snapshot while writers continue. Vacuum later reclaims dead versions, but a long transaction can pin old snapshots and stop cleanup. That is how normal updates become bloat, larger indexes, slower scans, and eventually emergency maintenance. Track long transactions, dead tuples, autovacuum activity, slow plans, and connection counts as first-class production signals." },
+  ],
+
   /* =============================================================== M6 */
   m6: [
     { h: "Talking between services, and the threat to that traffic",
@@ -180,6 +196,8 @@ window.COURSE_EN.LESSONS = {
       p: "Wire the recorder to the things you already watch. When p99 latency crosses your SLO, or a panic unwinds, atomically dump three things together: the flight trace (what executed), a goroutine profile (who was stuck and where), and a heap profile (what memory looked like). Gate dumps behind a cooldown so a flapping alarm does not bury you in files. Now an incident leaves behind a complete, correlated snapshot instead of a vague log line." },
     { h: "Reading the trace: go tool trace",
       p: "A trace file opens in `go tool trace` as an interactive timeline of every goroutine, GC cycle, syscall, and scheduler event. This is the microscope for 'why did this 50ms request take 50ms': you can see whether the time went to GC, to lock contention, to a slow syscall, or to a goroutine waiting on a channel. Logs tell you *what* happened; a trace shows you *where the time went*." },
+    { h: "The goroutine dump: the fastest first move",
+      p: "Before any fancy tooling, know the humble goroutine dump: send SIGQUIT to a Go process (or fetch pprof's `/debug/pprof/goroutine?debug=2`) and it prints every goroutine with its full stack, its *wait reason*, and - crucially - *how long* it has been waiting. A line like `goroutine 42 [chan receive, 5 minutes]` on a workload that should answer in milliseconds is a leak announcing itself. Scan dumps by wait reason and duration first; it is the quickest triage step in any hang investigation and works on any Go binary with zero preparation." },
     { h: "Leaks: from log spelunking to a generated report",
       p: "A goroutine that blocks forever - on a channel with no sender, a `WaitGroup` that never reaches zero, a context with no deadline - is a leak: it never exits, holding its stack and references. Historically you found these by squinting at goroutine dumps for hours. The goroutine-leak analyzer traces each blocked goroutine back to its root cause automatically, and you can assert 'no goroutines leaked' at test boundaries to catch regressions before they ship. Combined with always-giving-every-context-a-deadline, this turns a whole class of production mysteries into a routine check." },
   ],
@@ -986,6 +1004,44 @@ func TestFastForward(t *testing.T) {
         lang: "go",
         why: "0.00s for a test whose own code measured 5 full seconds - that's the entire pitch: deterministic timer behavior with none of the real wall-clock wait, and none of the CI flakiness a true time.Sleep-based test would risk.",
       },
+      {
+        title: "Replace 'sleep and hope' with synctest.Wait",
+        concept: "The classic flaky pattern is cancel-then-sleep-100ms-then-assert. synctest.Wait is the precise version: it returns exactly when every other goroutine in the bubble is durably blocked - i.e. the worker has fully reacted.",
+        code: `func TestShutdownCleanup(t *testing.T) {
+	synctest.Test(t, func(t *testing.T) {
+		ctx, cancel := context.WithCancel(t.Context())
+		var stopped atomic.Bool
+		go func() { // worker under test
+			<-ctx.Done()
+			stopped.Store(true) // cleanup we want to assert
+		}()
+
+		cancel()
+		synctest.Wait() // barrier: worker has fully reacted
+		if !stopped.Load() {
+			t.Fatal("worker did not clean up after cancel")
+		}
+	})
+}`,
+        lang: "go",
+        why: "Note what Wait is NOT: it does not advance the fake clock, it only waits for quiescence. Use it to assert on state another goroutine updates in reaction to something you did - no arbitrary sleep, no race between the assert and the reaction.",
+      },
+      {
+        title: "A lost signal fails fast, not forever",
+        concept: "If every goroutine in the bubble is durably blocked and no timer can ever fire, that is a deadlock - and the bubble fails the test immediately instead of hanging until the CI timeout.",
+        code: `func TestLostSignal(t *testing.T) {
+	synctest.Test(t, func(t *testing.T) {
+		ch := make(chan int) // nobody will ever send
+		<-ch                 // durably blocked, no timers left
+	})
+}
+
+// real output (fails in 0.00s, not after a 10-minute timeout):
+//   --- FAIL: TestLostSignal (0.00s)
+//   panic: deadlock: all goroutines in bubble are blocked`,
+        lang: "go",
+        why: "Outside a bubble this test would hang for the full test timeout and produce a giant unreadable stack dump. Inside the bubble the runtime can PROVE nothing will ever wake the goroutine, so 'everyone is waiting on everyone' bugs surface deterministically, on the first run.",
+      },
     ],
   },
 
@@ -1063,6 +1119,155 @@ func main() {
 //   sum: 800`,
         lang: "go",
         why: "Σ(balances) staying constant under concurrent access is the entire point of double-entry transfers - this is the same invariant the real PostgreSQL row lock protects.",
+      },
+    ],
+  },
+
+  m17: {
+    title: "Model idempotent ledger writes before touching Postgres",
+    intro: "A dependency-free Go model of the same safety rails the Postgres schema should enforce: positive amounts, known accounts, unique idempotency keys, and one atomic double-entry transfer.",
+    steps: [
+      {
+        title: "Define the storage boundary",
+        concept: "The store keeps balances plus an idempotency map. In Postgres, those become accounts rows plus a UNIQUE idempotency_key on transfers.",
+        code: `package main
+
+import "sync"
+
+type Store struct {
+	mu          sync.Mutex
+	balances    map[string]int64
+	idempotency map[string]string
+}
+
+func NewStore() *Store {
+	return &Store{
+		balances:    map[string]int64{"alice": 10_000, "bob": 5_000},
+		idempotency: make(map[string]string),
+	}
+}`,
+        lang: "go",
+        why: "This is the smallest useful model of the database boundary: protected mutable state and a uniqueness set that makes retries safe.",
+      },
+      {
+        title: "Apply one transfer atomically",
+        concept: "Validate the local constraints, deduplicate by idempotency key, then mutate both balances while holding one lock.",
+        code: `package main
+
+import (
+	"errors"
+	"fmt"
+	"sync"
+)
+
+type Store struct {
+	mu          sync.Mutex
+	balances    map[string]int64
+	idempotency map[string]string
+}
+
+func (s *Store) Transfer(key, from, to string, amount int64) (string, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if existing, ok := s.idempotency[key]; ok {
+		return existing, nil
+	}
+	if amount <= 0 {
+		return "", errors.New("amount must be positive")
+	}
+	if _, ok := s.balances[from]; !ok {
+		return "", fmt.Errorf("unknown account %q", from)
+	}
+	if _, ok := s.balances[to]; !ok {
+		return "", fmt.Errorf("unknown account %q", to)
+	}
+	if s.balances[from] < amount {
+		return "", errors.New("insufficient funds")
+	}
+
+	s.balances[from] -= amount
+	s.balances[to] += amount
+	transferID := fmt.Sprintf("%s:%s:%d", from, to, amount)
+	s.idempotency[key] = transferID
+	return transferID, nil
+}`,
+        lang: "go",
+        why: "The mutex stands in for one database transaction. The idempotency map stands in for UNIQUE(idempotency_key). Both are needed: atomicity protects balances, uniqueness protects retries.",
+      },
+      {
+        title: "Run it: duplicate requests do not double-charge",
+        concept: "The second call uses the same idempotency key. It returns the first transfer ID and leaves the balances unchanged.",
+        code: `package main
+
+import (
+	"errors"
+	"fmt"
+	"sync"
+)
+
+type Store struct {
+	mu          sync.Mutex
+	balances    map[string]int64
+	idempotency map[string]string
+}
+
+func NewStore() *Store {
+	return &Store{
+		balances:    map[string]int64{"alice": 10_000, "bob": 5_000},
+		idempotency: make(map[string]string),
+	}
+}
+
+func (s *Store) Transfer(key, from, to string, amount int64) (string, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if existing, ok := s.idempotency[key]; ok {
+		return existing, nil
+	}
+	if amount <= 0 {
+		return "", errors.New("amount must be positive")
+	}
+	if _, ok := s.balances[from]; !ok {
+		return "", fmt.Errorf("unknown account %q", from)
+	}
+	if _, ok := s.balances[to]; !ok {
+		return "", fmt.Errorf("unknown account %q", to)
+	}
+	if s.balances[from] < amount {
+		return "", errors.New("insufficient funds")
+	}
+
+	s.balances[from] -= amount
+	s.balances[to] += amount
+	transferID := fmt.Sprintf("%s:%s:%d", from, to, amount)
+	s.idempotency[key] = transferID
+	return transferID, nil
+}
+
+func main() {
+	store := NewStore()
+	first, _ := store.Transfer("req-42", "alice", "bob", 1200)
+	second, _ := store.Transfer("req-42", "alice", "bob", 1200)
+
+	fmt.Println(first == second)
+	fmt.Println("alice:", store.balances["alice"], "bob:", store.balances["bob"])
+}`,
+        lang: "go",
+        why: "The output proves the retry was a read of the first result, not a second money movement. In Postgres, the same idea is enforced with a transaction plus a UNIQUE idempotency key.",
+      },
+      {
+        title: "Expected output",
+        concept: "One transfer is created, the retry returns the same identity, and the total balance stays constant.",
+        code: `// run it:
+//   go run main.go
+//
+// output:
+//   true
+//   alice: 8800 bob: 6200`,
+        lang: "go",
+        why: "This is the behavior the real schema must preserve under HTTP retries, client timeouts, worker restarts, and transaction retries.",
       },
     ],
   },

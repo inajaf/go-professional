@@ -25,17 +25,30 @@ js/data.js          window.COURSE_EN = { COURSE_META, PARTS, MODULES, VERIFICATI
 js/data.ru.js       window.COURSE_RU, same shape, Russian translation
 js/lessons.js       window.COURSE_EN.LESSONS and window.COURSE_EN.WORKED_EXAMPLES
 js/lessons.ru.js    window.COURSE_RU.LESSONS and .WORKED_EXAMPLES (code fields omitted, inherited from EN)
-js/animations.js    makeTimeline() engine + 25 ANIM["id"] canvas animations + CANVAS_RU dict + tr()/lang() helpers
+js/animations.js    makeTimeline() engine + 28 ANIM["id"] canvas animations + CANVAS_RU dict + tr()/lang() helpers
+js/gopher3d.data.js auto-generated: base64 GLB of the dancing gopher hero mascot (window.GOPHER_GLB_B64) - never edit by hand
+js/gopher3d.js      zero-dependency GLB parser + raw-WebGL skinned-mesh renderer for the mascot (window.GOPHER3D.mount)
 js/app.js           routing, localStorage, rendering, mergeCourse()/mergeModule(), language switcher
 ```
 
 Script load order in `index.html` matters and must stay exactly:
-`strings.js, data.js, data.ru.js, lessons.js, lessons.ru.js, animations.js, app.js`.
+`strings.js, data.js, data.ru.js, lessons.js, lessons.ru.js, animations.js, gopher3d.data.js, gopher3d.js, app.js`.
 Later files assume earlier globals already exist.
+
+## 3D hero mascot
+
+The home hero shows a dancing 3D gopher (`.hero-gopher` canvas) at every viewport width: a middle hero column on desktop, beside the progress ring below 1080px, smaller below 560px.
+It is a rigged GLB (Meshy "All_Night_Dance" clip, 2048px JPEG texture) rendered by a hand-rolled WebGL viewer in `js/gopher3d.js` - deliberately NOT three.js, to preserve the zero-dependency constraint.
+The GLB ships base64-embedded in `js/gopher3d.data.js` because `fetch`/XHR of a local file fails over `file://`.
+The canvas is decorative (`aria-hidden`), draws no text, and therefore needs no i18n entries.
+If WebGL is unavailable the canvas hides itself and the hero layout keeps flowing without it.
+Camera framing samples the animation to compute true animated bounds and refits per frame for the current canvas aspect - if you swap the GLB, no manual reframing should be needed, but re-verify with screenshots at several widths since a clipped pose was a real bug here.
+`applyClip` damps each joint toward its rest pose by name (`dampFor`): dance clips are authored for slim humanoids, and at full strength they buried the gopher's stubby arms inside the torso; tune `dampFor`, not the clip data, if the motion needs adjusting.
+Texture dimensions must stay power-of-two: WebGL1 silently samples black from an NPOT texture with a mipmap filter (a real bug here when a 1536px texture was tried; the viewer now guards NPOT, but POT is still the quality path).
 
 ## Course content model
 
-21 modules total, keyed by stable opaque ids `f1`-`f5` and `m1`-`m16`.
+22 modules total, keyed by stable opaque ids `f1`-`f5` and `m1`-`m17`.
 Note: those ids are NO LONGER in learning order - the course sequence (sidebar, home, prev/next) is defined entirely by `PARTS` and each part's `modules` list (6 parts, a single beginner→principal ramp), and `app.js` derives an `ORDERED` list from `PARTS` for navigation. A module's `code`/`num`/`part` fields carry its displayed label/position; edit those + `PARTS`/`PARTS_RU` to reorder, never rely on the physical `MODULES` array order.
 Each module has: `title/short/level/summary/plain/animation{id,title,blurb}/concepts[]{title,body,code?}/ai/practice-or-capstone/pitfalls/takeaways/checklist`, plus a `GLOSSARY` entry, an `ASSIGNMENTS` entry, a `LESSONS` section list (`{h, p}` shape), and a `WORKED_EXAMPLES` entry (`{title, intro, steps: [{title, concept, code, lang, why}]}`).
 A module may ALSO carry an optional `animations: [{id,title,blurb}, ...]` array to render several visualizations on one page (the first module does this); when present it takes precedence over the single `animation` for the module page, while `animation` stays the representative shown on the home card. `app.js` deep-merges `animations` per-index for RU just like `WORKED_EXAMPLES` steps, so RU entries need only `title`/`blurb`.

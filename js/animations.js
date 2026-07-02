@@ -1,7 +1,7 @@
 /* =====================================================================
    INTERACTIVE ANIMATIONS  (canvas 2D, no dependencies)
    A deterministic, scrubbable timeline engine with explicit STEPS, plus
-   25 visualizations. Each animation renders its full state as a pure
+   28 visualizations. Each animation renders its full state as a pure
    function of time t, so play / pause / step / scrub / step-jump all work.
    Each def declares `phases: [{t, title, desc}]` so the UI can show a
    numbered, narrated walkthrough synced to the visual.
@@ -52,6 +52,9 @@
     "runtime.AddCleanup · deterministic lifecycle": "runtime.AddCleanup · детерминированный жизненный цикл",
     "testing/synctest · virtual time bubble": "testing/synctest · пузырь виртуального времени",
     "pgxpool · row-level locking · double-entry": "pgxpool · блокировка на уровне строк · двойная запись",
+    "PostgreSQL · schema constraints · idempotency/outbox": "PostgreSQL · ограничения схемы · идемпотентность/outbox",
+    "PostgreSQL · planner · composite index path": "PostgreSQL · планировщик · путь составного индекса",
+    "PostgreSQL · locks · migrations · vacuum": "PostgreSQL · блокировки · миграции · vacuum",
     "harvest-now-decrypt-later · hybrid post-quantum TLS": "harvest-now-decrypt-later · гибридный постквантовый TLS",
     "runtime/pprof · goroutine-leak analyzer": "runtime/pprof · анализатор утечек горутин",
     "simd/archsimd · Green Tea GC": "simd/archsimd · Green Tea GC",
@@ -168,6 +171,48 @@
     "B: +$": "B: +$",
     "COMMIT ✓": "COMMIT ✓",
     "Σ = $800  ✓ invariant held": "Σ = $800  ✓ инвариант сохранён",
+    // postgres-deep
+    "HTTP transfer": "HTTP-перевод",
+    "Go service": "Go-сервис",
+    "accounts": "accounts",
+    "transfers": "transfers",
+    "ledger_entries": "ledger_entries",
+    "outbox_events": "outbox_events",
+    "CHECK balance >= 0": "CHECK balance >= 0",
+    "CHECK amount > 0": "CHECK amount > 0",
+    "UNIQUE idempotency_key": "UNIQUE idempotency_key",
+    "duplicate blocked": "дубликат заблокирован",
+    "event committed": "event закоммичен",
+    "schema is the final guardrail": "схема - последний guardrail",
+    "rejected": "отклонено",
+    "BEGIN": "BEGIN",
+    "COMMIT": "COMMIT",
+    "query": "запрос",
+    "planner": "планировщик",
+    "seq scan": "seq scan",
+    "composite index": "составной индекс",
+    "covering INCLUDE": "покрывающий INCLUDE",
+    "EXPLAIN verifies": "EXPLAIN проверяет",
+    "buffers read": "buffers read",
+    "heap fetches": "heap fetches",
+    "latest 50": "последние 50",
+    "table heap": "table heap",
+    "heap fetches avoided": "heap fetches избегнуты",
+    "Index Only Scan using ledger_entries_account_time_idx": "Index Only Scan using ledger_entries_account_time_idx",
+    "hot table": "горячая таблица",
+    "writers": "писатели",
+    "DDL migration": "DDL-миграция",
+    "ACCESS EXCLUSIVE": "ACCESS EXCLUSIVE",
+    "blocked": "заблокировано",
+    "CREATE INDEX CONCURRENTLY": "CREATE INDEX CONCURRENTLY",
+    "writes continue": "записи продолжаются",
+    "long xact": "длинная транзакция",
+    "dead tuples": "dead tuples",
+    "VACUUM waits": "VACUUM ждёт",
+    "batch backfill": "batch backfill",
+    "pressure released": "давление снято",
+    "bloat grows": "bloat растёт",
+    "small batches · short transactions": "малые батчи · короткие транзакции",
     // pqc-lattice
     "Alice": "Алиса",
     "Bob": "Боб",
@@ -519,6 +564,50 @@
     "T2 now reads fresh, consistent balances and runs its own transfer. Through all of this, the total money in the system never changed.": "T2 теперь читает свежие, согласованные балансы и выполняет свой перевод. За всё это время общая сумма денег в системе не изменилась.",
     "This is the proof the pattern works: concurrent access was serialized just enough to keep Σ(balances) constant, without serializing the WHOLE database.": "Это доказательство того, что паттерн работает: конкурентный доступ был сериализован ровно настолько, чтобы Σ(балансов) оставалась постоянной, без сериализации ВСЕЙ базы данных.",
 
+    // postgres-deep
+    "A transfer enters the database boundary": "Перевод входит в границу базы",
+    "The service receives one request, but the durable truth will be created by several tables together: accounts, transfers, ledger entries, and the outbox.": "Сервис получает один запрос, но долговременная истина будет создана несколькими таблицами вместе: accounts, transfers, ledger entries и outbox.",
+    "The database boundary matters because retries, crashes, and duplicate requests all meet at the same place: the transaction.": "Граница базы важна, потому что retries, crashes и дубликаты запросов встречаются в одном месте: в транзакции.",
+    "CHECK constraints reject impossible values": "CHECK constraints отвергают невозможные значения",
+    "The schema refuses negative balances and non-positive transfer amounts before the data can become durable.": "Схема отказывает отрицательным балансам и неположительным суммам перевода до того, как данные станут долговечными.",
+    "Go validation gives good error messages; Postgres constraints protect the data when a bad binary deploys anyway.": "Go-валидация даёт хорошие ошибки; Postgres constraints защищают данные, когда плохой бинарник всё равно задеплоен.",
+    "UNIQUE idempotency_key absorbs retries": "UNIQUE idempotency_key поглощает retries",
+    "The same client retry reaches the database twice, but the unique key lets only one transfer identity exist.": "Один и тот же client retry доходит до базы дважды, но unique key разрешает существовать только одной identity перевода.",
+    "This is what stops timeouts and retry loops from double-charging a customer.": "Именно это не даёт timeouts и retry loops списать деньги дважды.",
+    "Ledger rows and outbox commit atomically": "Строки леджера и outbox коммитятся атомарно",
+    "The debit, credit, transfer row, and event row land in one transaction, so no downstream publisher can see a business event that the ledger did not commit.": "Debit, credit, transfer row и event row попадают в одну транзакцию, поэтому downstream publisher не увидит business event, который леджер не закоммитил.",
+    "The outbox pattern turns 'write then publish' into a recoverable database fact instead of a timing hope.": "Outbox pattern превращает «записать, потом опубликовать» в восстанавливаемый факт базы, а не надежду на тайминг.",
+    "A query shape arrives": "Приходит форма запроса",
+    "The service asks for the latest 50 ledger entries for one account, ordered by posted_at descending.": "Сервис просит последние 50 ledger entries для одного счёта, отсортированные по posted_at descending.",
+    "The planner optimizes this exact shape, not your mental model of which columns feel important.": "Планировщик оптимизирует именно эту форму, а не вашу ментальную модель важных колонок.",
+    "No matching index means a wide scan": "Без подходящего индекса получается широкий scan",
+    "A sequential scan may touch thousands or millions of rows, then sort, just to return a tiny page.": "Sequential scan может тронуть тысячи или миллионы строк и потом сортировать, чтобы вернуть маленькую страницу.",
+    "The danger is not only time; it is shared buffer churn that evicts useful pages for other requests.": "Опасность не только во времени, но и в churn shared buffers, который вытесняет полезные страницы для других запросов.",
+    "Composite index follows filter then sort": "Составной индекс следует фильтру, затем сортировке",
+    "An index on (account_id, posted_at DESC) lets Postgres jump to one account's newest rows in order.": "Индекс на (account_id, posted_at DESC) позволяет Postgres прыгнуть к новейшим строкам одного счёта уже в порядке сортировки.",
+    "Column order encodes the query shape: equality first, then ordering/range.": "Порядок колонок кодирует форму запроса: equality сначала, затем ordering/range.",
+    "INCLUDE can avoid heap fetches": "INCLUDE может избежать heap fetches",
+    "Including amount and direction lets the index answer the selected columns without visiting the table for every row.": "Включение amount и direction позволяет индексу ответить выбранными колонками без посещения таблицы для каждой строки.",
+    "Covering helps only when the query really projects those columns and visibility permits an index-only scan.": "Covering помогает только если запрос реально возвращает эти колонки и visibility позволяет index-only scan.",
+    "EXPLAIN proves the real plan": "EXPLAIN доказывает реальный план",
+    "EXPLAIN (ANALYZE, BUFFERS) shows actual timing and whether the plan burned buffers or heap fetches.": "EXPLAIN (ANALYZE, BUFFERS) показывает фактическое время и сжигал ли план buffers или heap fetches.",
+    "The optimization is not done until the second measurement proves it.": "Оптимизация не закончена, пока второе измерение её не доказало.",
+    "A heavy DDL lock stops the table": "Тяжёлая DDL-блокировка останавливает таблицу",
+    "Some schema changes need locks that block writers. On a hot table, that can become an incident before the migration finishes.": "Некоторым изменениям схемы нужны блокировки, останавливающие писателей. На горячей таблице это может стать инцидентом до завершения миграции.",
+    "A migration is production code running against your largest stateful dependency. Treat it with the same care as a deploy.": "Миграция - production-код, работающий против вашей самой большой stateful-зависимости. Относитесь к ней как к деплою.",
+    "Concurrent index build keeps writes moving": "Concurrent index build сохраняет записи",
+    "CREATE INDEX CONCURRENTLY takes longer but avoids blocking ordinary reads and writes while the index is built.": "CREATE INDEX CONCURRENTLY занимает больше времени, но не блокирует обычные чтения и записи, пока индекс строится.",
+    "You pay with time and restrictions, but you avoid turning the database into a single-file queue.": "Вы платите временем и ограничениями, но не превращаете базу в однопоточную очередь.",
+    "Long transactions pin old row versions": "Длинные транзакции удерживают старые версии строк",
+    "MVCC keeps old versions visible to old snapshots. A long transaction can keep those versions alive long after writers moved on.": "MVCC держит старые версии видимыми для старых snapshots. Длинная транзакция может удерживать эти версии долго после того, как писатели ушли дальше.",
+    "This is how normal update traffic quietly becomes table and index bloat.": "Так обычный update-трафик тихо превращается в bloat таблиц и индексов.",
+    "Vacuum cannot clean pinned tuples": "Vacuum не может очистить удержанные tuples",
+    "Vacuum sees dead tuples, but it cannot remove versions that an old snapshot might still need.": "Vacuum видит dead tuples, но не может удалить версии, которые старому snapshot всё ещё могут понадобиться.",
+    "Autovacuum is not magic; it needs transactions to end and enough IO budget to keep up.": "Autovacuum - не магия; ему нужны завершённые транзакции и достаточный IO budget.",
+    "Batch backfills release pressure": "Batch backfills снимают давление",
+    "Small batches with short transactions let writers continue, let vacuum clean, and make the migration interruptible.": "Малые батчи с короткими транзакциями дают писателям продолжать, vacuum - чистить, а миграции - быть прерываемой.",
+    "Expand/backfill/contract is boring, and boring is exactly what you want from production database changes.": "Expand/backfill/contract скучен, и именно скучности вы хотите от production database changes.",
+
     // pqc-lattice
     "Two handshakes, same shape, different math": "Два рукопожатия, одна форма, разная математика",
     "Channel A negotiates a classical X25519 key. Channel B negotiates a hybrid key - classical X25519 PLUS a lattice-based ML-KEM-768 key, combined.": "Канал A договаривается о классическом ключе X25519. Канал B договаривается о гибридном ключе - классический X25519 ПЛЮС решёточный ключ ML-KEM-768, объединённые.",
@@ -549,6 +638,20 @@
     "Root cause found": "Корневая причина найдена",
     "G2 dispatch is the actual problem: it never sends on results, and its context had no deadline to force it to give up and move on.": "G2 dispatch - вот настоящая проблема: она никогда не отправляет в results, а у её контекста не было дедлайна, чтобы заставить её сдаться и продолжить.",
     "Localizing to ONE goroutine and ONE missing send turns 'the program hangs sometimes' into a fix you can make in one line.": "Локализация до ОДНОЙ горутины и ОДНОЙ недостающей отправки превращает «программа иногда виснет» в исправление одной строкой.",
+    "Read the goroutine dump": "Прочитайте дамп горутин",
+    "The raw evidence is one SIGQUIT away: the dump names every goroutine, its wait reason and HOW LONG it has waited. Minutes of [chan receive] on a millisecond workload is the smoking gun.": "Сырая улика - на расстоянии одного SIGQUIT: дамп называет каждую горутину, причину её ожидания и СКОЛЬКО она уже ждёт. Минуты в [chan receive] на миллисекундной нагрузке - это дымящийся пистолет.",
+    "Every Go binary already ships this tool. Reading the wait reason and duration is the fastest first move in any hang investigation - before profilers, before dashboards.": "Этот инструмент уже встроен в каждый Go-бинарь. Чтение причины и длительности ожидания - самый быстрый первый ход в любом расследовании зависания: до профилировщиков, до дашбордов.",
+    "waiting for 5 minutes ⚠": "ждёт уже 5 минут ⚠",
+    "One-line fix: a deadline": "Исправление одной строкой: дедлайн",
+    "With context.WithTimeout around G2's work, the send either happens or the deadline fires - either way G4 wakes up and the graph drains cleanly.": "С context.WithTimeout вокруг работы G2 отправка либо происходит, либо срабатывает дедлайн - в любом случае G4 просыпается, и граф чисто опустошается.",
+    "Leaks aren't fixed by restarting goroutines - they're fixed by guaranteeing every wait has a second exit: a send, a close, or a deadline.": "Утечки не чинятся перезапуском горутин - они чинятся гарантией, что у каждого ожидания есть второй выход: отправка, close или дедлайн.",
+    "✓ G4 drained": "✓ G4 освобождена",
+    "Guard the boundary in tests": "Охраняйте границу в тестах",
+    "Count goroutines when a test starts and when it ends. If the numbers differ after everything should have drained, fail the test - the leak never reaches production.": "Считайте горутины на старте теста и на его финише. Если числа расходятся после того, как всё должно было завершиться - проваливайте тест: утечка никогда не доедет до продакшена.",
+    "Production forensics is the backup plan. The cheap win is refusing to merge code that leaks: a boundary check turns a silent leak into red CI.": "Форензика в продакшене - запасной план. Дешёвая победа - отказ мержить текущий код: проверка на границе превращает тихую утечку в красный CI.",
+    "goroutines at start: 4": "горутин на старте: 4",
+    "goroutines at end:   4 ✓": "горутин на финише:  4 ✓",
+    "PASS · no leaks": "PASS · без утечек",
 
     // simd-gc
     "Same work, two engines": "Одна работа, два движка",
@@ -2406,6 +2509,295 @@
   };
 
   /* =================================================================== */
+  /* M17. POSTGRES SCHEMA CONSTRAINTS, PLANNER, LOCKS & VACUUM           */
+  /* =================================================================== */
+  ANIM["pg-schema-constraints"] = (canvas) => {
+    function box(ctx, u, c, x, y, w, h, label, color, alpha = 1) {
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      u.fillRR(ctx, x, y, w, h, 10, color ? color + "18" : c.panel, color || c.line, color ? 1.8 : 1.3);
+      u.text(ctx, label, x + w / 2, y + h / 2 + 4, { align: "center", color: color || c.text, size: 12.5, minSize: 9.5, weight: 700, mono: true, maxWidth: w - 16 });
+      ctx.restore();
+    }
+    function schema(ctx, u, c, w, active) {
+      const cols = [
+        ["accounts", c.go],
+        ["transfers", c.purple],
+        ["ledger_entries", c.good],
+        ["outbox_events", c.warn],
+      ];
+      const startX = w * 0.08, gap = w * 0.035, bw = (w * 0.84 - gap * 3) / 4, y = 158;
+      cols.forEach((item, i) => box(ctx, u, c, startX + i * (bw + gap), y, bw, 58, item[0], item[1], active >= i ? 1 : 0.45));
+      return { startX, gap, bw, y };
+    }
+    const STEPS = [
+      {
+        t: 0,
+        title: "A transfer enters the database boundary",
+        desc: "The service receives one request, but the durable truth will be created by several tables together: accounts, transfers, ledger entries, and the outbox.",
+        why: "The database boundary matters because retries, crashes, and duplicate requests all meet at the same place: the transaction.",
+        draw(ctx, p, w, h, c, u) {
+          const sx = w * 0.13, gx = w * 0.35, a = u.clamp(p / 0.45, 0, 1);
+          box(ctx, u, c, sx - 62, h * 0.31 - 24, 124, 48, "HTTP transfer", c.go, 1);
+          box(ctx, u, c, gx - 58, h * 0.31 - 24, 116, 48, "Go service", c.purple, a);
+          u.arrow(ctx, sx + 62, h * 0.31, gx - 58, h * 0.31, c.go, 2);
+          const s = schema(ctx, u, c, w, 3);
+          if (a > 0.5) u.flow(ctx, gx + 58, h * 0.31, s.startX + s.bw / 2, s.y - 8, c.good, 2, u.t || 0);
+        },
+      },
+      {
+        t: 2.4,
+        title: "CHECK constraints reject impossible values",
+        desc: "The schema refuses negative balances and non-positive transfer amounts before the data can become durable.",
+        why: "Go validation gives good error messages; Postgres constraints protect the data when a bad binary deploys anyway.",
+        draw(ctx, p, w, h, c, u) {
+          const s = schema(ctx, u, c, w, 1);
+          u.badge(ctx, s.startX + 10, s.y + 78, "CHECK balance >= 0", c.go);
+          u.badge(ctx, s.startX + s.bw + s.gap + 8, s.y + 78, "CHECK amount > 0", c.purple);
+          const x = u.lerp(w * 0.17, s.startX + s.bw + s.gap + s.bw / 2, u.easeInOut(u.clamp(p / 0.7, 0, 1)));
+          u.dot(ctx, x, h * 0.42, 8, p > 0.7 ? c.bad : c.warn, "rgba(255,107,107,0.35)");
+          if (p > 0.72) u.text(ctx, "rejected", x, h * 0.42 + 28, { align: "center", color: c.bad, size: 12, weight: 700 });
+        },
+      },
+      {
+        t: 4.8,
+        title: "UNIQUE idempotency_key absorbs retries",
+        desc: "The same client retry reaches the database twice, but the unique key lets only one transfer identity exist.",
+        why: "This is what stops timeouts and retry loops from double-charging a customer.",
+        draw(ctx, p, w, h, c, u) {
+          const s = schema(ctx, u, c, w, 1);
+          const tx = s.startX + s.bw + s.gap;
+          u.badge(ctx, tx + 8, s.y + 78, "UNIQUE idempotency_key", c.purple);
+          [0, 1].forEach((i) => {
+            const py = h * (0.36 + i * 0.13);
+            const end = tx + s.bw / 2;
+            const px = u.lerp(w * 0.12, end, u.easeInOut(u.clamp((p - i * 0.18) / 0.58, 0, 1)));
+            u.dot(ctx, px, py, 7, i === 0 ? c.good : c.warn, i === 0 ? "rgba(58,210,159,0.35)" : "rgba(245,177,76,0.35)");
+          });
+          if (p > 0.72) {
+            u.badge(ctx, tx + s.bw * 0.48, h * 0.54, "duplicate blocked", c.warn);
+            u.ring(ctx, tx + s.bw * 0.55, h * 0.49, c.warn, u.clamp((p - 0.72) / 0.25, 0, 1), { from: 6, to: 30 });
+          }
+        },
+      },
+      {
+        t: 7.2,
+        title: "Ledger rows and outbox commit atomically",
+        desc: "The debit, credit, transfer row, and event row land in one transaction, so no downstream publisher can see a business event that the ledger did not commit.",
+        why: "The outbox pattern turns 'write then publish' into a recoverable database fact instead of a timing hope.",
+        draw(ctx, p, w, h, c, u) {
+          const s = schema(ctx, u, c, w, 3);
+          const cx = w / 2, cy = h * 0.72;
+          u.text(ctx, "BEGIN", cx - 160, cy, { color: c.dim, size: 12, mono: true, weight: 700 });
+          u.line(ctx, cx - 104, cy - 4, cx + 104, cy - 4, c.line, 2);
+          const prog = u.clamp(p / 0.9, 0, 1);
+          u.line(ctx, cx - 104, cy - 4, u.lerp(cx - 104, cx + 104, prog), cy - 4, c.good, 4);
+          u.text(ctx, "COMMIT", cx + 120, cy, { color: c.good, size: 12, mono: true, weight: 700 });
+          if (p > 0.5) {
+            u.badge(ctx, s.startX + 3 * (s.bw + s.gap) + 18, s.y + 78, "event committed", c.good);
+            u.text(ctx, "schema is the final guardrail", cx, h * 0.88, { align: "center", color: c.good, size: 13, weight: 700 });
+          }
+        },
+      },
+    ];
+    return makeTimeline(canvas, {
+      duration: 9.6,
+      phases: STEPS.map((s) => ({ t: s.t, title: s.title, desc: s.desc, why: s.why })),
+      render: stepRender(STEPS, 9.6, "PostgreSQL · schema constraints · idempotency/outbox"),
+    });
+  };
+
+  ANIM["pg-index-planner"] = (canvas) => {
+    function pill(ctx, u, c, x, y, label, color, w = 132) {
+      u.fillRR(ctx, x, y, w, 34, 9, color + "14", color, 1.5);
+      u.text(ctx, label, x + w / 2, y + 22, { align: "center", color, size: 11.5, minSize: 9, weight: 700, mono: true, maxWidth: w - 14 });
+    }
+    function bars(ctx, u, c, x, y, values, labels) {
+      values.forEach((v, i) => {
+        const bw = v * 130;
+        u.fillRR(ctx, x, y + i * 30, 130, 18, 5, "rgba(42,58,85,0.55)", c.line, 1);
+        u.fillRR(ctx, x, y + i * 30, Math.max(6, bw), 18, 5, i === 0 ? "rgba(245,177,76,0.32)" : "rgba(58,210,159,0.32)", i === 0 ? c.warn : c.good, 1);
+        u.text(ctx, labels[i], x + 140, y + i * 30 + 13, { color: c.dim, size: 10.5, mono: true });
+      });
+    }
+    function rows(ctx, u, c, x, y, activeCount, color) {
+      for (let i = 0; i < 8; i++) {
+        for (let j = 0; j < 5; j++) {
+          const on = i * 5 + j < activeCount;
+          u.fillRR(ctx, x + j * 25, y + i * 18, 18, 12, 3, on ? color + "35" : "rgba(42,58,85,0.45)", on ? color : c.line, 0.8);
+        }
+      }
+    }
+    const STEPS = [
+      {
+        t: 0,
+        title: "A query shape arrives",
+        desc: "The service asks for the latest 50 ledger entries for one account, ordered by posted_at descending.",
+        why: "The planner optimizes this exact shape, not your mental model of which columns feel important.",
+        draw(ctx, p, w, h, c, u) {
+          pill(ctx, u, c, w * 0.09, h * 0.5, "query", c.go);
+          u.text(ctx, "WHERE account_id = $1", w * 0.34, h * 0.31, { color: c.text, size: 13, mono: true, weight: 700 });
+          u.text(ctx, "ORDER BY posted_at DESC LIMIT 50", w * 0.34, h * 0.39, { color: c.text, size: 13, mono: true, weight: 700 });
+          pill(ctx, u, c, w * 0.72, h * 0.5, "planner", c.purple, 150);
+          u.flow(ctx, w * 0.09 + 132, h * 0.5 + 17, w * 0.72, h * 0.5 + 17, c.go, 2, u.t || 0);
+        },
+      },
+      {
+        t: 2.4,
+        title: "No matching index means a wide scan",
+        desc: "A sequential scan may touch thousands or millions of rows, then sort, just to return a tiny page.",
+        why: "The danger is not only time; it is shared buffer churn that evicts useful pages for other requests.",
+        draw(ctx, p, w, h, c, u) {
+          rows(ctx, u, c, w * 0.13, h * 0.24, Math.floor(u.lerp(8, 40, p)), c.warn);
+          pill(ctx, u, c, w * 0.56, h * 0.34, "seq scan", c.warn, 150);
+          bars(ctx, u, c, w * 0.56, h * 0.54, [0.95, 0.65], ["buffers read", "heap fetches"]);
+        },
+      },
+      {
+        t: 4.8,
+        title: "Composite index follows filter then sort",
+        desc: "An index on (account_id, posted_at DESC) lets Postgres jump to one account's newest rows in order.",
+        why: "Column order encodes the query shape: equality first, then ordering/range.",
+        draw(ctx, p, w, h, c, u) {
+          const x = w * 0.16, y = h * 0.24;
+          pill(ctx, u, c, x, y, "account_id", c.go, 140);
+          pill(ctx, u, c, x + 158, y, "posted_at DESC", c.purple, 170);
+          for (let i = 0; i < 7; i++) {
+            const yy = y + 58 + i * 20;
+            u.line(ctx, x + 18, yy, x + 300, yy, i < 3 ? c.good : c.line, i < 3 ? 2.5 : 1.2);
+            u.dot(ctx, x + 18 + i * 34, yy, 4, i < 3 ? c.good : c.dim);
+          }
+          u.arrow(ctx, w * 0.68, h * 0.3, w * 0.68, h * 0.63, c.good, 2);
+          u.text(ctx, "latest 50", w * 0.72, h * 0.49, { color: c.good, size: 13, weight: 700, mono: true });
+        },
+      },
+      {
+        t: 7.2,
+        title: "INCLUDE can avoid heap fetches",
+        desc: "Including amount and direction lets the index answer the selected columns without visiting the table for every row.",
+        why: "Covering helps only when the query really projects those columns and visibility permits an index-only scan.",
+        draw(ctx, p, w, h, c, u) {
+          pill(ctx, u, c, w * 0.11, h * 0.28, "composite index", c.go, 180);
+          pill(ctx, u, c, w * 0.11, h * 0.45, "covering INCLUDE", c.good, 180);
+          u.text(ctx, "amount_cents, direction", w * 0.13, h * 0.62, { color: c.good, size: 12, mono: true, weight: 700 });
+          u.line(ctx, w * 0.48, h * 0.28, w * 0.48, h * 0.68, c.line, 1.4, [5, 5]);
+          pill(ctx, u, c, w * 0.62, h * 0.36, "table heap", c.dim, 132);
+          const blocked = p > 0.45;
+          u.line(ctx, w * 0.29, h * 0.46, w * 0.62, h * 0.46, blocked ? c.good : c.warn, 2, blocked ? null : [5, 5]);
+          u.text(ctx, blocked ? "heap fetches avoided" : "heap fetches", w * 0.5, h * 0.43, { align: "center", color: blocked ? c.good : c.warn, size: 11.5, weight: 700 });
+        },
+      },
+      {
+        t: 9.6,
+        title: "EXPLAIN proves the real plan",
+        desc: "EXPLAIN (ANALYZE, BUFFERS) shows actual timing and whether the plan burned buffers or heap fetches.",
+        why: "The optimization is not done until the second measurement proves it.",
+        draw(ctx, p, w, h, c, u) {
+          pill(ctx, u, c, w * 0.12, h * 0.31, "EXPLAIN verifies", c.purple, 180);
+          bars(ctx, u, c, w * 0.45, h * 0.28, [u.lerp(0.9, 0.18, p), u.lerp(0.7, 0.08, p)], ["buffers read", "heap fetches"]);
+          u.text(ctx, "Index Only Scan using ledger_entries_account_time_idx", w * 0.12, h * 0.68, { color: c.good, size: 11.5, mono: true, weight: 700, maxWidth: w * 0.76 });
+        },
+      },
+    ];
+    return makeTimeline(canvas, {
+      duration: 12,
+      phases: STEPS.map((s) => ({ t: s.t, title: s.title, desc: s.desc, why: s.why })),
+      render: stepRender(STEPS, 12, "PostgreSQL · planner · composite index path"),
+    });
+  };
+
+  ANIM["pg-lock-vacuum"] = (canvas) => {
+    function table(ctx, u, c, w, h) {
+      u.fillRR(ctx, w * 0.17, h * 0.34, w * 0.66, h * 0.34, 12, c.panel, c.line, 1.5);
+      u.text(ctx, "hot table", w / 2, h * 0.34 + 25, { align: "center", color: c.text, size: 13, weight: 700, mono: true });
+    }
+    function writers(ctx, u, c, w, h, blocked) {
+      for (let i = 0; i < 4; i++) {
+        const x = w * (0.18 + i * 0.16), y = h * 0.2;
+        u.fillRR(ctx, x - 34, y - 17, 68, 34, 8, blocked ? "rgba(255,107,107,0.12)" : "rgba(58,210,159,0.12)", blocked ? c.bad : c.good, 1.4);
+        u.text(ctx, "writers", x, y + 5, { align: "center", color: blocked ? c.bad : c.good, size: 10.5, weight: 700 });
+        u.line(ctx, x, y + 18, x, h * 0.34, blocked ? c.bad : c.good, 1.5, blocked ? [4, 4] : null);
+      }
+    }
+    const STEPS = [
+      {
+        t: 0,
+        title: "A heavy DDL lock stops the table",
+        desc: "Some schema changes need locks that block writers. On a hot table, that can become an incident before the migration finishes.",
+        why: "A migration is production code running against your largest stateful dependency. Treat it with the same care as a deploy.",
+        draw(ctx, p, w, h, c, u) {
+          table(ctx, u, c, w, h); writers(ctx, u, c, w, h, true);
+          u.badge(ctx, w * 0.39, h * 0.48, "ACCESS EXCLUSIVE", c.bad);
+          u.text(ctx, "DDL migration", w / 2, h * 0.75, { align: "center", color: c.bad, size: 13, weight: 700, mono: true });
+          if (p < 0.45) u.ring(ctx, w / 2, h * 0.51, c.bad, u.clamp(p / 0.45, 0, 1), { from: 18, to: 92, lw: 3 });
+        },
+      },
+      {
+        t: 2.4,
+        title: "Concurrent index build keeps writes moving",
+        desc: "CREATE INDEX CONCURRENTLY takes longer but avoids blocking ordinary reads and writes while the index is built.",
+        why: "You pay with time and restrictions, but you avoid turning the database into a single-file queue.",
+        draw(ctx, p, w, h, c, u) {
+          table(ctx, u, c, w, h); writers(ctx, u, c, w, h, false);
+          u.text(ctx, "CREATE INDEX CONCURRENTLY", w / 2, h * 0.5, { align: "center", color: c.go, size: 13, weight: 700, mono: true });
+          u.flow(ctx, w * 0.22, h * 0.63, w * 0.78, h * 0.63, c.go, 3, u.t || 0);
+          u.badge(ctx, w * 0.43, h * 0.73, "writes continue", c.good);
+        },
+      },
+      {
+        t: 4.8,
+        title: "Long transactions pin old row versions",
+        desc: "MVCC keeps old versions visible to old snapshots. A long transaction can keep those versions alive long after writers moved on.",
+        why: "This is how normal update traffic quietly becomes table and index bloat.",
+        draw(ctx, p, w, h, c, u) {
+          table(ctx, u, c, w, h);
+          u.badge(ctx, w * 0.18, h * 0.22, "long xact", c.warn);
+          for (let i = 0; i < 10; i++) {
+            const x = w * 0.25 + i * (w * 0.05), y = h * 0.48 + (i % 2) * 30;
+            u.fillRR(ctx, x, y, 34, 20, 5, i < 4 ? "rgba(58,210,159,0.20)" : "rgba(245,177,76,0.22)", i < 4 ? c.good : c.warn, 1.1);
+          }
+          u.text(ctx, "dead tuples", w * 0.56, h * 0.78, { color: c.warn, size: 12.5, weight: 700, mono: true });
+        },
+      },
+      {
+        t: 7.2,
+        title: "Vacuum cannot clean pinned tuples",
+        desc: "Vacuum sees dead tuples, but it cannot remove versions that an old snapshot might still need.",
+        why: "Autovacuum is not magic; it needs transactions to end and enough IO budget to keep up.",
+        draw(ctx, p, w, h, c, u) {
+          table(ctx, u, c, w, h);
+          u.badge(ctx, w * 0.2, h * 0.22, "long xact", c.warn);
+          u.badge(ctx, w * 0.62, h * 0.22, "VACUUM waits", c.bad);
+          u.line(ctx, w * 0.42, h * 0.24, w * 0.62, h * 0.24, c.bad, 2, [4, 4]);
+          for (let i = 0; i < 14; i++) {
+            const x = w * 0.22 + i * (w * 0.04), y = h * 0.48 + (i % 3) * 24;
+            u.dot(ctx, x, y, 5, i > 8 ? c.bad : c.warn, "rgba(245,177,76,0.25)");
+          }
+          u.text(ctx, "bloat grows", w / 2, h * 0.82, { align: "center", color: c.bad, size: 13, weight: 700 });
+        },
+      },
+      {
+        t: 9.6,
+        title: "Batch backfills release pressure",
+        desc: "Small batches with short transactions let writers continue, let vacuum clean, and make the migration interruptible.",
+        why: "Expand/backfill/contract is boring, and boring is exactly what you want from production database changes.",
+        draw(ctx, p, w, h, c, u) {
+          table(ctx, u, c, w, h); writers(ctx, u, c, w, h, false);
+          u.badge(ctx, w * 0.22, h * 0.47, "batch backfill", c.go);
+          u.badge(ctx, w * 0.59, h * 0.47, "pressure released", c.good);
+          u.flow(ctx, w * 0.36, h * 0.5, w * 0.59, h * 0.5, c.good, 2.5, u.t || 0);
+          u.text(ctx, "small batches · short transactions", w / 2, h * 0.79, { align: "center", color: c.good, size: 13, weight: 700, mono: true });
+        },
+      },
+    ];
+    return makeTimeline(canvas, {
+      duration: 12,
+      phases: STEPS.map((s) => ({ t: s.t, title: s.title, desc: s.desc, why: s.why })),
+      render: stepRender(STEPS, 12, "PostgreSQL · locks · migrations · vacuum"),
+    });
+  };
+
+  /* =================================================================== */
   /* M6. THE CRYPTOGRAPHIC LATTICE  (hybrid ML-KEM)                      */
   /* =================================================================== */
   ANIM["pqc-lattice"] = (canvas) => {
@@ -2533,14 +2925,17 @@
       const N = (k) => ({ x: cx + nodes[k].x, y: nodes[k].y });
       edges.forEach((e) => {
         const a = N(e[0]), b = N(e[1]), isLeakEdge = e[1] === "g4" && opts.leakEdge;
-        u.line(ctx, a.x, a.y + 18, b.x, b.y - 18, isLeakEdge ? c.bad : c.line, isLeakEdge ? 2.4 : 1.5, isLeakEdge ? [6, 4] : null);
-        u.text(ctx, e[2], (a.x + b.x) / 2 + 8, (a.y + b.y) / 2, { color: c.dim, size: 10.5, mono: true });
+        const healed = opts.fixed && e[1] === "g4";
+        u.line(ctx, a.x, a.y + 18, b.x, b.y - 18, healed ? c.good : isLeakEdge ? c.bad : c.line, healed ? 2.4 : isLeakEdge ? 2.4 : 1.5, isLeakEdge && !healed ? [6, 4] : null);
+        // horizontal edges: lift the label clear of the node boxes it joins
+        u.text(ctx, e[2], (a.x + b.x) / 2 + 8, (a.y + b.y) / 2 - (a.y === b.y ? 26 : 0), { color: c.dim, size: 10.5, mono: true });
       });
       Object.keys(nodes).forEach((k) => {
         const nd = nodes[k], pos = N(k);
         let stroke = c.line, fill = c.panel, fg = c.text;
         if (nd.state === "blocked" && opts.blocked) { stroke = c.bad; fill = "rgba(255,107,107,0.14)"; fg = c.bad; }
         if (nd.state === "missing" && opts.rootFound) { stroke = c.accent; fill = "rgba(206,50,98,0.14)"; }
+        if (opts.fixed && (nd.state === "blocked" || nd.state === "missing")) { stroke = c.good; fill = "rgba(58,210,159,0.12)"; fg = c.good; }
         if (nd.state === "blocked" && opts.blocked) {
           const pr = 26 + 6 * (0.5 + 0.5 * Math.sin(opts.pulseT * 6));
           ctx.strokeStyle = "rgba(255,107,107,0.25)"; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(pos.x, pos.y, pr, 0, 7); ctx.stroke();
@@ -2560,7 +2955,7 @@
         draw(ctx, p, w, h, c, u) { drawGraph(ctx, c, u, w, { leakEdge: false, blocked: false, rootFound: false, pulseT: 0 }); },
       },
       {
-        t: 2.4,
+        t: 2.1,
         title: "G4 is stuck forever",
         desc: "G4 is parked on <-results - and tracing the graph, NOTHING will ever send on that channel. It will wait until the process dies.",
         why: "A blocked goroutine isn't automatically a leak - other goroutines block briefly all the time. It's a leak specifically because nothing can ever wake it.",
@@ -2570,7 +2965,31 @@
         },
       },
       {
-        t: 4.6,
+        t: 4.2,
+        title: "Read the goroutine dump",
+        desc: "The raw evidence is one SIGQUIT away: the dump names every goroutine, its wait reason and HOW LONG it has waited. Minutes of [chan receive] on a millisecond workload is the smoking gun.",
+        why: "Every Go binary already ships this tool. Reading the wait reason and duration is the fastest first move in any hang investigation - before profilers, before dashboards.",
+        draw(ctx, p, w, h, c, u) {
+          const x = w * 0.12, y = 86, lw = w * 0.76;
+          u.fillRR(ctx, x, y, lw, 178, 12, c.panel, c.line, 1.5);
+          u.text(ctx, "kill -QUIT $(pidof ledger)   # or /debug/pprof/goroutine?debug=2", x + 18, y + 26, { color: c.dim, size: 11, mono: true });
+          const lines = [
+            ["goroutine 42 [chan receive, 5 minutes]:", c.bad],
+            ["  main.(*Collector).run  collector.go:71", c.bad],
+            ["goroutine 17 [select]:", c.text],
+            ["  main.dispatch  dispatch.go:33", c.dim],
+            ["goroutine 8 [IO wait]:", c.text],
+            ["  net/http.(*conn).serve  server.go:2009", c.dim],
+          ];
+          const shown = Math.ceil(u.clamp(p * 1.7, 0, 1) * lines.length);
+          lines.slice(0, shown).forEach((ln, i) => {
+            u.text(ctx, ln[0], x + 18, y + 52 + i * 20, { color: ln[1], size: 11.5, mono: true });
+          });
+          if (shown >= 2) u.badge(ctx, x + lw - 190, y + 38, "waiting for 5 minutes ⚠", c.bad, "#fff");
+        },
+      },
+      {
+        t: 6.3,
         title: "The analyzer traces backward",
         desc: "Starting from the blocked goroutine, the analyzer walks the channel graph backward - G4 ← G3 - hunting for whoever was supposed to send.",
         why: "Walking the graph backward from the symptom is exactly how you'd debug this by hand - the analyzer just does it instantly and exhaustively.",
@@ -2581,7 +3000,7 @@
         },
       },
       {
-        t: 6.8,
+        t: 8.4,
         title: "Root cause found",
         desc: "G2 dispatch is the actual problem: it never sends on results, and its context had no deadline to force it to give up and move on.",
         why: "Localizing to ONE goroutine and ONE missing send turns 'the program hangs sometimes' into a fix you can make in one line.",
@@ -2595,12 +3014,43 @@
           u.text(ctx, "fix: ctx, cancel := context.WithTimeout(...) ; defer cancel()", w * 0.1 + 18, h * 0.78 + 60, { color: c.good, size: 11.5, mono: true, alpha: a });
         },
       },
+      {
+        t: 10.5,
+        title: "One-line fix: a deadline",
+        desc: "With context.WithTimeout around G2's work, the send either happens or the deadline fires - either way G4 wakes up and the graph drains cleanly.",
+        why: "Leaks aren't fixed by restarting goroutines - they're fixed by guaranteeing every wait has a second exit: a send, a close, or a deadline.",
+        draw(ctx, p, w, h, c, u) {
+          const N = drawGraph(ctx, c, u, w, { leakEdge: true, blocked: false, rootFound: false, fixed: true, pulseT: 0 });
+          const a = N("g3"), b = N("g4"), seg = 0.5 + 0.5 * Math.sin(p * 9 - 1.5);
+          u.dot(ctx, u.lerp(a.x, b.x, seg), u.lerp(a.y + 18, b.y - 18, seg), 6, c.good, "rgba(58,210,159,.6)");
+          if (p > 0.3) u.badge(ctx, w / 2 - 52, 276 + 26, "✓ G4 drained", c.good, "#06121f");
+          u.text(ctx, "ctx, cancel := context.WithTimeout(ctx, 2*time.Second)", w / 2, h * 0.9, { align: "center", color: c.good, size: 11.5, mono: true });
+        },
+      },
+      {
+        t: 12.6,
+        title: "Guard the boundary in tests",
+        desc: "Count goroutines when a test starts and when it ends. If the numbers differ after everything should have drained, fail the test - the leak never reaches production.",
+        why: "Production forensics is the backup plan. The cheap win is refusing to merge code that leaks: a boundary check turns a silent leak into red CI.",
+        draw(ctx, p, w, h, c, u) {
+          const x = w * 0.14, y = 96, lw = w * 0.72;
+          u.fillRR(ctx, x, y, lw, 168, 12, c.panel, c.line, 1.5);
+          u.text(ctx, "func TestCollector(t *testing.T) {", x + 18, y + 28, { color: c.text, size: 11.5, mono: true });
+          u.text(ctx, "    defer verifyNoLeaks(t) // count before vs after", x + 18, y + 48, { color: c.accent, size: 11.5, mono: true });
+          u.text(ctx, "    runPipeline(t)", x + 18, y + 68, { color: c.dim, size: 11.5, mono: true });
+          u.text(ctx, "}", x + 18, y + 88, { color: c.text, size: 11.5, mono: true });
+          const a = u.clamp((p - 0.25) / 0.3, 0, 1);
+          u.text(ctx, "goroutines at start: 4", x + 18, y + 120, { color: c.text, size: 12, mono: true, alpha: a });
+          u.text(ctx, "goroutines at end:   4 ✓", x + 18, y + 140, { color: c.good, size: 12, mono: true, alpha: a });
+          if (p > 0.6) u.badge(ctx, x + lw - 150, y + 118, "PASS · no leaks", c.good, "#06121f");
+        },
+      },
     ];
 
     return makeTimeline(canvas, {
-      duration: 9.4,
+      duration: 14.8,
       phases: STEPS.map((s) => ({ t: s.t, title: s.title, desc: s.desc, why: s.why })),
-      render: stepRender(STEPS, 9.4, "runtime/pprof · goroutine-leak analyzer"),
+      render: stepRender(STEPS, 14.8, "runtime/pprof · goroutine-leak analyzer"),
     });
   };
 

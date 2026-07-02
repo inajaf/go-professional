@@ -13,6 +13,599 @@ const COURSE_META = {
     "Start by writing idiomatic Go - goroutines, channels, errors, tests - then go under the runtime and the hardware, and build a zero-dependency, post-quantum-secure Distributed Financial Ledger on Go 1.24–1.26.",
   target: "go 1.26 (strictly enforced via CI)",
   capstone: "Distributed Financial Ledger",
+  ledgerRoadmap: {
+    f4: {
+      title: "Ledger command pipeline",
+      body: "Build the bounded goroutine/channel pipeline that accepts transfer commands, fans out validation work, and shuts down cleanly under cancellation.",
+    },
+    f5: {
+      title: "Request lifecycle and error contract",
+      body: "Define context propagation, wrapped domain errors, and package boundaries so every ledger request has one owner and one observable failure path.",
+    },
+    f3: {
+      title: "Invariant test harness",
+      body: "Lock in ledger invariants with table tests, subtests, fuzz cases, and test doubles before the system grows distributed.",
+    },
+    f1: {
+      title: "Memory budget for sustained throughput",
+      body: "Set the GC and allocation discipline that keeps ledger ingestion predictable under long-running load.",
+    },
+    f2: {
+      title: "Profiling loop for real bottlenecks",
+      body: "Add pprof workflows that prove where ledger CPU, heap, and goroutine costs are actually coming from.",
+    },
+    m1: {
+      title: "HTTP API and restricted IO boundary",
+      body: "Expose the zero-dependency ledger API and keep file access inside a safe, auditable root.",
+    },
+    m2: {
+      title: "Wire format and hot in-memory indexes",
+      body: "Design JSON/event serialization and cache-friendly maps for accounts, transfers, and idempotency lookups.",
+    },
+    m5: {
+      title: "Type-safe persistence gateway",
+      body: "Create compile-checked SQL access and transaction boundaries for the ledger write path.",
+    },
+    m17: {
+      title: "Postgres source of truth",
+      body: "Protect ledger invariants with schema constraints, idempotency keys, outbox rows, indexes, online migrations, and vacuum discipline.",
+    },
+    m13: {
+      title: "Concurrent state coordination",
+      body: "Choose atomics, mutexes, or channels for account caches, sequencing, metrics, and cross-goroutine ownership.",
+    },
+    m4: {
+      title: "Deterministic concurrency tests",
+      body: "Make timeout, retry, and race-sensitive ledger flows reproducible with controlled time and stable benchmarks.",
+    },
+    m3: {
+      title: "Lifecycle cleanup and interning",
+      body: "Attach cleanup to resources, intern repeated identifiers, and keep runtime lifecycles from leaking ledger memory.",
+    },
+    m7: {
+      title: "Live diagnostics and leak forensics",
+      body: "Add flight recording, triggerable dumps, and goroutine leak checks for production ledger incidents.",
+    },
+    m10: {
+      title: "Cache-friendly ledger layout",
+      body: "Shape hot structs and slices so balances, sequence numbers, and audit entries move through CPU caches efficiently.",
+    },
+    m11: {
+      title: "Branch-aware hot path",
+      body: "Reduce unpredictable branches and dependency chains in validation, balance checks, and serialization loops.",
+    },
+    m12: {
+      title: "Scheduler-aware worker sizing",
+      body: "Tune goroutine fan-out, netpoll behavior, and GOMAXPROCS expectations for the ledger's latency and throughput goals.",
+    },
+    m8: {
+      title: "SIMD batches and secret scrubbing",
+      body: "Batch verify ledger records where vectorization helps and scrub sensitive key material after use.",
+    },
+    m6: {
+      title: "Post-quantum service boundary",
+      body: "Harden ledger service-to-service communication with hybrid ML-KEM defenses and strict protocol compatibility.",
+    },
+    m14: {
+      title: "Observability contract",
+      body: "Instrument logs, metrics, traces, and SLOs so every ledger transfer can be explained without guesswork.",
+    },
+    m15: {
+      title: "Resilient distributed execution",
+      body: "Add retries, idempotency, circuit breakers, backpressure, and graceful degradation around ledger dependencies.",
+    },
+    m16: {
+      title: "Redis coordination and cache-aside",
+      body: "Use Redis deliberately for cache-aside reads, distributed locks, and invalidation without making it the ledger source of truth.",
+    },
+    m9: {
+      title: "Production rollout and governance",
+      body: "Package, deploy, refactor, and govern the ledger with container-aware runtime settings and ADR-backed production controls.",
+    },
+  },
+  finalProjectFiles: [
+    {
+      path: "go.mod",
+      lang: "mod",
+      code: `module example.com/distributed-financial-ledger
+
+go 1.26`,
+    },
+    {
+      path: "cmd/ledger/main.go",
+      lang: "go",
+      code: `package main
+
+import (
+	"encoding/base64"
+	"encoding/json"
+	"errors"
+	"log/slog"
+	"net/http"
+	"os"
+	"time"
+
+	"example.com/distributed-financial-ledger/internal/ledger"
+	"example.com/distributed-financial-ledger/internal/security"
+)
+
+func main() {
+	log := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	repo := ledger.NewMemoryRepository(map[string]int64{"alice": 10_000, "bob": 5_000, "treasury": 1_000_000})
+	svc := ledger.NewService(repo)
+	pq, err := security.NewPQBox()
+	if err != nil {
+		log.Error("pq init failed", "err", err)
+		os.Exit(1)
+	}
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) {
+		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+	})
+	mux.HandleFunc("GET /accounts", func(w http.ResponseWriter, r *http.Request) {
+		accounts, err := svc.Snapshot(r.Context())
+		if err != nil {
+			writeError(w, http.StatusRequestTimeout, err)
+			return
+		}
+		writeJSON(w, http.StatusOK, accounts)
+	})
+	mux.HandleFunc("GET /entries", func(w http.ResponseWriter, r *http.Request) {
+		entries, err := svc.Entries(r.Context())
+		if err != nil {
+			writeError(w, http.StatusRequestTimeout, err)
+			return
+		}
+		writeJSON(w, http.StatusOK, entries)
+	})
+	mux.HandleFunc("POST /transfers", func(w http.ResponseWriter, r *http.Request) {
+		var req ledger.TransferRequest
+		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<20)).Decode(&req); err != nil {
+			writeError(w, http.StatusBadRequest, err)
+			return
+		}
+		entry, err := svc.Transfer(r.Context(), req)
+		if err != nil {
+			status := http.StatusBadRequest
+			if errors.Is(err, ledger.ErrInsufficient) {
+				status = http.StatusConflict
+			}
+			writeError(w, status, err)
+			return
+		}
+		log.Info("transfer committed", "id", entry.ID, "from", entry.From, "to", entry.To, "amount", entry.Amount)
+		writeJSON(w, http.StatusCreated, entry)
+	})
+	mux.HandleFunc("GET /security/mlkem768/public", func(w http.ResponseWriter, r *http.Request) {
+		writeJSON(w, http.StatusOK, map[string]string{
+			"alg":        "ML-KEM-768",
+			"public_key": base64.StdEncoding.EncodeToString(pq.PublicKey()),
+		})
+	})
+
+	srv := &http.Server{
+		Addr:              ":8080",
+		Handler:           requestLog(log, mux),
+		ReadHeaderTimeout: 3 * time.Second,
+	}
+	log.Info("ledger listening", "addr", srv.Addr)
+	if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		log.Error("server stopped", "err", err)
+		os.Exit(1)
+	}
+}
+
+func requestLog(log *slog.Logger, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		next.ServeHTTP(w, r)
+		log.Info("request", "method", r.Method, "path", r.URL.Path, "dur", time.Since(start).String())
+	})
+}
+
+func writeJSON(w http.ResponseWriter, status int, v any) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	_ = json.NewEncoder(w).Encode(v)
+}
+
+func writeError(w http.ResponseWriter, status int, err error) {
+	writeJSON(w, status, map[string]string{"error": err.Error()})
+}`,
+    },
+    {
+      path: "internal/ledger/model.go",
+      lang: "go",
+      code: `package ledger
+
+import (
+	"errors"
+	"time"
+)
+
+var (
+	ErrInvalidTransfer = errors.New("invalid transfer")
+	ErrInsufficient    = errors.New("insufficient funds")
+)
+
+type TransferRequest struct {
+	From           string
+	To             string
+	Amount         int64
+	IdempotencyKey string
+}
+
+type Entry struct {
+	ID             uint64
+	From           string
+	To             string
+	Amount         int64
+	At             time.Time
+	IdempotencyKey string
+}
+
+type Account struct {
+	ID      string
+	Balance int64
+}`,
+    },
+    {
+      path: "internal/ledger/repository.go",
+      lang: "go",
+      code: `package ledger
+
+import "context"
+
+type Repository interface {
+	WithIdempotency(ctx context.Context, key string, fn func(Tx) (Entry, error)) (Entry, error)
+	Snapshot(ctx context.Context) ([]Account, error)
+	Entries(ctx context.Context) ([]Entry, error)
+}
+
+type Tx interface {
+	Balance(account string) int64
+	Move(from, to string, amount int64) error
+	Append(entry Entry) (Entry, error)
+}`,
+    },
+    {
+      path: "internal/ledger/service.go",
+      lang: "go",
+      code: `package ledger
+
+import (
+	"context"
+	"fmt"
+	"time"
+)
+
+type Service struct {
+	repo  Repository
+	clock func() time.Time
+}
+
+func NewService(repo Repository) *Service {
+	return &Service{
+		repo:  repo,
+		clock: func() time.Time { return time.Now().UTC() },
+	}
+}
+
+func (s *Service) Transfer(ctx context.Context, req TransferRequest) (Entry, error) {
+	if err := validate(req); err != nil {
+		return Entry{}, err
+	}
+	return s.repo.WithIdempotency(ctx, req.IdempotencyKey, func(tx Tx) (Entry, error) {
+		if balance := tx.Balance(req.From); balance < req.Amount {
+			return Entry{}, fmt.Errorf("%w: %s has %d, needs %d", ErrInsufficient, req.From, balance, req.Amount)
+		}
+		if err := tx.Move(req.From, req.To, req.Amount); err != nil {
+			return Entry{}, err
+		}
+		return tx.Append(Entry{
+			From:           req.From,
+			To:             req.To,
+			Amount:         req.Amount,
+			At:             s.clock(),
+			IdempotencyKey: req.IdempotencyKey,
+		})
+	})
+}
+
+func (s *Service) Snapshot(ctx context.Context) ([]Account, error) {
+	return s.repo.Snapshot(ctx)
+}
+
+func (s *Service) Entries(ctx context.Context) ([]Entry, error) {
+	return s.repo.Entries(ctx)
+}
+
+func validate(req TransferRequest) error {
+	if req.From == "" || req.To == "" || req.From == req.To || req.Amount <= 0 || req.IdempotencyKey == "" {
+		return fmt.Errorf("%w: from, to, positive amount and idempotency key are required", ErrInvalidTransfer)
+	}
+	return nil
+}`,
+    },
+    {
+      path: "internal/ledger/memory_repository.go",
+      lang: "go",
+      code: `package ledger
+
+import (
+	"context"
+	"hash/fnv"
+	"sort"
+	"sync"
+	"sync/atomic"
+)
+
+const shardCount = 32
+
+type shard struct {
+	mu       sync.Mutex
+	balances map[string]int64
+}
+
+type idemRecord struct {
+	done  chan struct{}
+	entry Entry
+	err   error
+}
+
+type MemoryRepository struct {
+	shards  [shardCount]shard
+	entries struct {
+		sync.RWMutex
+		list []Entry
+	}
+	idem struct {
+		sync.Mutex
+		m map[string]*idemRecord
+	}
+	next atomic.Uint64
+}
+
+func NewMemoryRepository(seed map[string]int64) *MemoryRepository {
+	r := &MemoryRepository{}
+	r.idem.m = make(map[string]*idemRecord)
+	for i := range r.shards {
+		r.shards[i].balances = make(map[string]int64)
+	}
+	for id, balance := range seed {
+		s := r.shardFor(id)
+		s.balances[id] = balance
+	}
+	return r
+}
+
+func (r *MemoryRepository) WithIdempotency(ctx context.Context, key string, fn func(Tx) (Entry, error)) (Entry, error) {
+	if err := ctx.Err(); err != nil {
+		return Entry{}, err
+	}
+	if entry, wait, owner := r.beginIdempotent(key); !owner {
+		if wait == nil {
+			return entry, nil
+		}
+		select {
+		case <-ctx.Done():
+			return Entry{}, ctx.Err()
+		case <-wait:
+			return r.lookupIdempotent(key)
+		}
+	}
+
+	tx := &memoryTx{repo: r}
+	entry, err := fn(tx)
+	r.finishIdempotent(key, entry, err)
+	return entry, err
+}
+
+func (r *MemoryRepository) Snapshot(ctx context.Context) ([]Account, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	out := make([]Account, 0)
+	for i := range r.shards {
+		s := &r.shards[i]
+		s.mu.Lock()
+		for id, balance := range s.balances {
+			out = append(out, Account{ID: id, Balance: balance})
+		}
+		s.mu.Unlock()
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })
+	return out, nil
+}
+
+func (r *MemoryRepository) Entries(ctx context.Context) ([]Entry, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	r.entries.RLock()
+	defer r.entries.RUnlock()
+	return append([]Entry(nil), r.entries.list...), nil
+}
+
+func (r *MemoryRepository) beginIdempotent(key string) (Entry, <-chan struct{}, bool) {
+	r.idem.Lock()
+	defer r.idem.Unlock()
+	if rec := r.idem.m[key]; rec != nil {
+		if rec.done == nil {
+			return rec.entry, nil, false
+		}
+		return Entry{}, rec.done, false
+	}
+	r.idem.m[key] = &idemRecord{done: make(chan struct{})}
+	return Entry{}, nil, true
+}
+
+func (r *MemoryRepository) finishIdempotent(key string, entry Entry, err error) {
+	r.idem.Lock()
+	rec := r.idem.m[key]
+	if err != nil {
+		delete(r.idem.m, key)
+	} else {
+		rec.entry = entry
+		rec.err = nil
+	}
+	done := rec.done
+	rec.done = nil
+	r.idem.Unlock()
+	close(done)
+}
+
+func (r *MemoryRepository) lookupIdempotent(key string) (Entry, error) {
+	r.idem.Lock()
+	defer r.idem.Unlock()
+	rec := r.idem.m[key]
+	if rec == nil {
+		return Entry{}, ErrInvalidTransfer
+	}
+	return rec.entry, rec.err
+}
+
+func (r *MemoryRepository) shardFor(account string) *shard {
+	return &r.shards[r.shardIndex(account)]
+}
+
+func (r *MemoryRepository) shardIndex(account string) uint32 {
+	h := fnv.New32a()
+	_, _ = h.Write([]byte(account))
+	return h.Sum32() % shardCount
+}
+
+type memoryTx struct {
+	repo *MemoryRepository
+}
+
+func (tx *memoryTx) Balance(account string) int64 {
+	s := tx.repo.shardFor(account)
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.balances[account]
+}
+
+func (tx *memoryTx) Move(from, to string, amount int64) error {
+	a := tx.repo.shardIndex(from)
+	b := tx.repo.shardIndex(to)
+	first, second := a, b
+	if second < first {
+		first, second = second, first
+	}
+	tx.repo.shards[first].mu.Lock()
+	if second != first {
+		tx.repo.shards[second].mu.Lock()
+	}
+	defer tx.repo.shards[first].mu.Unlock()
+	if second != first {
+		defer tx.repo.shards[second].mu.Unlock()
+	}
+
+	tx.repo.shards[a].balances[from] -= amount
+	tx.repo.shards[b].balances[to] += amount
+	return nil
+}
+
+func (tx *memoryTx) Append(entry Entry) (Entry, error) {
+	entry.ID = tx.repo.next.Add(1)
+	tx.repo.entries.Lock()
+	tx.repo.entries.list = append(tx.repo.entries.list, entry)
+	tx.repo.entries.Unlock()
+	return entry, nil
+}`,
+    },
+    {
+      path: "internal/security/pq.go",
+      lang: "go",
+      code: `package security
+
+import (
+	"crypto/mlkem"
+	"crypto/sha256"
+)
+
+type PQBox struct {
+	decap *mlkem.DecapsulationKey768
+}
+
+func NewPQBox() (*PQBox, error) {
+	k, err := mlkem.GenerateKey768()
+	if err != nil {
+		return nil, err
+	}
+	return &PQBox{decap: k}, nil
+}
+
+func (p *PQBox) PublicKey() []byte {
+	return p.decap.EncapsulationKey().Bytes()
+}
+
+func (p *PQBox) Decapsulate(ciphertext []byte) ([32]byte, error) {
+	shared, err := p.decap.Decapsulate(ciphertext)
+	if err != nil {
+		return [32]byte{}, err
+	}
+	return sha256.Sum256(shared), nil
+}
+
+func Encapsulate(publicKey []byte) (sharedHash [32]byte, ciphertext []byte, err error) {
+	ek, err := mlkem.NewEncapsulationKey768(publicKey)
+	if err != nil {
+		return [32]byte{}, nil, err
+	}
+	shared, ciphertext := ek.Encapsulate()
+	return sha256.Sum256(shared), ciphertext, nil
+}`,
+    },
+    {
+      path: "internal/ledger/service_test.go",
+      lang: "go",
+      code: `package ledger
+
+import (
+	"context"
+	"sync"
+	"testing"
+)
+
+func TestTransferIsIdempotent(t *testing.T) {
+	repo := NewMemoryRepository(map[string]int64{"alice": 100, "bob": 0})
+	svc := NewService(repo)
+	req := TransferRequest{From: "alice", To: "bob", Amount: 10, IdempotencyKey: "tx-1"}
+	const calls = 32
+	var wg sync.WaitGroup
+	wg.Add(calls)
+	for i := 0; i < calls; i++ {
+		go func() {
+			defer wg.Done()
+			if _, err := svc.Transfer(context.Background(), req); err != nil {
+				t.Errorf("Transfer: %v", err)
+			}
+		}()
+	}
+	wg.Wait()
+	accounts, err := svc.Snapshot(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := accounts[0].Balance; got != 90 {
+		t.Fatalf("alice balance = %d, want 90", got)
+	}
+	if got := accounts[1].Balance; got != 10 {
+		t.Fatalf("bob balance = %d, want 10", got)
+	}
+	entries, err := svc.Entries(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := len(entries); got != 1 {
+		t.Fatalf("entries = %d, want 1", got)
+	}
+}`,
+    }
+  ],
 };
 
 /* Parts are ordered as a single beginner → principal ramp. The part `id`s
@@ -40,7 +633,7 @@ const PARTS = [
     label: "Part 3",
     title: "Building Real Systems",
     level: "Mid → Senior",
-    modules: ["m1", "m2", "m5"],
+    modules: ["m1", "m2", "m5", "m17"],
   },
   {
     id: "part-3",
@@ -1027,7 +1620,7 @@ v := m["USD"] // ~1 cache line, no pointer chasing`,
   {
     id: "m3",
     code: "C3",
-    num: 11,
+    num: 12,
     part: "part-3",
     title: "Object Lifecycles, Interning & Runtime Internals",
     short: "Lifecycles & Interning",
@@ -1134,7 +1727,7 @@ for {
   {
     id: "m4",
     code: "C2",
-    num: 10,
+    num: 11,
     part: "part-3",
     title: "Flake-Free Concurrency & Deterministic Testing",
     short: "Deterministic Testing",
@@ -1332,11 +1925,176 @@ row := pool.QueryRow(ctx, sql, id)`,
     ],
   },
 
+  /* ================================================================= M17 */
+  {
+    id: "m17",
+    code: "S4",
+    num: 9,
+    part: "part-2",
+    title: "PostgreSQL Foundations & Production Pitfalls",
+    short: "Postgres Pitfalls",
+    level: "Senior",
+    duration: "self-paced",
+    icon: "database",
+    summary:
+      "Design Postgres schemas that protect ledger invariants, read query plans, build safe indexes and migrations, and avoid production traps around locks, vacuum, bloat, and connection pressure.",
+    plain:
+      "Postgres is not just the place where rows live. It is part of your correctness boundary. Constraints reject impossible states, indexes decide whether a query is instant or catastrophic, transactions decide which concurrent writes are legal, and vacuum decides whether yesterday's workload becomes tomorrow's latency spike. Treat the database as a production subsystem, not a passive storage box.",
+    animation: {
+      id: "pg-schema-constraints",
+      title: "Ledger Schema & Constraints",
+      blurb:
+        "Watch a transfer move through accounts, ledger entries, idempotency keys, and the outbox so the database rejects impossible states before Go can ship them.",
+    },
+    animations: [
+      {
+        id: "pg-schema-constraints",
+        title: "Schema Constraints, Idempotency & Outbox",
+        blurb:
+          "See how CHECK, UNIQUE, foreign keys, and an outbox row turn Postgres into the ledger's last line of defense.",
+      },
+      {
+        id: "pg-index-planner",
+        title: "Query Planner, Composite Indexes & EXPLAIN",
+        blurb:
+          "Follow one ledger-history query from sequential scan to composite covering index, then verify it with EXPLAIN ANALYZE BUFFERS.",
+      },
+      {
+        id: "pg-lock-vacuum",
+        title: "Locks, Online Migrations & Vacuum Bloat",
+        blurb:
+          "Visualize the production traps: heavy DDL locks, long transactions pinning dead tuples, and batch backfills that keep writes moving.",
+      },
+    ],
+    concepts: [
+      {
+        title: "Let the schema protect invariants",
+        body:
+          "A ledger schema should reject impossible money states even if a buggy service deploys. Use CHECK constraints for local truths, foreign keys for ownership, UNIQUE constraints for idempotency, and an outbox table written in the same transaction as the ledger mutation.",
+        code: `CREATE TABLE accounts (
+    id uuid PRIMARY KEY,
+    balance_cents bigint NOT NULL CHECK (balance_cents >= 0)
+);
+
+CREATE TABLE transfers (
+    id uuid PRIMARY KEY,
+    idempotency_key text NOT NULL UNIQUE,
+    from_account uuid NOT NULL REFERENCES accounts(id),
+    to_account uuid NOT NULL REFERENCES accounts(id),
+    amount_cents bigint NOT NULL CHECK (amount_cents > 0)
+);
+
+CREATE TABLE outbox_events (
+    id bigserial PRIMARY KEY,
+    transfer_id uuid NOT NULL REFERENCES transfers(id),
+    kind text NOT NULL,
+    published_at timestamptz
+);`,
+        lang: "sql",
+      },
+      {
+        title: "Indexes are contracts with query shapes",
+        body:
+          "Index columns in the order your query filters, sorts, and paginates. A query for one account's recent ledger entries wants `(account_id, posted_at DESC)`, not three unrelated single-column indexes. INCLUDE can cover projected columns, but only EXPLAIN tells you whether the planner actually used it.",
+        code: `CREATE INDEX CONCURRENTLY ledger_entries_account_time_idx
+    ON ledger_entries (account_id, posted_at DESC)
+    INCLUDE (amount_cents, direction);
+
+EXPLAIN (ANALYZE, BUFFERS)
+SELECT posted_at, amount_cents, direction
+  FROM ledger_entries
+ WHERE account_id = $1
+ ORDER BY posted_at DESC
+ LIMIT 50;`,
+        lang: "sql",
+      },
+      {
+        title: "Migrations must be expand/contract",
+        body:
+          "A safe production migration first expands the schema in a backward-compatible way, backfills in bounded batches, then contracts after every old binary is gone. Avoid single-shot rewrites and heavy locks on hot tables.",
+        code: `-- 1. expand: nullable, no table rewrite
+ALTER TABLE transfers ADD COLUMN risk_score integer;
+
+-- 2. backfill in small batches from the app or a job
+UPDATE transfers
+   SET risk_score = 0
+ WHERE risk_score IS NULL
+   AND id IN (SELECT id FROM transfers WHERE risk_score IS NULL LIMIT 500);
+
+-- 3. add read path, deploy, then enforce later
+ALTER TABLE transfers ALTER COLUMN risk_score SET NOT NULL;`,
+        lang: "sql",
+      },
+      {
+        title: "Isolation, locks and deadlocks are design inputs",
+        body:
+          "Read Committed does not make multi-row business invariants magically safe. For transfers, lock the affected accounts in a deterministic order, keep transactions short, and retry serialization failures. Lock order is application design, not an afterthought.",
+        code: `SELECT id, balance_cents
+  FROM accounts
+ WHERE id = ANY($1::uuid[])
+ ORDER BY id
+ FOR UPDATE;
+
+-- Do the debit + credit only after every row is locked.
+-- If SQLSTATE 40001 or 40P01 happens, retry the whole transaction.`,
+        lang: "sql",
+      },
+      {
+        title: "Vacuum, bloat and long transactions",
+        body:
+          "MVCC keeps old row versions so concurrent readers see a stable snapshot. That is powerful, but a long transaction can pin old versions and prevent vacuum from cleaning them. Watch idle-in-transaction sessions, dead tuples, and slow statements before bloat becomes the incident.",
+        code: `SELECT pid, state, now() - xact_start AS age, query
+  FROM pg_stat_activity
+ WHERE xact_start IS NOT NULL
+ ORDER BY age DESC;
+
+SELECT relname, n_dead_tup, vacuum_count, autovacuum_count
+  FROM pg_stat_user_tables
+ ORDER BY n_dead_tup DESC
+ LIMIT 10;`,
+        lang: "sql",
+      },
+    ],
+    ai: {
+      title: "AI-Workflow Integration",
+      body:
+        "Use an agent as a database-review partner: give it schema, migrations, pg_stat_statements, EXPLAIN output, and the exact traffic pattern, then ask for concrete index and migration risks.",
+      prompt:
+        "Review this Postgres schema and migration plan for a financial ledger. Identify invariant gaps, missing constraints, unsafe DDL locks, indexes that do not match the query shapes, long-transaction/vacuum risks, and the exact EXPLAIN ANALYZE BUFFERS evidence you would require before approving it.",
+    },
+    capstone: {
+      title: "Ledger Capstone",
+      body:
+        "Design the production Postgres layer for the ledger: schema, constraints, idempotency keys, outbox, query indexes, online migrations, lock order, retry policy, and operational dashboards for vacuum, bloat, slow queries, and connection pressure.",
+    },
+    pitfalls: [
+      "Adding NOT NULL, defaults, or rewritten columns to a hot table as one big migration without measuring the lock it will take.",
+      "Indexing columns one by one instead of building composite indexes that match WHERE, ORDER BY, pagination, and projected columns.",
+      "Leaving sessions idle in transaction, which pins old row versions and can turn normal MVCC churn into table bloat.",
+      "Assuming Read Committed prevents every business anomaly. It does not; you still need explicit locks, constraints, or SERIALIZABLE with retries.",
+      "Letting every service open a large pool. Too many connections increase memory, contention, and failover pain on the database itself.",
+    ],
+    takeaways: [
+      "Postgres is part of the correctness boundary, not just storage.",
+      "Constraints and idempotency keys are production safety rails for bad deploys and duplicate requests.",
+      "Query performance starts with shape: filters, sort order, pagination, and returned columns.",
+      "Online migrations are expand/backfill/contract events, not one-shot DDL.",
+      "Vacuum and lock behavior must be observable before they become outages.",
+    ],
+    checklist: [
+      "Ledger invariants represented with CHECK, foreign keys, UNIQUE idempotency keys, and transactional outbox rows.",
+      "Every hot query has EXPLAIN (ANALYZE, BUFFERS) evidence and an index that matches its shape.",
+      "Migrations follow expand/backfill/contract and avoid long exclusive locks on hot paths.",
+      "Transactions lock rows in deterministic order and retry SQLSTATE 40001 / 40P01 safely.",
+      "Dashboards track long transactions, dead tuples, autovacuum, slow queries, and connection pool saturation.",
+    ],
+  },
+
   /* ================================================================= M6 */
   {
     id: "m6",
     code: "D1",
-    num: 17,
+    num: 18,
     part: "part-5",
     title: "Post-Quantum Microservice Defenses & Protocols",
     short: "Post-Quantum Defenses",
@@ -1437,7 +2195,7 @@ func (n *LedgerNode) Merge(o *LedgerNode) *LedgerNode { /* ... */ }`,
   {
     id: "m7",
     code: "C4",
-    num: 12,
+    num: 13,
     part: "part-3",
     title: "Live Diagnostics, Profiling & Forensics",
     short: "Diagnostics & Forensics",
@@ -1538,7 +2296,7 @@ func TestNoLeak(t *testing.T) {
   {
     id: "m8",
     code: "H4",
-    num: 16,
+    num: 17,
     part: "part-4",
     title: "Hardware Acceleration & Memory Scrubbing",
     short: "SIMD & Secure Memory",
@@ -1635,7 +2393,7 @@ func sign(msg []byte) []byte {
   {
     id: "m9",
     code: "D5",
-    num: 21,
+    num: 22,
     part: "part-5",
     title: "Production Governance & Automated Refactoring",
     short: "Governance & Rollout",
@@ -1742,7 +2500,7 @@ Consequences: +1 RTT handshake cost; quantum-resistant confidentiality;
   {
     id: "m10",
     code: "H1",
-    num: 13,
+    num: 14,
     part: "part-4",
     title: "CPU Caches & the Memory Hierarchy",
     short: "Caches & Memory",
@@ -1879,7 +2637,7 @@ fmt.Println(unsafe.Sizeof(Bad{}), unsafe.Sizeof(Good{})) // 24 16`,
   {
     id: "m11",
     code: "H2",
-    num: 14,
+    num: 15,
     part: "part-4",
     title: "Inside the CPU: Pipelines & Branch Prediction",
     short: "Pipeline & Branches",
@@ -2017,7 +2775,7 @@ func sum(b []byte) (s uint64) {
   {
     id: "m12",
     code: "H3",
-    num: 15,
+    num: 16,
     part: "part-4",
     title: "The Scheduler Up Close: G-M-P, Netpoller & Preemption",
     short: "Go Scheduler",
@@ -2152,7 +2910,7 @@ go func() { for { /* pure CPU, no function calls */ } }()
   {
     id: "m13",
     code: "C1",
-    num: 9,
+    num: 10,
     part: "part-3",
     title: "Atomics vs Mutexes vs Channels",
     short: "Synchronization",
@@ -2298,7 +3056,7 @@ close(done)`,
   {
     id: "m14",
     code: "D2",
-    num: 18,
+    num: 19,
     part: "part-5",
     title: "Observability: Logs, Metrics & Traces",
     short: "Observability",
@@ -2436,7 +3194,7 @@ func handle(w http.ResponseWriter, r *http.Request) {
   {
     id: "m15",
     code: "D3",
-    num: 19,
+    num: 20,
     part: "part-5",
     title: "Resilience: Timeouts, Retries, Circuit Breakers & Load Shedding",
     short: "Resilience",
@@ -2583,7 +3341,7 @@ default:                                 // queue full → shed, don't grow
   {
     id: "m16",
     code: "D4",
-    num: 20,
+    num: 21,
     part: "part-5",
     title: "Redis: Caching, Rate Limiting & Distributed Locks",
     short: "Redis",
@@ -2752,6 +3510,21 @@ if _, err = tx.Exec(ctx, creditSQL, to, cents); err != nil {
 return tx.Commit(ctx) // both legs land atomically`,
     lang: "go",
   }],
+  m17: [{
+    title: "Partial indexes for operational queues",
+    body: "Not every index should cover the whole table. The outbox worker only scans unpublished rows, so a partial index keeps the hot working set small while old published events stay out of the btree.",
+    code: `CREATE INDEX CONCURRENTLY outbox_unpublished_idx
+    ON outbox_events (id)
+    WHERE published_at IS NULL;
+
+SELECT id, transfer_id, kind
+  FROM outbox_events
+ WHERE published_at IS NULL
+ ORDER BY id
+ LIMIT 100
+ FOR UPDATE SKIP LOCKED;`,
+    lang: "sql",
+  }],
   m6: [{
     title: "Turn on the hybrid group in crypto/tls",
     body: "Post-quantum protection only applies if the TLS 1.3 handshake actually negotiates a hybrid group. Recent Go enables X25519MLKEM768 by default; pin it explicitly via CurvePreferences so both peers prefer it, with classical X25519 as a fallback.",
@@ -2878,6 +3651,14 @@ const GLOSSARY = {
     ["SQLSTATE", "Postgres's 5-character error code (e.g. 23505 = unique_violation)."],
     ["40001", "serialization_failure - a concurrency conflict that should be retried."],
   ],
+  m17: [
+    ["MVCC", "Postgres's snapshot model: writers create new row versions while readers keep seeing an older consistent view."],
+    ["Bloat", "Dead row versions that vacuum has not yet reclaimed, increasing table and index size."],
+    ["EXPLAIN ANALYZE BUFFERS", "Runs the query and shows actual timing plus shared/local/temp buffer usage."],
+    ["Composite index", "A multi-column index ordered to match a query's filters, sorting, and pagination."],
+    ["CREATE INDEX CONCURRENTLY", "Builds an index without blocking normal reads/writes, at the cost of more time and restrictions."],
+    ["Outbox pattern", "Write the business row and a publishable event in the same transaction, then relay asynchronously."],
+  ],
   m6: [
     ["gRPC", "An RPC framework over HTTP/2 that carries Protobuf messages."],
     ["Protobuf", "Compact, schema-defined binary serialization."],
@@ -2892,6 +3673,7 @@ const GLOSSARY = {
     ["Goroutine dump", "A snapshot of every goroutine's current stack."],
     ["p99 latency", "The latency 99% of requests beat - the slow tail."],
     ["Goroutine leak", "A goroutine stuck forever and never reclaimed."],
+    ["Wait reason", "The parked-state label in a goroutine dump (chan receive, select, IO wait) plus how long it has waited."],
   ],
   m8: [
     ["SIMD", "One instruction operating on a vector of values at once."],
@@ -3109,6 +3891,24 @@ const ASSIGNMENTS = {
     { type: "blank", prompt: "Match a typed *pgconn.PgError without the var-and-assert dance (Go 1.26). Fill the blank:",
       code: `if pgErr, ok := errors.____[*pgconn.PgError](err); ok {`, accept: ["AsType"],
       explain: "errors.AsType[*pgconn.PgError](err) is a generic, allocation-free errors.As." },
+  ],
+  m17: [
+    { type: "mcq", prompt: "On a hot table, the safer default for adding an index used by production traffic is:",
+      options: ["CREATE INDEX CONCURRENTLY after validating the query shape", "CREATE INDEX inside a long transaction during peak traffic", "add three unrelated single-column indexes", "skip EXPLAIN because indexes are always used"], answer: 0,
+      explain: "CONCURRENTLY avoids blocking normal writes while the index is built. You still validate the query shape and confirm with EXPLAIN." },
+    { type: "mcq", prompt: "For `WHERE account_id = $1 ORDER BY posted_at DESC LIMIT 50`, the best matching index is usually:",
+      options: ["(posted_at)", "(account_id, posted_at DESC)", "(amount_cents)", "(direction, amount_cents)"], answer: 1,
+      explain: "The equality filter comes first, then the sort/pagination key. That lets Postgres jump to one account's recent rows in index order." },
+    { type: "blank", prompt: "Fill the Postgres option that shows real execution plus buffer activity:",
+      code: `EXPLAIN (ANALYZE, ____) SELECT ...`, accept: ["BUFFERS"],
+      explain: "BUFFERS shows how much work came from shared/local/temp buffers, which is often the difference between a good plan and a hidden IO problem." },
+    { type: "code", prompt: "Add SQL that makes transfer retries idempotent with a unique key.",
+      starter: `CREATE TABLE transfers (\n    id uuid PRIMARY KEY,\n    idempotency_key text NOT NULL\n);\n`,
+      checks: [{ has: "UNIQUE", msg: "Make the idempotency key unique" }, { has: "idempotency_key", msg: "Use the idempotency_key column" }],
+      explain: "A UNIQUE constraint on idempotency_key lets a retry return the original result instead of creating a duplicate transfer." },
+    { type: "mcq", prompt: "A long session left `idle in transaction` is dangerous mainly because it:",
+      options: ["pins old row versions and can prevent vacuum cleanup", "makes SELECT impossible", "turns off WAL", "automatically drops indexes"], answer: 0,
+      explain: "MVCC snapshots held by old transactions can keep dead tuples visible, so vacuum cannot reclaim them and bloat grows." },
   ],
   m6: [
     { type: "mcq", prompt: "'Harvest now, decrypt later' attacks are defeated by:",
