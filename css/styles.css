@@ -991,6 +991,49 @@ section, .module > * { animation: rise .55s var(--ease-pop) both; }
   .foot-links { justify-content: center; flex-wrap: wrap; }
 }
 
+/* ------------------------------------------------- micro-interactions */
+/* route transition: #main content slides up as a page enters */
+.page-enter { animation: page-in .4s var(--ease) both; }
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(12px); }
+}
+
+/* scroll reveal: elements fade-rise the first time they enter the viewport.
+   .reveal is only ever added when IntersectionObserver exists (see app.js),
+   so content can never be stranded invisible. */
+.reveal { opacity: 0; transform: translateY(16px);
+  transition: opacity .55s var(--ease), transform .55s var(--ease); }
+.reveal.revealed { opacity: 1; transform: none; }
+
+/* module-completion celebration */
+.celebrate-overlay {
+  position: fixed; inset: 0; z-index: 90; pointer-events: none;
+  display: grid; place-items: center;
+}
+.celebrate-overlay canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.celebrate-card {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 26px 40px 22px; border-radius: 18px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  border: 1px solid var(--border); box-shadow: var(--shadow);
+  backdrop-filter: blur(6px);
+  animation: celebrate-pop .55s var(--ease-pop) both, celebrate-out .4s var(--ease) 2.6s both;
+}
+.celebrate-card img { width: 168px; height: 168px; animation: celebrate-bounce 1.6s var(--ease) .5s 2; }
+.celebrate-card b { font: 700 20px var(--font-serif); color: var(--text); }
+.celebrate-card span { font-size: 13px; color: var(--text-2); }
+@keyframes celebrate-pop {
+  from { opacity: 0; transform: scale(.55) translateY(40px); }
+}
+@keyframes celebrate-out {
+  to { opacity: 0; transform: translateY(-16px) scale(.92); }
+}
+@keyframes celebrate-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-9px); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: .001ms !important; transition-duration: .05ms !important; }
+  .celebrate-card { animation: celebrate-pop .001ms both; }
 }

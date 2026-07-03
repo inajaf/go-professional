@@ -388,6 +388,15 @@
     `;
     if (window.GOPHER3D) GOPHER3D.mount($("#gopher3d"));
     bindCopyButtons($("#main"));
+    // count-up hero stats and draw the progress ring in from zero
+    $$(".hero-stats b").forEach((b) => countUp(b, parseInt(b.textContent, 10) || 0, String));
+    countUp($(".ring-pct"), Math.round(pct * 100), (v) => v + "%");
+    const rc = $(".ring circle + circle");
+    if (rc && !REDUCED) {
+      const off = rc.getAttribute("stroke-dashoffset");
+      rc.setAttribute("stroke-dashoffset", rc.getAttribute("stroke-dasharray"));
+      requestAnimationFrame(() => requestAnimationFrame(() => rc.setAttribute("stroke-dashoffset", off)));
+    }
     $("#main").scrollTop = 0;
     window.scrollTo(0, 0);
   }
@@ -720,14 +729,18 @@
     $$(".check").forEach((li) => {
       li.addEventListener("click", () => {
         const i = +li.dataset.check, c = checksFor(m);
+        const wasDone = moduleDone(m);
         c[i] = !c[i]; save();
         renderModule(m); renderSidebar();
+        if (!wasDone && moduleDone(m)) celebrate();
       });
     });
     $("#toggle-all").addEventListener("click", () => {
       const c = checksFor(m), all = c.every(Boolean);
+      const wasDone = moduleDone(m);
       state.checks[m.id] = c.map(() => !all); save();
       renderModule(m); renderSidebar();
+      if (!wasDone && moduleDone(m)) celebrate();
     });
     // notes autosave
     const ta = $("#notes"), st = $("#notes-status");
@@ -920,6 +933,105 @@
     const h = location.hash.replace(/^#\/?/, "") || "home";
     return h;
   }
+  /* ------------------------------------------------- micro-interactions */
+  const REDUCED = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function pageEnter() {
+    const m = $("#main");
+    m.classList.remove("page-enter");
+    void m.offsetWidth; // restart the animation on every route change
+    m.classList.add("page-enter");
+  }
+
+  // Fade-rise content the first time it scrolls into view. Classes are
+  // removed again after the transition so they can never fight the
+  // hover/active transforms the revealed elements have of their own.
+  let revealIO = null;
+  function setupReveals() {
+    if (REDUCED || typeof IntersectionObserver === "undefined") return;
+    if (!revealIO) {
+      revealIO = new IntersectionObserver((entries) => {
+        entries.forEach((en) => {
+          if (!en.isIntersecting) return;
+          revealIO.unobserve(en.target);
+          en.target.classList.add("revealed");
+          setTimeout(() => {
+            en.target.classList.remove("reveal", "revealed");
+            en.target.style.transitionDelay = "";
+          }, 700);
+        });
+      }, { threshold: 0.08 });
+    }
+    $$(".part-block, .capstone-banner, .verify, section.viz, .concept, .we-step, .lesson-sec, .assign").forEach((el, i) => {
+      el.classList.add("reveal");
+      el.style.transitionDelay = (i % 4) * 50 + "ms";
+      revealIO.observe(el);
+    });
+  }
+
+  function countUp(el, target, fmt, dur = 900) {
+    if (!el) return;
+    if (REDUCED) { el.textContent = fmt(target); return; }
+    const t0 = performance.now();
+    (function tick(now) {
+      const p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = fmt(Math.round(target * e));
+      if (p < 1 && el.isConnected) requestAnimationFrame(tick);
+    })(t0);
+  }
+
+  function confettiBurst(canvas) {
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = window.innerWidth, h = window.innerHeight;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    ctx.scale(dpr, dpr);
+    const colors = ["#00add8", "#a98bff", "#3ad29f", "#f5b14c", "#ec4a7d"];
+    const parts = Array.from({ length: 140 }, () => ({
+      x: w / 2 + (Math.random() - 0.5) * 90,
+      y: h / 2 + (Math.random() - 0.5) * 40,
+      vx: (Math.random() - 0.5) * 13,
+      vy: -5 - Math.random() * 9,
+      s: 5 + Math.random() * 6,
+      r: Math.random() * Math.PI,
+      vr: (Math.random() - 0.5) * 0.35,
+      c: colors[(Math.random() * colors.length) | 0],
+    }));
+    const t0 = performance.now();
+    (function tick(now) {
+      const t = (now - t0) / 1000;
+      if (t > 2.6 || !canvas.isConnected) return;
+      ctx.clearRect(0, 0, w, h);
+      ctx.globalAlpha = Math.max(0, 1 - t / 2.4);
+      parts.forEach((p) => {
+        p.x += p.vx * 0.6; p.y += p.vy * 0.6; p.vy += 0.24; p.r += p.vr;
+        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r);
+        ctx.fillStyle = p.c;
+        ctx.fillRect(-p.s / 2, -p.s / 2, p.s, p.s * 0.62);
+        ctx.restore();
+      });
+      requestAnimationFrame(tick);
+    })(t0);
+  }
+
+  let celebrating = false;
+  function celebrate() {
+    if (celebrating) return;
+    celebrating = true;
+    const ov = document.createElement("div");
+    ov.className = "celebrate-overlay";
+    ov.setAttribute("aria-hidden", "true");
+    ov.innerHTML = `<canvas></canvas>
+      <div class="celebrate-card">
+        ${window.GOPHER_STICKER_URI ? `<img src="${window.GOPHER_STICKER_URI}" alt="" />` : ""}
+        <b>${esc(UI.moduleComplete)}</b><span>${esc(UI.moduleCompleteSub)}</span>
+      </div>`;
+    document.body.appendChild(ov);
+    if (!REDUCED) confettiBurst(ov.querySelector("canvas"));
+    setTimeout(() => { ov.remove(); celebrating = false; }, 3100);
+  }
+
   function route() {
     const r = currentRoute();
     cleanupAnims();
@@ -930,6 +1042,8 @@
       renderModule(moduleById[r]);
     }
     renderSidebar();
+    pageEnter();
+    setupReveals();
     // close mobile nav
     document.body.classList.remove("nav-open");
   }
