@@ -1,7 +1,7 @@
 /* =====================================================================
    INTERACTIVE ANIMATIONS  (canvas 2D, no dependencies)
    A deterministic, scrubbable timeline engine with explicit STEPS, plus
-   28 visualizations. Each animation renders its full state as a pure
+   31 visualizations. Each animation renders its full state as a pure
    function of time t, so play / pause / step / scrub / step-jump all work.
    Each def declares `phases: [{t, title, desc}]` so the UI can show a
    numbered, narrated walkthrough synced to the visual.
@@ -31,7 +31,7 @@
 
   /* --------------------------------------------------- i18n (canvas text)
      Every label/badge/caption drawn on the canvas is looked up here by its
-     exact English string when the page language is Russian - the 20
+     exact English string when the page language is Russian - the
      animations' draw() functions never change, they just keep calling
      u.text(ctx, "some string", ...) and the translation happens centrally.
      Dynamic (interpolated) strings are translated at their call sites
@@ -65,6 +65,103 @@
     "atomic vs mutex vs channel · same correctness, different shape": "atomic против mutex против channel · та же корректность, другая форма",
     "the three pillars · one request, end to end": "три столпа · один запрос, от начала до конца",
     "circuit breaker · fail fast, recover automatically": "circuit breaker · быстрый отказ, автоматическое восстановление",
+    "SRE · SLO / error budget / burn rate": "SRE · SLO / error budget / burn rate",
+    "SRE · telemetry correlation stack": "SRE · telemetry correlation stack",
+    "SRE · incident response and toil loop": "SRE · incident response и toil loop",
+    "Pick a user-visible SLI": "Шаг 1: выберите SLI по действию пользователя",
+    "Start from user experience: successful transfers divided by total transfer attempts.": "Начните с простого вопроса: сколько переводов успешно завершилось из всех попыток.",
+    "Infrastructure metrics explain causes; SLIs define whether users are hurt.": "CPU и память объяснят причину позже; SLI сначала показывает, страдают ли пользователи.",
+    "Set the SLO target": "Шаг 2: задайте цель SLO",
+    "A 99.9% SLO leaves 0.1% of requests as the error budget.": "SLO 99.9% означает, что 0.1% запросов можно потерять без нарушения цели.",
+    "The target turns reliability into a release and alerting control, not a vibe.": "Теперь надёжность стала числом, а не ощущением.",
+    "Spend the budget": "Шаг 3: смотрим, как тратится budget",
+    "Small bursts are allowed while the long-window budget is healthy.": "Маленькие всплески ошибок допустимы, если общий budget ещё здоров.",
+    "An error budget lets teams move fast without pretending production must be perfect.": "Error budget разрешает двигаться быстро, но показывает границу риска.",
+    "Alert on burn rate": "Шаг 4: alert строим по burn rate",
+    "A fast burn pages now; a slow burn opens a ticket and closer review.": "Быстрое сгорание будит on-call, медленное создаёт ticket и требует анализа.",
+    "Burn-rate alerting maps urgency to user-visible reliability risk.": "Так срочность alert связана с реальным риском для пользователя.",
+    "Use budget for release decisions": "Шаг 5: используем budget для решения о релизах",
+    "Healthy budget allows change; exhausted budget shifts work toward reliability.": "Если budget здоров, деплоим осторожно; если исчерпан, сначала чиним надёжность.",
+    "That is the SRE bargain: product velocity is earned by staying inside the SLO.": "Так SRE балансирует скорость разработки и надёжность.",
+    "Instrument once with OpenTelemetry": "Шаг 1: добавляем OpenTelemetry в приложение",
+    "The SDK and collector create one telemetry contract at the application boundary.": "SDK и collector дают единый способ отправлять metrics, traces и logs.",
+    "Instrumentation is not the backend; it is how the app describes itself consistently.": "OpenTelemetry не заменяет backend, а одинаково описывает работу приложения.",
+    "Metrics go to Prometheus": "Шаг 2: metrics идут в Prometheus",
+    "Prometheus scrapes RED/USE metrics and evaluates SLO burn alerts.": "Prometheus собирает метрики и считает burn-rate alerts.",
+    "Metrics are the paging signal because they are cheap, aggregated and fast to query.": "Метрики удобны для page, потому что быстро показывают масштаб проблемы.",
+    "Thanos keeps long-retention metrics": "Шаг 3: Thanos хранит длинную историю",
+    "Thanos lets you query Prometheus data across clusters and longer windows.": "Thanos помогает смотреть данные Prometheus по кластерам и длинным окнам.",
+    "Long windows catch slow burns that short dashboards miss.": "Длинные окна ловят медленное сгорание budget.",
+    "Traces go to Tempo": "Шаг 4: traces идут в Tempo",
+    "A trace explains which hop made one request slow or wrong.": "Trace показывает, на каком шаге конкретный request стал медленным или ошибочным.",
+    "Traces are for localization after the metric told you users are hurt.": "Сначала metric показывает impact, затем trace локализует место проблемы.",
+    "Logs go to Loki": "Шаг 5: logs идут в Loki",
+    "Logs carry the concrete event, keyed by bounded labels and trace_id.": "Logs объясняют конкретное событие и ищутся по trace_id.",
+    "Logs are expensive, so make them searchable and tied to the same request identity.": "Logs дорогие, поэтому они должны быть searchable и связаны с request.",
+    "Grafana correlates by trace_id": "Шаг 6: Grafana связывает всё по trace_id",
+    "One incident workflow jumps metric -> trace -> logs without manual guessing.": "Расследование идёт прямо: metric -> trace -> logs.",
+    "Correlation is what reduces mean time to understand.": "Correlation сокращает время до понимания причины.",
+    "Alert fires from SLO burn": "Шаг 1: alert сработал из-за SLO burn",
+    "The page starts from user impact, not from a random noisy symptom.": "Page начинается с user impact, а не со случайного шумного симптома.",
+    "Good alerts already contain the reason this wake-up is worth it.": "Хороший alert сразу объясняет, почему он стоит пробуждения.",
+    "Triage assigns incident roles": "Шаг 2: triage назначает роли",
+    "Incident commander, operations lead, communications and scribe separate the work.": "IC, operations, communications и scribe делят работу между собой.",
+    "Roles prevent the on-call engineer from being debugger, manager and reporter at once.": "Роли не дают одному инженеру делать всё сразу.",
+    "Mitigate before perfect root cause": "Шаг 3: сначала mitigation, потом root cause",
+    "Stop the bleeding first: rollback, shed load, fail over, disable a bad path.": "Сначала уменьшаем impact: rollback, shed load, failover или отключение плохого пути.",
+    "RCA is valuable after users are safe; during impact, mitigation wins.": "RCA полезен после стабилизации; во время impact важнее mitigation.",
+    "Write blameless RCA": "Шаг 4: пишем blameless RCA",
+    "Record impact, timeline, detection gaps and contributing factors.": "Фиксируем impact, timeline, detection gaps и contributing factors.",
+    "Blameless does not mean vague; it means precise without personal blame.": "Blameless не значит расплывчато; это точность без поиска виноватого.",
+    "Automate recurring toil": "Шаг 5: автоматизируем повторяющийся toil",
+    "Turn repeat manual steps into runbooks, scripts or guarded controllers.": "Повторяющиеся ручные шаги превращаем в runbook, script или безопасный controller.",
+    "The incident loop closes only when action items reduce the next incident.": "Цикл закрыт только тогда, когда action items уменьшают следующий incident.",
+    "user requests": "запросы пользователей",
+    "SLI = success / total": "SLI = success / total",
+    "SLO 99.9%": "SLO 99.9%",
+    "budget 0.1%": "budget 0.1%",
+    "slow burn": "медленное сгорание",
+    "fast burn": "быстрое сгорание",
+    "ticket": "ticket",
+    "page now": "page now",
+    "freeze risky releases": "заморозить рискованные релизы",
+    "ship carefully": "деплоить осторожно",
+    "OpenTelemetry SDK": "OpenTelemetry SDK",
+    "Collector": "Collector",
+    "Prometheus": "Prometheus",
+    "Thanos": "Thanos",
+    "Tempo": "Tempo",
+    "Loki": "Loki",
+    "Grafana": "Grafana",
+    "metrics": "метрики",
+    "traces": "трассы",
+    "logs": "логи",
+    "trace_id": "trace_id",
+    "alert": "alert",
+    "triage": "triage",
+    "mitigate": "mitigation",
+    "RCA": "RCA",
+    "action items": "action items",
+    "automation": "автоматизация",
+    "runbook": "runbook",
+    "less manual work": "меньше ручной работы",
+    "users hurt?": "пользователи страдают?",
+    "error budget decides": "error budget решает",
+    "export": "export",
+    "span": "span",
+    "30d / 90d / multi-cluster": "30d / 90d / multi-cluster",
+    "service=ledger": "service=ledger",
+    "route=/transfer/{id}": "route=/transfer/{id}",
+    "SLO burn": "SLO burn",
+    "IC": "IC",
+    "ops": "ops",
+    "comms": "comms",
+    "scribe": "scribe",
+    "impact": "impact",
+    "stable": "стабильно",
+    "timeline": "timeline",
+    "detection gap": "gap обнаружения",
+    "contributing factors": "contributing factors",
     // gc-mark-sweep
     "root": "корень",
     "white = unreached": "белый = не достигнут",
@@ -891,6 +988,131 @@
     "Atomic SETNX: five callers race, exactly one wins": "Атомарный SETNX: пять вызывающих сторон соревнуются, побеждает ровно одна",
     "Five clients call SET … NX on the same lock key at the same instant. Because Redis executes one command at a time, exactly one of them creates the key and gets the lock - the other four fail immediately.": "Пять клиентов вызывают SET … NX на один и тот же ключ блокировки в один и тот же момент. Поскольку Redis выполняет по одной команде за раз, ровно один из них создаёт ключ и получает блокировку - остальные четыре немедленно проваливаются.",
     "No extra coordination code was added anywhere. This atomicity is a free property of how Redis executes commands - it's what makes one Redis instance a correct distributed lock.": "Никакой дополнительный код координации не был добавлен нигде. Эта атомарность - бесплатное свойство того, как Redis выполняет команды - именно оно делает один инстанс Redis корректной распределённой блокировкой.",
+
+    // bfs-wave
+    "graph traversal · breadth-first search": "обход графа · поиск в ширину",
+    "A graph and a question": "Граф и вопрос",
+    "Find the shortest route from A to T. Edges are the only roads; nothing is weighted - every hop costs 1.": "Найдите кратчайший маршрут от A до T. Рёбра - единственные дороги; весов нет, каждый переход стоит 1.",
+    "'Shortest' in an unweighted graph is the keyword that should trigger BFS in your head - no other algorithm needed.": "«Кратчайший» в невзвешенном графе - ключевое слово, которое должно включать BFS у вас в голове: другой алгоритм не нужен.",
+    "start: A": "старт: A",
+    "target: T": "цель: T",
+    "Enqueue the start": "Кладём старт в очередь",
+    "BFS keeps one FIFO queue. Seed it with the start node and mark A visited - the wave begins as a single drop.": "BFS держит одну FIFO-очередь. Положите в неё стартовый узел и пометьте A посещённым - волна начинается с одной капли.",
+    "The queue IS the algorithm: everything else is a loop around it.": "Очередь И ЕСТЬ алгоритм: всё остальное - цикл вокруг неё.",
+    "queue: ": "очередь: ",
+    "(empty)": "(пусто)",
+    "Level 1: dequeue, visit, enqueue": "Уровень 1: достать, посетить, положить",
+    "A leaves the queue; its neighbors B and C enter it. Everything one hop from the start is now discovered.": "A покидает очередь; её соседи B и C входят в неё. Всё, что в одном переходе от старта, теперь открыто.",
+    "FIFO order guarantees the whole of level 1 is processed before anything from level 2 - that is the invariant everything rests on.": "Порядок FIFO гарантирует: весь уровень 1 обработан раньше, чем что-либо с уровня 2 - на этом инварианте держится всё.",
+    "Level 2: the wave spreads": "Уровень 2: волна расходится",
+    "B and C are processed in turn; D, E and F join the queue. The frontier is always a clean ring around what's been seen.": "B и C обрабатываются по очереди; D, E и F входят в очередь. Фронт - всегда ровное кольцо вокруг уже увиденного.",
+    "Watch the shape: BFS never has a 'deep finger' into the graph - the discovered region grows evenly, like a ripple.": "Следите за формой: у BFS не бывает «глубокого пальца» в граф - открытая область растёт равномерно, как круги по воде.",
+    "Visited set: seen once, never again": "Множество посещённых: один раз и навсегда",
+    "C also points at B - but B is already visited, so the edge is skipped. Every node enters the queue at most once.": "C тоже указывает на B - но B уже посещена, и ребро пропускается. Каждый узел попадает в очередь не более одного раза.",
+    "Without this check the first cycle would loop forever. With it, total work is O(V+E): each node and each edge touched once.": "Без этой проверки первый же цикл зациклил бы обход навсегда. С ней вся работа - O(V+E): каждый узел и каждое ребро тронуты по разу.",
+    "already visited - skip": "уже посещена - пропуск",
+    "Target reached = shortest path": "Цель достигнута = кратчайший путь",
+    "T is discovered while processing level 2 - via E. Walking parent links back gives A → B → E → T: three hops, provably minimal.": "T открыта при обработке уровня 2 - через E. Пройдя по родительским ссылкам назад, получаем A → B → E → T: три перехода, доказуемо минимум.",
+    "No search or comparison happened: BFS reached T first via a shortest path BY CONSTRUCTION, because all shorter levels were exhausted before.": "Никакого поиска и сравнения не было: BFS дошёл до T кратчайшим путём ПО ПОСТРОЕНИЮ, потому что все более короткие уровни были исчерпаны раньше.",
+    "3 hops - minimal": "3 перехода - минимум",
+    "Swap the queue for a stack: DFS": "Замените очередь стеком: DFS",
+    "Same loop, LIFO container: the search dives A → B → D to the bottom before ever looking at C. Great for 'does a path exist' - useless for 'shortest'.": "Тот же цикл, LIFO-контейнер: поиск ныряет A → B → D до дна, даже не взглянув на C. Отлично для «существует ли путь» - бесполезно для «кратчайшего».",
+    "One data structure choice flips the algorithm's personality. Interviews love asking why DFS can't answer shortest-path - now you can show it.": "Один выбор структуры данных меняет характер алгоритма. На интервью любят спрашивать, почему DFS не отвечает на «кратчайший путь» - теперь вы можете это показать.",
+    "stack: ": "стек: ",
+    "deep, not wide": "вглубь, а не вширь",
+
+    // lru-cache
+    "LRU cache · map + doubly-linked list": "LRU-кэш · map + двусвязный список",
+    "Two structures, welded": "Две структуры, сваренные вместе",
+    "A map gives O(1) 'where is key K'; a doubly-linked list keeps recency order. The weld: map values are pointers INTO the list.": "Map отвечает за O(1) «где ключ K»; двусвязный список хранит порядок свежести. Сварной шов: значения map - указатели ВНУТРЬ списка.",
+    "Neither structure alone can do this job - the map can't order, the list can't look up. Interviews assign LRU precisely to test this composition.": "Ни одна структура в одиночку не справится: map не умеет упорядочивать, список - искать. LRU дают на интервью именно ради проверки этой композиции.",
+    "capacity: 3 · full": "ёмкость: 3 · полон",
+    "most recent": "самый свежий",
+    "least recent": "самый старый",
+    "Sentinels: no special cases": "Сентинелы: без особых случаев",
+    "head and tail are permanent dummy nodes. Every real node always has a live prev and next - empty and single-node lists need no extra code.": "head и tail - постоянные фиктивные узлы. У каждого настоящего узла всегда есть живые prev и next - пустой список и список из одного узла не требуют отдельного кода.",
+    "The classic interview stumble is nil-checking the list edges. Sentinels delete that whole class of bugs before it exists.": "Классический затык на интервью - nil-проверки на краях списка. Сентинелы удаляют весь этот класс багов ещё до его появления.",
+    "never nil": "никогда не nil",
+    "Get(7): jump, unlink, push front": "Get(7): прыжок, unlink, в начало",
+    "The map lands directly on 7's node - no scan. unlink cuts it out; pushFront re-inserts it after head. 7 is now the most recent.": "Map приземляется прямо на узел 7 - без сканирования. unlink вырезает его; pushFront вставляет сразу после head. Теперь 7 - самый свежий.",
+    "Get is a WRITE to the recency order, not just a read - that reordering is what makes the cache 'least recently USED', not 'least recently ADDED'.": "Get - это ЗАПИСЬ в порядок свежести, а не просто чтение: именно эта перестановка делает кэш «least recently USED», а не «least recently ADDED».",
+    "1 map hop + 4 pointer writes": "1 прыжок по map + 4 записи указателей",
+    "Put(4) on a full cache: evict the tail": "Put(4) в полный кэш: вытесняем хвост",
+    "Capacity is 3 and 4 is a new key - someone must go. The victim needs no search: it is always tail.prev, here 9. Unlink it, delete its map entry, push 4 to the front.": "Ёмкость 3, а 4 - новый ключ: кто-то должен уйти. Жертву не нужно искать - это всегда tail.prev, здесь 9. Вырезаем её, удаляем её запись из map, кладём 4 в начало.",
+    "Eviction is O(1) only because the list keeps the victim parked at the tail. A map alone would need an O(n) scan for the oldest entry.": "Вытеснение - O(1) только потому, что список держит жертву припаркованной у хвоста. Одному map понадобилось бы O(n) сканирование в поисках самой старой записи.",
+    "evict 9: unlink + delete": "вытесняем 9: unlink + delete",
+    "4 is most recent": "4 - самый свежий",
+    "Put(2, new value): update in place": "Put(2, новое значение): обновление на месте",
+    "2 already exists: overwrite its value inside the node, move it to the front. No eviction - the size did not change.": "2 уже существует: перезаписываем значение внутри узла, двигаем его в начало. Без вытеснения - размер не изменился.",
+    "Forgetting this branch double-inserts the key and silently corrupts the size - the second most common LRU bug after broken pointer order.": "Забытая ветка вставляет ключ дважды и тихо ломает размер - второй по частоте баг LRU после перепутанного порядка указателей.",
+    "Count the work: O(1), always": "Считаем работу: O(1), всегда",
+    "Every operation is one map access plus a constant number of pointer writes - no loops, no scans, regardless of cache size.": "Каждая операция - одно обращение к map плюс константное число записей указателей: ни циклов, ни сканирований, при любом размере кэша.",
+    "When the interviewer asks 'what's the complexity?', the answer is provable by counting the moves you just watched: nothing depends on n.": "Когда интервьюер спросит «какая сложность?», ответ доказывается подсчётом только что увиденных ходов: ничто не зависит от n.",
+    "Get: map + 4 writes": "Get: map + 4 записи",
+    "Put: map + ≤6 writes": "Put: map + ≤6 записей",
+    "evict: 2 writes + delete": "вытеснение: 2 записи + delete",
+
+    // hashmap-internals
+    "map internals · buckets, tophash, growth": "внутренности map · бакеты, tophash, рост",
+    "One hash, two jobs": "Один хеш, две работы",
+    "hash(\"user:42\") yields 64 bits. Go splits the duty: LOW bits will choose the bucket, the top 8 bits become a one-byte fingerprint (tophash).": "hash(\"user:42\") даёт 64 бита. Go делит обязанности: МЛАДШИЕ биты выберут бакет, старшие 8 бит становятся однобайтовым отпечатком (tophash).",
+    "Reusing one hash for both routing and fingerprinting is why map lookups stay cheap - no second hash function, no full key compare until the last moment.": "Повторное использование одного хеша и для маршрутизации, и для отпечатка - причина дешевизны поиска в map: ни второй хеш-функции, ни полного сравнения ключей до последнего момента.",
+    "high 8 bits → tophash": "старшие 8 бит → tophash",
+    "low bits → bucket": "младшие биты → бакет",
+    "bucket ": "бакет ",
+    "8 slots + tophash": "8 слотов + tophash",
+    "Low bits pick the bucket": "Младшие биты выбирают бакет",
+    "With 4 buckets, 'low bits' means hash & 3 - a single AND instruction. 0b...01 → bucket 1.": "При 4 бакетах «младшие биты» - это hash & 3, одна инструкция AND. 0b...01 → бакет 1.",
+    "This is why the bucket count is always a power of two: modulo becomes a bit-mask, one cycle instead of a division.": "Вот почему число бакетов - всегда степень двойки: взятие остатка превращается в битовую маску, один такт вместо деления.",
+    "tophash: scan 8 bytes, not 8 keys": "tophash: сканируем 8 байт, а не 8 ключей",
+    "Inside the bucket, the lookup sweeps eight one-byte tophash stamps first - a single cache line. Full key comparison happens only on a stamp match.": "Внутри бакета поиск сначала пробегает восемь однобайтовых штампов tophash - одна кэш-линия. Полное сравнение ключа происходит только при совпадении штампа.",
+    "String comparison is expensive; byte comparison is nearly free. The tophash array rejects 7 wrong slots without ever touching their keys.": "Сравнение строк дорого; сравнение байтов почти бесплатно. Массив tophash отбрасывает 7 неверных слотов, ни разу не тронув их ключи.",
+    "tophash b6 matches → compare full key": "tophash b6 совпал → сравниваем полный ключ",
+    "Collisions land in the same bucket": "Коллизии попадают в тот же бакет",
+    "A different key with the same low bits joins bucket 1 in the next free slot. Eight collisions later, an overflow bucket chains on.": "Другой ключ с теми же младшими битами занимает следующий свободный слот бакета 1. Через восемь коллизий цепляется overflow-бакет.",
+    "Collisions are normal operation, not an error - the design just keeps them within one cache line for as long as possible.": "Коллизии - штатная работа, а не ошибка: дизайн просто держит их в пределах одной кэш-линии как можно дольше.",
+    'hash("user:97") → also bucket 1': 'hash("user:97") → тоже бакет 1',
+    "Growth: double and evacuate": "Рост: удвоить и эвакуировать",
+    "Past ~6.5 entries per bucket on average, the table doubles - and entries drift to their new homes INCREMENTALLY, a little on each write, not in one big pause.": "После ~6.5 записей на бакет в среднем таблица удваивается - и записи перетекают в новые дома ИНКРЕМЕНТАЛЬНО, понемногу на каждой записи, а не одной большой паузой.",
+    "Incremental evacuation spreads the rehash cost across many operations - the same amortization idea as slice growth, applied to a whole table.": "Инкрементальная эвакуация размазывает стоимость рехеша по многим операциям - та же идея амортизации, что и в росте слайса, применённая к целой таблице.",
+    "4 → 8 buckets · one more low bit": "4 → 8 бакетов · ещё один младший бит",
+    "Why iteration order is random": "Почему порядок итерации случаен",
+    "Range starts at a RANDOM bucket and offset on every iteration - deliberately, so no program can accidentally depend on an order that growth would change anyway.": "Range начинает со СЛУЧАЙНОГО бакета и смещения при каждой итерации - намеренно, чтобы ни одна программа случайно не зависела от порядка, который рост всё равно изменил бы.",
+    "This is a favorite interview probe: it checks whether you know maps well enough to never sort-by-iterating. Need order? Collect keys and sort them.": "Любимая проверка на интервью: знаете ли вы map достаточно, чтобы никогда не «сортировать итерацией». Нужен порядок? Соберите ключи и отсортируйте их.",
+    "range start: random, every time": "старт range: случайный, каждый раз",
+
+    // slice-heap
+    "slices & heaps · memory layout as an algorithm": "слайсы и кучи · раскладка памяти как алгоритм",
+    "A slice is three words": "Слайс - это три слова",
+    "pointer + len + cap, pointing into a backing array. Copying a slice copies these three words - never the elements.": "Указатель + len + cap, смотрящие в базовый массив. Копирование слайса копирует эти три слова - и никогда элементы.",
+    "Every slice interview question unwinds from this picture: cheap passing, shared mutation, and the growth trap all live in the header.": "Каждый вопрос о слайсах на интервью разматывается из этой картинки: дешёвая передача, общая мутация и ловушка роста - всё живёт в заголовке.",
+    "backing array": "базовый массив",
+    "append with room: just write": "append с запасом: просто запись",
+    "len 3, cap 5 - append(s, 7) writes into the existing array and bumps len. No allocation, nothing moves.": "len 3, cap 5 - append(s, 7) пишет в существующий массив и увеличивает len. Без аллокаций, ничего не переезжает.",
+    "Within capacity, append is a single store - this is the fast path make([]T, 0, n) buys you when n is known.": "В пределах ёмкости append - одна запись в память; именно этот быстрый путь покупает make([]T, 0, n), когда n известно заранее.",
+    "append past cap: reallocate and copy": "append за пределом cap: новая память и копия",
+    "cap exhausted → allocate a bigger array (double, then ~1.25× for large slices), copy every element, point the NEW slice at it. The old array is abandoned - but anyone still holding it sees stale data.": "cap исчерпан → выделяется массив побольше (удвоение, затем ~1.25× для больших слайсов), копируется каждый элемент, НОВЫЙ слайс указывает на него. Старый массив брошен - но все, кто его ещё держит, видят устаревшие данные.",
+    "This copy is why append is 'amortized' O(1) - and why two slices that used to share storage silently diverge after one of them grows. The #1 slice interview trap.": "Эта копия - причина, по которой append «амортизированно» O(1), и по которой два слайса, делившие память, тихо расходятся после роста одного из них. Ловушка №1 о слайсах на интервью.",
+    "old (cap 5) - abandoned": "старый (cap 5) - брошен",
+    "new (cap 10)": "новый (cap 10)",
+    "A heap is a slice wearing a tree costume": "Куча - это слайс в костюме дерева",
+    "The same values, two views: slice [1,3,2,9,7] and a complete binary tree. No pointers exist - children of i are 2i+1 and 2i+2, parent is (i-1)/2.": "Одни значения, два взгляда: слайс [1,3,2,9,7] и полное бинарное дерево. Указателей не существует - дети i живут в 2i+1 и 2i+2, родитель в (i-1)/2.",
+    "Storing the tree as index math makes heaps allocation-free and cache-friendly - and means you can write one on a whiteboard in ten lines.": "Хранение дерева как индексной арифметики делает кучу свободной от аллокаций и дружелюбной к кэшу - и означает, что её можно написать на доске за десять строк.",
+    "min-heap: every parent ≤ its children": "min-куча: каждый родитель ≤ своих детей",
+    "Push 0: append, then sift up": "Push 0: append, затем всплытие",
+    "0 lands at index 5 (a leaf), then swaps with its parent while smaller: 0 < 2 → swap with [2], 0 < 1 → swap with the root. Two hops, done.": "0 приземляется в индекс 5 (лист), затем меняется с родителем, пока меньше его: 0 < 2 → обмен с [2], 0 < 1 → обмен с корнем. Два прыжка - готово.",
+    "Sift-up touches one root-to-leaf path - log n swaps worst case, which is the entire cost of insertion.": "Всплытие трогает один путь от листа к корню - log n обменов в худшем случае, и это вся стоимость вставки.",
+    "Pop the min: last to root, sift down": "Pop минимума: последний в корень, погружение",
+    "Take index 0 (always the minimum). Move the LAST element to the root, shrink the slice, and let it sink: swap with the smaller child until both children are bigger.": "Забираем индекс 0 (всегда минимум). Переносим ПОСЛЕДНИЙ элемент в корень, укорачиваем слайс и даём ему тонуть: обмен с меньшим из детей, пока оба ребёнка не станут больше.",
+    "Pop is the other half of every priority queue - 'k largest', 'merge k lists' and heapsort are just push and pop in a loop.": "Pop - вторая половина любой очереди с приоритетами: «k наибольших», «слить k списков» и heapsort - это просто push и pop в цикле.",
+    "popped: 0": "извлечено: 0",
+    "Choosing the structure": "Выбор структуры",
+    "Need lookup by key? Map. Need repeated access to the extreme? Heap. Need order and cheap append? Slice. Most interview problems are one of these three sentences.": "Нужен поиск по ключу? Map. Нужен многократный доступ к экстремуму? Куча. Нужен порядок и дешёвый append? Слайс. Большинство задач интервью - одно из этих трёх предложений.",
+    "Interviewers rarely want exotic structures - they want the right basic one, chosen out loud with its costs. That sentence is the answer.": "Интервьюеры редко ждут экзотических структур - они ждут правильную базовую, выбранную вслух вместе с её стоимостями. Это предложение и есть ответ.",
+    "map: O(1) by key": "map: O(1) по ключу",
+    "heap: O(log n) extreme": "куча: O(log n) экстремум",
+    "slice: O(1) append*": "слайс: O(1) append*",
+    "* amortized - now you can explain the asterisk": "* амортизированно - теперь вы можете объяснить эту звёздочку",
   };
 
   function lang() { return (typeof window !== "undefined" && window.__LANG__) || "en"; }
@@ -4377,6 +4599,759 @@
       duration: 14.6,
       phases: STEPS.map((s) => ({ t: s.t, title: s.title, desc: s.desc, why: s.why })),
       render: stepRender(STEPS, 14.6, "Redis · cache-aside lifecycle & the atomic lock"),
+    });
+  };
+
+  /* =================================================================== */
+  /* M18. SRE OPERATING MODEL                                            */
+  /* =================================================================== */
+  function sreBox(ctx, c, u, x, y, w, h, label, color, opts = {}) {
+    u.fillRR(ctx, x - w / 2, y - h / 2, w, h, 8, opts.fill || "rgba(18,27,46,0.92)", color, opts.lw || 1.6);
+    u.text(ctx, label, x, y + 4, {
+      align: "center",
+      color,
+      size: opts.size || 12,
+      weight: 700,
+      mono: opts.mono !== false,
+      maxWidth: w - 12,
+      minSize: 9,
+    });
+  }
+
+  ANIM["sre-slo-budget"] = (canvas) => {
+    function budgetGauge(ctx, c, u, x, y, w, used) {
+      u.fillRR(ctx, x, y, w, 18, 5, "rgba(42,58,85,0.7)", c.line, 1);
+      const fill = Math.min(w, w * used);
+      const col = used > 1 ? c.bad : used > 0.65 ? c.warn : c.good;
+      u.fillRR(ctx, x, y, fill, 18, 5, col + "88", col, 1);
+      u.text(ctx, "budget 0.1%", x + w / 2, y - 8, { align: "center", color: c.dim, size: 11, mono: true });
+    }
+
+    const STEPS = [
+      {
+        t: 0,
+        title: "Pick a user-visible SLI",
+        desc: "Start from user experience: successful transfers divided by total transfer attempts.",
+        why: "Infrastructure metrics explain causes; SLIs define whether users are hurt.",
+        draw(ctx, p, w, h, c, u) {
+          const y = h * 0.42, left = w * 0.16, mid = w * 0.5, right = w * 0.84;
+          sreBox(ctx, c, u, left, y, 120, 42, "user requests", c.go);
+          sreBox(ctx, c, u, mid, y, 170, 42, "SLI = success / total", c.purple);
+          sreBox(ctx, c, u, right, y, 128, 42, "users hurt?", c.warn);
+          u.flow(ctx, left + 62, y, mid - 88, y, c.go, 2, u.t || 0);
+          u.flow(ctx, mid + 88, y, right - 66, y, c.purple, 2, u.t || 0);
+          const n = 20;
+          for (let i = 0; i < n; i++) {
+            const a = u.clamp((p - i * 0.018) / 0.45, 0, 1);
+            if (a <= 0) continue;
+            const px = u.lerp(left - 42, mid - 18, u.easeInOut(a));
+            const py = y + Math.sin(i * 1.7) * 18;
+            u.dot(ctx, px, py, 3.5, i % 11 === 0 ? c.bad : c.good);
+          }
+        },
+      },
+      {
+        t: 2.2,
+        title: "Set the SLO target",
+        desc: "A 99.9% SLO leaves 0.1% of requests as the error budget.",
+        why: "The target turns reliability into a release and alerting control, not a vibe.",
+        draw(ctx, p, w, h, c, u) {
+          const cx = w / 2, cy = h * 0.44;
+          ctx.save();
+          ctx.lineWidth = 13;
+          ctx.strokeStyle = c.good;
+          ctx.beginPath();
+          ctx.arc(cx, cy, 76, -Math.PI / 2, Math.PI * 1.47);
+          ctx.stroke();
+          ctx.strokeStyle = c.bad;
+          ctx.beginPath();
+          ctx.arc(cx, cy, 76, Math.PI * 1.47, Math.PI * 1.5 + Math.PI * 0.02 * u.clamp(p, 0, 1));
+          ctx.stroke();
+          ctx.restore();
+          u.text(ctx, "SLO 99.9%", cx, cy - 2, { align: "center", color: c.good, size: 20, weight: 800, mono: true });
+          u.text(ctx, "budget 0.1%", cx, cy + 24, { align: "center", color: c.bad, size: 13, weight: 700, mono: true });
+        },
+      },
+      {
+        t: 4.4,
+        title: "Spend the budget",
+        desc: "Small bursts are allowed while the long-window budget is healthy.",
+        why: "An error budget lets teams move fast without pretending production must be perfect.",
+        draw(ctx, p, w, h, c, u) {
+          const x = w * 0.18, y = h * 0.42, bw = w * 0.64;
+          budgetGauge(ctx, c, u, x, y, bw, u.lerp(0.18, 0.62, u.easeInOut(p)));
+          u.text(ctx, "ship carefully", x + bw * 0.32, y + 48, { align: "center", color: c.good, size: 13, weight: 700 });
+          u.text(ctx, "slow burn", x + bw * 0.67, y + 48, { align: "center", color: c.warn, size: 13, weight: 700 });
+          u.dot(ctx, x + bw * u.lerp(0.18, 0.62, u.easeInOut(p)), y + 9, 7, c.warn, "rgba(245,177,76,.45)");
+        },
+      },
+      {
+        t: 6.6,
+        title: "Alert on burn rate",
+        desc: "A fast burn pages now; a slow burn opens a ticket and closer review.",
+        why: "Burn-rate alerting maps urgency to user-visible reliability risk.",
+        draw(ctx, p, w, h, c, u) {
+          const x = w * 0.17, y = h * 0.38, bw = w * 0.66;
+          budgetGauge(ctx, c, u, x, y, bw, u.lerp(0.55, 1.22, u.easeInOut(p)));
+          sreBox(ctx, c, u, w * 0.34, y + 78, 110, 36, "ticket", c.warn, { fill: "rgba(245,177,76,.1)" });
+          sreBox(ctx, c, u, w * 0.66, y + 78, 126, 36, "page now", c.bad, { fill: "rgba(255,107,107,.1)" });
+          u.flow(ctx, x + bw * 0.72, y + 22, w * 0.34, y + 58, c.warn, 2, u.t || 0);
+          u.flow(ctx, x + bw * 0.98, y + 22, w * 0.66, y + 58, c.bad, 2.4, u.t || 0);
+        },
+      },
+      {
+        t: 8.8,
+        title: "Use budget for release decisions",
+        desc: "Healthy budget allows change; exhausted budget shifts work toward reliability.",
+        why: "That is the SRE bargain: product velocity is earned by staying inside the SLO.",
+        draw(ctx, p, w, h, c, u) {
+          const cy = h * 0.45;
+          sreBox(ctx, c, u, w * 0.28, cy, 160, 48, "ship carefully", c.good, { fill: "rgba(58,210,159,.1)" });
+          sreBox(ctx, c, u, w * 0.72, cy, 174, 48, "freeze risky releases", c.bad, { fill: "rgba(255,107,107,.1)" });
+          const x1 = w * 0.28 + 84, x2 = w * 0.72 - 92;
+          u.line(ctx, x1, cy, x2, cy, c.line, 2, [6, 7]);
+          u.dot(ctx, u.lerp(x1, x2, u.easeInOut(p)), cy, 7, p < 0.55 ? c.good : c.bad, "rgba(0,173,216,.25)");
+          u.text(ctx, "error budget decides", w / 2, cy - 42, { align: "center", color: c.purple, size: 13, weight: 700 });
+        },
+      },
+    ];
+
+    return makeTimeline(canvas, {
+      duration: 10.8,
+      phases: STEPS.map((s) => ({ t: s.t, title: s.title, desc: s.desc, why: s.why })),
+      render: stepRender(STEPS, 10.8, "SRE · SLO / error budget / burn rate"),
+    });
+  };
+
+  ANIM["sre-telemetry-stack"] = (canvas) => {
+    const STEPS = [
+      {
+        t: 0,
+        title: "Instrument once with OpenTelemetry",
+        desc: "The SDK and collector create one telemetry contract at the application boundary.",
+        why: "Instrumentation is not the backend; it is how the app describes itself consistently.",
+        draw(ctx, p, w, h, c, u) {
+          const y = h * 0.42;
+          sreBox(ctx, c, u, w * 0.25, y, 168, 42, "OpenTelemetry SDK", c.go);
+          sreBox(ctx, c, u, w * 0.56, y, 122, 42, "Collector", c.purple);
+          sreBox(ctx, c, u, w * 0.82, y, 112, 42, "export", c.dim);
+          u.flow(ctx, w * 0.25 + 86, y, w * 0.56 - 64, y, c.go, 2, u.t || 0);
+          u.flow(ctx, w * 0.56 + 64, y, w * 0.82 - 58, y, c.purple, 2, u.t || 0);
+        },
+      },
+      {
+        t: 2,
+        title: "Metrics go to Prometheus",
+        desc: "Prometheus scrapes RED/USE metrics and evaluates SLO burn alerts.",
+        why: "Metrics are the paging signal because they are cheap, aggregated and fast to query.",
+        draw(ctx, p, w, h, c, u) {
+          const y = h * 0.42;
+          sreBox(ctx, c, u, w * 0.22, y, 112, 40, "metrics", c.good);
+          sreBox(ctx, c, u, w * 0.52, y, 130, 44, "Prometheus", c.warn);
+          sreBox(ctx, c, u, w * 0.78, y, 96, 38, "alert", c.bad);
+          u.flow(ctx, w * 0.22 + 58, y, w * 0.52 - 68, y, c.good, 2, u.t || 0);
+          if (p > 0.45) u.flow(ctx, w * 0.52 + 68, y, w * 0.78 - 50, y, c.bad, 2.3, u.t || 0);
+        },
+      },
+      {
+        t: 4,
+        title: "Thanos keeps long-retention metrics",
+        desc: "Thanos lets you query Prometheus data across clusters and longer windows.",
+        why: "Long windows catch slow burns that short dashboards miss.",
+        draw(ctx, p, w, h, c, u) {
+          const y = h * 0.42;
+          sreBox(ctx, c, u, w * 0.31, y, 132, 42, "Prometheus", c.warn);
+          sreBox(ctx, c, u, w * 0.65, y, 112, 42, "Thanos", c.go);
+          u.flow(ctx, w * 0.31 + 70, y, w * 0.65 - 58, y, c.warn, 2, u.t || 0);
+          u.text(ctx, "30d / 90d / multi-cluster", w / 2, y + 66, { align: "center", color: c.dim, size: 12, mono: true });
+        },
+      },
+      {
+        t: 6,
+        title: "Traces go to Tempo",
+        desc: "A trace explains which hop made one request slow or wrong.",
+        why: "Traces are for localization after the metric told you users are hurt.",
+        draw(ctx, p, w, h, c, u) {
+          const y = h * 0.42, xs = [w * 0.2, w * 0.38, w * 0.56, w * 0.74];
+          xs.forEach((x, i) => sreBox(ctx, c, u, x, y + (i === 2 ? 28 : 0), 90, 34, i === 3 ? "Tempo" : "span", i === 2 ? c.warn : c.go));
+          for (let i = 0; i < xs.length - 1; i++) u.flow(ctx, xs[i] + 46, y + (i === 2 ? 28 : 0), xs[i + 1] - 46, y + (i + 1 === 2 ? 28 : 0), c.go, 1.8, u.t || 0);
+          u.text(ctx, "trace_id", w / 2, y - 52, { align: "center", color: c.purple, size: 14, weight: 700, mono: true });
+        },
+      },
+      {
+        t: 8,
+        title: "Logs go to Loki",
+        desc: "Logs carry the concrete event, keyed by bounded labels and trace_id.",
+        why: "Logs are expensive, so make them searchable and tied to the same request identity.",
+        draw(ctx, p, w, h, c, u) {
+          const x = w * 0.18, y = h * 0.28, rw = w * 0.64;
+          sreBox(ctx, c, u, x, y, 92, 38, "logs", c.dim);
+          sreBox(ctx, c, u, x + rw, y, 92, 38, "Loki", c.go);
+          u.flow(ctx, x + 48, y, x + rw - 48, y, c.dim, 2, u.t || 0);
+          ["service=ledger", "route=/transfer/{id}", "trace_id"].forEach((s, i) => {
+            u.fillRR(ctx, w * 0.32, y + 54 + i * 26, w * 0.36, 20, 5, "rgba(42,58,85,.62)", c.line, 1);
+            u.text(ctx, s, w / 2, y + 69 + i * 26, { align: "center", color: i === 2 ? c.purple : c.text, size: 10.5, mono: true });
+          });
+        },
+      },
+      {
+        t: 10,
+        title: "Grafana correlates by trace_id",
+        desc: "One incident workflow jumps metric -> trace -> logs without manual guessing.",
+        why: "Correlation is what reduces mean time to understand.",
+        draw(ctx, p, w, h, c, u) {
+          const y = h * 0.42, xs = [w * 0.18, w * 0.39, w * 0.6, w * 0.82];
+          [["metrics", c.good], ["traces", c.go], ["logs", c.dim], ["Grafana", c.purple]].forEach((it, i) => {
+            sreBox(ctx, c, u, xs[i], y, i === 3 ? 116 : 94, 38, it[0], it[1]);
+          });
+          u.flow(ctx, xs[0] + 48, y, xs[3] - 60, y - 36, c.good, 1.8, u.t || 0);
+          u.flow(ctx, xs[1] + 48, y, xs[3] - 60, y, c.go, 1.8, u.t || 0);
+          u.flow(ctx, xs[2] + 48, y, xs[3] - 60, y + 36, c.dim, 1.8, u.t || 0);
+          u.text(ctx, "trace_id", w / 2, y + 72, { align: "center", color: c.purple, size: 13, mono: true, weight: 700 });
+        },
+      },
+    ];
+
+    return makeTimeline(canvas, {
+      duration: 12,
+      phases: STEPS.map((s) => ({ t: s.t, title: s.title, desc: s.desc, why: s.why })),
+      render: stepRender(STEPS, 12, "SRE · telemetry correlation stack"),
+    });
+  };
+
+  ANIM["sre-incident-toil"] = (canvas) => {
+    const STEPS = [
+      {
+        t: 0,
+        title: "Alert fires from SLO burn",
+        desc: "The page starts from user impact, not from a random noisy symptom.",
+        why: "Good alerts already contain the reason this wake-up is worth it.",
+        draw(ctx, p, w, h, c, u) {
+          sreBox(ctx, c, u, w * 0.28, h * 0.42, 120, 42, "SLO burn", c.bad);
+          sreBox(ctx, c, u, w * 0.68, h * 0.42, 102, 42, "alert", c.warn);
+          u.flow(ctx, w * 0.28 + 64, h * 0.42, w * 0.68 - 54, h * 0.42, c.bad, 2.4, u.t || 0);
+          if (p > 0.35) u.glowPulse(ctx, w * 0.68, h * 0.42, 18, "rgba(255,107,107,.6)", u.t || 0);
+        },
+      },
+      {
+        t: 2,
+        title: "Triage assigns incident roles",
+        desc: "Incident commander, operations lead, communications and scribe separate the work.",
+        why: "Roles prevent the on-call engineer from being debugger, manager and reporter at once.",
+        draw(ctx, p, w, h, c, u) {
+          const roles = [["IC", c.purple], ["ops", c.go], ["comms", c.warn], ["scribe", c.dim]];
+          roles.forEach((r, i) => sreBox(ctx, c, u, w * (0.2 + i * 0.2), h * 0.42, 82, 38, r[0], r[1]));
+        },
+      },
+      {
+        t: 4,
+        title: "Mitigate before perfect root cause",
+        desc: "Stop the bleeding first: rollback, shed load, fail over, disable a bad path.",
+        why: "RCA is valuable after users are safe; during impact, mitigation wins.",
+        draw(ctx, p, w, h, c, u) {
+          sreBox(ctx, c, u, w * 0.22, h * 0.42, 110, 42, "impact", c.bad);
+          sreBox(ctx, c, u, w * 0.5, h * 0.42, 126, 42, "mitigate", c.good);
+          sreBox(ctx, c, u, w * 0.78, h * 0.42, 96, 42, "stable", c.go);
+          u.flow(ctx, w * 0.22 + 58, h * 0.42, w * 0.5 - 66, h * 0.42, c.bad, 2, u.t || 0);
+          u.flow(ctx, w * 0.5 + 66, h * 0.42, w * 0.78 - 50, h * 0.42, c.good, 2, u.t || 0);
+        },
+      },
+      {
+        t: 6,
+        title: "Write blameless RCA",
+        desc: "Record impact, timeline, detection gaps and contributing factors.",
+        why: "Blameless does not mean vague; it means precise without personal blame.",
+        draw(ctx, p, w, h, c, u) {
+          const x = w * 0.24, y = h * 0.26, bw = w * 0.52;
+          u.fillRR(ctx, x, y, bw, h * 0.36, 9, "rgba(18,27,46,.94)", c.line, 1.4);
+          ["impact", "timeline", "detection gap", "contributing factors"].forEach((s, i) => {
+            u.text(ctx, s, x + 22, y + 34 + i * 34, { color: i === 0 ? c.bad : c.text, size: 12, mono: true, weight: 700 });
+            u.line(ctx, x + 170, y + 29 + i * 34, x + bw - 24, y + 29 + i * 34, c.line, 1.2, [4, 5]);
+          });
+          sreBox(ctx, c, u, x + bw + 74, y + h * 0.18, 122, 40, "RCA", c.purple);
+        },
+      },
+      {
+        t: 8,
+        title: "Automate recurring toil",
+        desc: "Turn repeat manual steps into runbooks, scripts or guarded controllers.",
+        why: "The incident loop closes only when action items reduce the next incident.",
+        draw(ctx, p, w, h, c, u) {
+          const y = h * 0.42;
+          sreBox(ctx, c, u, w * 0.17, y, 104, 40, "action items", c.warn);
+          sreBox(ctx, c, u, w * 0.4, y, 104, 40, "runbook", c.go);
+          sreBox(ctx, c, u, w * 0.63, y, 116, 40, "automation", c.good);
+          sreBox(ctx, c, u, w * 0.84, y, 142, 40, "less manual work", c.purple);
+          u.flow(ctx, w * 0.17 + 54, y, w * 0.4 - 54, y, c.warn, 2, u.t || 0);
+          u.flow(ctx, w * 0.4 + 54, y, w * 0.63 - 60, y, c.go, 2, u.t || 0);
+          u.flow(ctx, w * 0.63 + 60, y, w * 0.84 - 74, y, c.good, 2, u.t || 0);
+          if (p > 0.5) u.ring(ctx, w * 0.84, y, c.good, u.clamp((p - 0.5) / 0.5, 0, 1), { from: 48, to: 70, lw: 2 });
+        },
+      },
+    ];
+
+    return makeTimeline(canvas, {
+      duration: 10,
+      phases: STEPS.map((s) => ({ t: s.t, title: s.title, desc: s.desc, why: s.why })),
+      render: stepRender(STEPS, 10, "SRE · incident response and toil loop"),
+    });
+  };
+
+  /* =================================================================== */
+  /* M19. BFS WAVE                                                       */
+  /* =================================================================== */
+  ANIM["bfs-wave"] = (canvas) => {
+    // Fixed small graph: level 0 (A) -> 1 (B,C) -> 2 (D,E,F) -> 3 (T).
+    const P = {
+      A: { x: 0, y: 96 }, B: { x: -170, y: 176 }, C: { x: 170, y: 176 },
+      D: { x: -250, y: 262 }, E: { x: -80, y: 262 }, F: { x: 170, y: 262 },
+      T: { x: 60, y: 344 },
+    };
+    const EDGES = [["A", "B"], ["A", "C"], ["B", "D"], ["B", "E"], ["C", "F"], ["C", "B"], ["E", "T"], ["F", "T"]];
+    const LEVEL = { A: 0, B: 1, C: 1, D: 2, E: 2, F: 2, T: 3 };
+
+    function drawGraph(ctx, c, u, w, opts) {
+      const N = (k) => ({ x: w / 2 + P[k].x, y: P[k].y });
+      EDGES.forEach((e) => {
+        const a = N(e[0]), b = N(e[1]);
+        const onPath = opts.path && opts.path.some((p, i) => i > 0 && opts.path[i - 1] === e[0] && p === e[1]);
+        const skipped = opts.skipEdge && e[0] === "C" && e[1] === "B";
+        u.line(ctx, a.x, a.y, b.x, b.y, onPath ? c.good : skipped ? c.bad : c.line, onPath ? 2.6 : 1.4, skipped ? [5, 4] : null);
+      });
+      Object.keys(P).forEach((k) => {
+        const p = N(k), lv = LEVEL[k];
+        const visited = lv < opts.wave || (lv === opts.wave && opts.waveP >= 1);
+        const entering = lv === opts.wave && opts.waveP < 1;
+        let fill = c.panel, strokeC = c.line, fg = c.text;
+        if (visited) { fill = "rgba(0,173,216,0.16)"; strokeC = "#00add8"; }
+        if (entering) { fill = "rgba(0,173,216," + 0.16 * opts.waveP + ")"; strokeC = "#00add8"; }
+        if (opts.path && opts.path.indexOf(k) >= 0) { fill = "rgba(58,210,159,0.18)"; strokeC = c.good; fg = c.good; }
+        ctx.beginPath(); ctx.arc(p.x, p.y, 21, 0, 7);
+        ctx.fillStyle = fill; ctx.fill();
+        ctx.strokeStyle = strokeC; ctx.lineWidth = 1.8; ctx.stroke();
+        u.text(ctx, k, p.x, p.y + 4.5, { align: "center", color: fg, size: 13, weight: 700, mono: true });
+      });
+      return N;
+    }
+    function drawQueue(ctx, c, u, w, h, items) {
+      u.text(ctx, tr("queue: "), w / 2 - 150, h - 34, { color: c.dim, size: 11, mono: true });
+      items.forEach((q, i) => {
+        u.fillRR(ctx, w / 2 - 96 + i * 40, h - 50, 32, 24, 6, "rgba(0,173,216,0.12)", "#00add8", 1.4);
+        u.text(ctx, q, w / 2 - 80 + i * 40, h - 33, { align: "center", color: c.text, size: 12, weight: 700, mono: true });
+      });
+      if (!items.length) u.text(ctx, "(empty)", w / 2 - 90, h - 34, { color: c.dim, size: 11, mono: true });
+    }
+
+    const STEPS = [
+      {
+        t: 0,
+        title: "A graph and a question",
+        desc: "Find the shortest route from A to T. Edges are the only roads; nothing is weighted - every hop costs 1.",
+        why: "'Shortest' in an unweighted graph is the keyword that should trigger BFS in your head - no other algorithm needed.",
+        draw(ctx, p, w, h, c, u) {
+          drawGraph(ctx, c, u, w, { wave: 0, waveP: 0 });
+          u.badge(ctx, w / 2 - 24, 60, "start: A", "rgba(0,173,216,.9)", "#06121f");
+          u.badge(ctx, w / 2 + 96, 344, "target: T", c.warn, "#06121f");
+        },
+      },
+      {
+        t: 2.1,
+        title: "Enqueue the start",
+        desc: "BFS keeps one FIFO queue. Seed it with the start node and mark A visited - the wave begins as a single drop.",
+        why: "The queue IS the algorithm: everything else is a loop around it.",
+        draw(ctx, p, w, h, c, u) {
+          drawGraph(ctx, c, u, w, { wave: 0, waveP: u.clamp(p * 1.6, 0, 1) });
+          drawQueue(ctx, c, u, w, h, ["A"]);
+        },
+      },
+      {
+        t: 4.2,
+        title: "Level 1: dequeue, visit, enqueue",
+        desc: "A leaves the queue; its neighbors B and C enter it. Everything one hop from the start is now discovered.",
+        why: "FIFO order guarantees the whole of level 1 is processed before anything from level 2 - that is the invariant everything rests on.",
+        draw(ctx, p, w, h, c, u) {
+          drawGraph(ctx, c, u, w, { wave: 1, waveP: u.clamp(p * 1.6, 0, 1) });
+          drawQueue(ctx, c, u, w, h, ["B", "C"]);
+        },
+      },
+      {
+        t: 6.3,
+        title: "Level 2: the wave spreads",
+        desc: "B and C are processed in turn; D, E and F join the queue. The frontier is always a clean ring around what's been seen.",
+        why: "Watch the shape: BFS never has a 'deep finger' into the graph - the discovered region grows evenly, like a ripple.",
+        draw(ctx, p, w, h, c, u) {
+          drawGraph(ctx, c, u, w, { wave: 2, waveP: u.clamp(p * 1.6, 0, 1) });
+          drawQueue(ctx, c, u, w, h, ["D", "E", "F"]);
+        },
+      },
+      {
+        t: 8.4,
+        title: "Visited set: seen once, never again",
+        desc: "C also points at B - but B is already visited, so the edge is skipped. Every node enters the queue at most once.",
+        why: "Without this check the first cycle would loop forever. With it, total work is O(V+E): each node and each edge touched once.",
+        draw(ctx, p, w, h, c, u) {
+          drawGraph(ctx, c, u, w, { wave: 2, waveP: 1, skipEdge: true });
+          drawQueue(ctx, c, u, w, h, ["D", "E", "F"]);
+          u.badge(ctx, w / 2 + 24, 206, "already visited - skip", c.bad, "#fff");
+        },
+      },
+      {
+        t: 10.5,
+        title: "Target reached = shortest path",
+        desc: "T is discovered while processing level 2 - via E. Walking parent links back gives A → B → E → T: three hops, provably minimal.",
+        why: "No search or comparison happened: BFS reached T first via a shortest path BY CONSTRUCTION, because all shorter levels were exhausted before.",
+        draw(ctx, p, w, h, c, u) {
+          drawGraph(ctx, c, u, w, { wave: 3, waveP: u.clamp(p * 2, 0, 1), path: ["A", "B", "E", "T"] });
+          u.badge(ctx, w / 2 + 96, 344, "3 hops - minimal", "rgba(58,210,159,.9)", "#06121f");
+        },
+      },
+      {
+        t: 12.6,
+        title: "Swap the queue for a stack: DFS",
+        desc: "Same loop, LIFO container: the search dives A → B → D to the bottom before ever looking at C. Great for 'does a path exist' - useless for 'shortest'.",
+        why: "One data structure choice flips the algorithm's personality. Interviews love asking why DFS can't answer shortest-path - now you can show it.",
+        draw(ctx, p, w, h, c, u) {
+          drawGraph(ctx, c, u, w, { wave: 0, waveP: 1, path: ["A", "B", "D"] });
+          u.text(ctx, tr("stack: ") + "[C, E]", w / 2 - 150, h - 34, { color: c.dim, size: 11, mono: true });
+          u.badge(ctx, w / 2 - 290, 292, "deep, not wide", c.warn, "#06121f");
+        },
+      },
+    ];
+    return makeTimeline(canvas, {
+      duration: 14.8,
+      phases: STEPS.map((s) => ({ t: s.t, title: s.title, desc: s.desc, why: s.why })),
+      render: stepRender(STEPS, 14.8, "graph traversal · breadth-first search"),
+    });
+  };
+
+  /* =================================================================== */
+  /* M19. LRU CACHE                                                      */
+  /* =================================================================== */
+  ANIM["lru-cache"] = (canvas) => {
+    function drawCache(ctx, c, u, w, opts) {
+      const keys = opts.keys, y = 200, cw = 86, gap = 34, mapY = 100;
+      const total = keys.length * (cw + gap) + gap + 108 + 54;
+      const x0 = (w - total) / 2;
+      u.text(ctx, "map[key]*node", x0, mapY - 28, { color: c.dim, size: 11, mono: true });
+      keys.forEach((k) => {
+        const mi = keys.indexOf(k);
+        const mx = x0 + mi * 74;
+        u.fillRR(ctx, mx, mapY - 14, 64, 26, 6, c.panel, opts.gone === k ? c.bad : c.line, 1.3);
+        u.text(ctx, k + " →", mx + 12, mapY + 4, { color: opts.gone === k ? c.bad : c.text, size: 11.5, mono: true });
+        const nodeX = x0 + 54 + gap + mi * (cw + gap) + cw / 2;
+        u.line(ctx, mx + 32, mapY + 14, nodeX, y - 26, opts.hot === k ? c.warn : "rgba(122,133,153,.35)", opts.hot === k ? 1.8 : 1);
+      });
+      u.fillRR(ctx, x0, y - 22, 54, 44, 9, "rgba(169,139,255,0.10)", "#a98bff", 1.5);
+      u.text(ctx, "head", x0 + 27, y + 4, { align: "center", color: "#a98bff", size: 10.5, weight: 700, mono: true });
+      keys.forEach((k, i) => {
+        const nx = x0 + 54 + gap + i * (cw + gap);
+        const hot = opts.hot === k, dying = opts.gone === k;
+        u.fillRR(ctx, nx, y - 22, cw, 44, 9, dying ? "rgba(255,107,107,0.12)" : hot ? "rgba(245,177,76,0.14)" : "rgba(0,173,216,0.10)", dying ? c.bad : hot ? c.warn : "#00add8", 1.6);
+        u.text(ctx, k, nx + cw / 2, y + 4.5, { align: "center", color: dying ? c.bad : c.text, size: 12.5, weight: 700, mono: true });
+        u.line(ctx, nx - gap, y - 6, nx, y - 6, c.line, 1.2);
+        u.line(ctx, nx, y + 6, nx - gap, y + 6, c.line, 1.2);
+      });
+      const tx = x0 + 54 + gap + keys.length * (cw + gap);
+      u.line(ctx, tx - gap, y - 6, tx, y - 6, c.line, 1.2);
+      u.line(ctx, tx, y + 6, tx - gap, y + 6, c.line, 1.2);
+      u.fillRR(ctx, tx, y - 22, 54, 44, 9, "rgba(169,139,255,0.10)", "#a98bff", 1.5);
+      u.text(ctx, "tail", tx + 27, y + 4, { align: "center", color: "#a98bff", size: 10.5, weight: 700, mono: true });
+      u.text(ctx, "most recent", x0 + 54 + gap, y + 48, { color: c.dim, size: 10.5 });
+      u.text(ctx, "least recent", tx - gap - 76, y + 48, { color: c.dim, size: 10.5 });
+    }
+    const STEPS = [
+      {
+        t: 0,
+        title: "Two structures, welded",
+        desc: "A map gives O(1) 'where is key K'; a doubly-linked list keeps recency order. The weld: map values are pointers INTO the list.",
+        why: "Neither structure alone can do this job - the map can't order, the list can't look up. Interviews assign LRU precisely to test this composition.",
+        draw(ctx, p, w, h, c, u) {
+          drawCache(ctx, c, u, w, { keys: ["2", "7", "9"] });
+          u.badge(ctx, w / 2 - 62, h - 66, "capacity: 3 · full", "rgba(0,173,216,.9)", "#06121f");
+        },
+      },
+      {
+        t: 2.3,
+        title: "Sentinels: no special cases",
+        desc: "head and tail are permanent dummy nodes. Every real node always has a live prev and next - empty and single-node lists need no extra code.",
+        why: "The classic interview stumble is nil-checking the list edges. Sentinels delete that whole class of bugs before it exists.",
+        draw(ctx, p, w, h, c, u) {
+          drawCache(ctx, c, u, w, { keys: ["2", "7", "9"] });
+          u.badge(ctx, w / 2 - 240, 140, "never nil", "rgba(169,139,255,.9)", "#06121f");
+          u.badge(ctx, w / 2 + 160, 140, "never nil", "rgba(169,139,255,.9)", "#06121f");
+        },
+      },
+      {
+        t: 4.6,
+        title: "Get(7): jump, unlink, push front",
+        desc: "The map lands directly on 7's node - no scan. unlink cuts it out; pushFront re-inserts it after head. 7 is now the most recent.",
+        why: "Get is a WRITE to the recency order, not just a read - that reordering is what makes the cache 'least recently USED', not 'least recently ADDED'.",
+        draw(ctx, p, w, h, c, u) {
+          drawCache(ctx, c, u, w, { keys: p < 0.5 ? ["2", "7", "9"] : ["7", "2", "9"], hot: "7" });
+          u.badge(ctx, w / 2 - 104, h - 66, "1 map hop + 4 pointer writes", c.warn, "#06121f");
+        },
+      },
+      {
+        t: 7,
+        title: "Put(4) on a full cache: evict the tail",
+        desc: "Capacity is 3 and 4 is a new key - someone must go. The victim needs no search: it is always tail.prev, here 9. Unlink it, delete its map entry, push 4 to the front.",
+        why: "Eviction is O(1) only because the list keeps the victim parked at the tail. A map alone would need an O(n) scan for the oldest entry.",
+        draw(ctx, p, w, h, c, u) {
+          if (p < 0.45) {
+            drawCache(ctx, c, u, w, { keys: ["7", "2", "9"], gone: "9" });
+            u.badge(ctx, w / 2 + 40, h - 66, "evict 9: unlink + delete", c.bad, "#fff");
+          } else {
+            drawCache(ctx, c, u, w, { keys: ["4", "7", "2"], hot: "4" });
+            u.badge(ctx, w / 2 - 62, h - 66, "4 is most recent", "rgba(58,210,159,.9)", "#06121f");
+          }
+        },
+      },
+      {
+        t: 9.3,
+        title: "Put(2, new value): update in place",
+        desc: "2 already exists: overwrite its value inside the node, move it to the front. No eviction - the size did not change.",
+        why: "Forgetting this branch double-inserts the key and silently corrupts the size - the second most common LRU bug after broken pointer order.",
+        draw(ctx, p, w, h, c, u) {
+          drawCache(ctx, c, u, w, { keys: p < 0.5 ? ["4", "7", "2"] : ["2", "4", "7"], hot: "2" });
+        },
+      },
+      {
+        t: 11.6,
+        title: "Count the work: O(1), always",
+        desc: "Every operation is one map access plus a constant number of pointer writes - no loops, no scans, regardless of cache size.",
+        why: "When the interviewer asks 'what's the complexity?', the answer is provable by counting the moves you just watched: nothing depends on n.",
+        draw(ctx, p, w, h, c, u) {
+          drawCache(ctx, c, u, w, { keys: ["2", "4", "7"] });
+          u.legend(ctx, w / 2 - 250, h - 58, [["Get: map + 4 writes", "#00add8"], ["Put: map + ≤6 writes", "#f5b14c"], ["evict: 2 writes + delete", "#ff6b6b"]]);
+        },
+      },
+    ];
+    return makeTimeline(canvas, {
+      duration: 13.9,
+      phases: STEPS.map((s) => ({ t: s.t, title: s.title, desc: s.desc, why: s.why })),
+      render: stepRender(STEPS, 13.9, "LRU cache · map + doubly-linked list"),
+    });
+  };
+
+  /* =================================================================== */
+  /* M19. HASHMAP INTERNALS                                              */
+  /* =================================================================== */
+  ANIM["hashmap-internals"] = (canvas) => {
+    function drawBuckets(ctx, c, u, w, n, opts) {
+      const bw = Math.min(150, (w - 80) / n - 14), y = 176, x0 = (w - n * (bw + 14)) / 2;
+      for (let b = 0; b < n; b++) {
+        const bx = x0 + b * (bw + 14);
+        const active = opts.bucket === b;
+        u.fillRR(ctx, bx, y, bw, 120, 10, active ? "rgba(0,173,216,0.08)" : c.panel, active ? "#00add8" : c.line, active ? 2 : 1.3);
+        u.text(ctx, tr("bucket ") + b, bx + 8, y - 8, { color: active ? "#00add8" : c.dim, size: 10.5, mono: true });
+        for (let s = 0; s < 8; s++) {
+          const cellW = (bw - 16) / 4 - 4;
+          const sx = bx + 8 + (s % 4) * ((bw - 16) / 4), sy = y + 12 + Math.floor(s / 4) * 52;
+          const filled = opts.filled && opts.filled[b] > s;
+          const isHit = active && opts.hit === s && opts.scanned >= s;
+          const isScanned = active && opts.scanned != null && s <= opts.scanned;
+          u.fillRR(ctx, sx, sy, cellW, 20, 4, isHit ? "rgba(58,210,159,0.25)" : filled ? "rgba(0,173,216,0.14)" : "transparent", isHit ? c.good : isScanned ? c.warn : c.line, isHit || isScanned ? 1.6 : 1);
+          if (filled && active && opts.tops && opts.tops[s] != null) u.text(ctx, opts.tops[s], sx + 5, sy + 14, { color: isHit ? c.good : c.dim, size: 9.5, mono: true });
+        }
+        u.text(ctx, "8 slots + tophash", bx + 8, y + 148, { color: c.dim, size: 9.5 });
+      }
+    }
+    const STEPS = [
+      {
+        t: 0,
+        title: "One hash, two jobs",
+        desc: "hash(\"user:42\") yields 64 bits. Go splits the duty: LOW bits will choose the bucket, the top 8 bits become a one-byte fingerprint (tophash).",
+        why: "Reusing one hash for both routing and fingerprinting is why map lookups stay cheap - no second hash function, no full key compare until the last moment.",
+        draw(ctx, p, w, h, c, u) {
+          u.fillRR(ctx, w / 2 - 200, 130, 400, 46, 10, c.panel, c.line, 1.4);
+          u.text(ctx, 'hash("user:42") = 1011 0110 ... 0110 1101', w / 2, 158, { align: "center", color: c.text, size: 12, mono: true });
+          u.badge(ctx, w / 2 - 188, 206, "high 8 bits → tophash", c.warn, "#06121f");
+          u.badge(ctx, w / 2 + 42, 206, "low bits → bucket", "rgba(0,173,216,.9)", "#06121f");
+        },
+      },
+      {
+        t: 2.1,
+        title: "Low bits pick the bucket",
+        desc: "With 4 buckets, 'low bits' means hash & 3 - a single AND instruction. 0b...01 → bucket 1.",
+        why: "This is why the bucket count is always a power of two: modulo becomes a bit-mask, one cycle instead of a division.",
+        draw(ctx, p, w, h, c, u) {
+          drawBuckets(ctx, c, u, w, 4, { bucket: 1, filled: [3, 5, 2, 4] });
+          u.text(ctx, "hash & 0b11 = 01", w / 2, 148, { align: "center", color: "#00add8", size: 12, mono: true });
+        },
+      },
+      {
+        t: 4.2,
+        title: "tophash: scan 8 bytes, not 8 keys",
+        desc: "Inside the bucket, the lookup sweeps eight one-byte tophash stamps first - a single cache line. Full key comparison happens only on a stamp match.",
+        why: "String comparison is expensive; byte comparison is nearly free. The tophash array rejects 7 wrong slots without ever touching their keys.",
+        draw(ctx, p, w, h, c, u) {
+          drawBuckets(ctx, c, u, w, 4, { bucket: 1, filled: [3, 5, 2, 4], scanned: Math.floor(u.clamp(p * 1.4, 0, 1) * 4), hit: 4, tops: ["7c", "e1", "09", "5a", "b6"] });
+          if (p > 0.75) u.badge(ctx, w / 2 - 128, 348, "tophash b6 matches → compare full key", "rgba(58,210,159,.9)", "#06121f");
+        },
+      },
+      {
+        t: 6.3,
+        title: "Collisions land in the same bucket",
+        desc: "A different key with the same low bits joins bucket 1 in the next free slot. Eight collisions later, an overflow bucket chains on.",
+        why: "Collisions are normal operation, not an error - the design just keeps them within one cache line for as long as possible.",
+        draw(ctx, p, w, h, c, u) {
+          drawBuckets(ctx, c, u, w, 4, { bucket: 1, filled: [3, p > 0.5 ? 6 : 5, 2, 4] });
+          u.badge(ctx, w / 2 - 116, 148, 'hash("user:97") → also bucket 1', c.warn, "#06121f");
+        },
+      },
+      {
+        t: 8.4,
+        title: "Growth: double and evacuate",
+        desc: "Past ~6.5 entries per bucket on average, the table doubles - and entries drift to their new homes INCREMENTALLY, a little on each write, not in one big pause.",
+        why: "Incremental evacuation spreads the rehash cost across many operations - the same amortization idea as slice growth, applied to a whole table.",
+        draw(ctx, p, w, h, c, u) {
+          drawBuckets(ctx, c, u, w, 8, { bucket: 5, filled: [2, 3, 1, 2, 2, 3, 1, 2] });
+          u.badge(ctx, w / 2 - 118, 148, "4 → 8 buckets · one more low bit", "rgba(0,173,216,.9)", "#06121f");
+        },
+      },
+      {
+        t: 10.5,
+        title: "Why iteration order is random",
+        desc: "Range starts at a RANDOM bucket and offset on every iteration - deliberately, so no program can accidentally depend on an order that growth would change anyway.",
+        why: "This is a favorite interview probe: it checks whether you know maps well enough to never sort-by-iterating. Need order? Collect keys and sort them.",
+        draw(ctx, p, w, h, c, u) {
+          drawBuckets(ctx, c, u, w, 8, { bucket: Math.floor((u.t || 0) * 1.7) % 8, filled: [2, 3, 1, 2, 2, 3, 1, 2] });
+          u.badge(ctx, w / 2 - 108, 148, "range start: random, every time", c.warn, "#06121f");
+        },
+      },
+    ];
+    return makeTimeline(canvas, {
+      duration: 12.7,
+      phases: STEPS.map((s) => ({ t: s.t, title: s.title, desc: s.desc, why: s.why })),
+      render: stepRender(STEPS, 12.7, "map internals · buckets, tophash, growth"),
+    });
+  };
+
+  /* =================================================================== */
+  /* M19. SLICE GROWTH + HEAP                                            */
+  /* =================================================================== */
+  ANIM["slice-heap"] = (canvas) => {
+    function drawSlice(ctx, c, u, w, y, vals, cap, opts) {
+      const cw = 52, x0 = w / 2 - (cap * cw) / 2;
+      for (let i = 0; i < cap; i++) {
+        const filled = i < vals.length, hot = opts && opts.hot === i;
+        u.fillRR(ctx, x0 + i * cw, y, cw - 4, 40, 7, filled ? (hot ? "rgba(245,177,76,0.18)" : "rgba(0,173,216,0.10)") : "transparent", filled ? (hot ? c.warn : "#00add8") : c.line, filled ? 1.6 : 1);
+        if (filled) u.text(ctx, String(vals[i]), x0 + i * cw + (cw - 4) / 2, y + 25, { align: "center", color: c.text, size: 12.5, weight: 700, mono: true });
+      }
+      return x0;
+    }
+    function heapPos(w, i) {
+      const row = Math.floor(Math.log2(i + 1)), idxIn = i + 1 - (1 << row);
+      const slots = 1 << row;
+      return { x: w / 2 + (idxIn - (slots - 1) / 2) * (300 / slots), y: 216 + row * 60 };
+    }
+    function drawHeap(ctx, c, u, w, vals, opts) {
+      vals.forEach((v, i) => {
+        if (i > 0) {
+          const par = heapPos(w, (i - 1) >> 1), me = heapPos(w, i);
+          u.line(ctx, par.x, par.y + 16, me.x, me.y - 16, c.line, 1.2);
+        }
+      });
+      vals.forEach((v, i) => {
+        const pos = heapPos(w, i), hot = opts && opts.hot === i;
+        ctx.beginPath(); ctx.arc(pos.x, pos.y, 17, 0, 7);
+        ctx.fillStyle = hot ? "rgba(245,177,76,0.2)" : "rgba(0,173,216,0.12)"; ctx.fill();
+        ctx.strokeStyle = hot ? "#f5b14c" : "#00add8"; ctx.lineWidth = 1.7; ctx.stroke();
+        u.text(ctx, String(v), pos.x, pos.y + 4.5, { align: "center", color: c.text, size: 12, weight: 700, mono: true });
+        u.text(ctx, "[" + i + "]", pos.x + 20, pos.y - 12, { color: c.dim, size: 9, mono: true });
+      });
+    }
+    const STEPS = [
+      {
+        t: 0,
+        title: "A slice is three words",
+        desc: "pointer + len + cap, pointing into a backing array. Copying a slice copies these three words - never the elements.",
+        why: "Every slice interview question unwinds from this picture: cheap passing, shared mutation, and the growth trap all live in the header.",
+        draw(ctx, p, w, h, c, u) {
+          u.fillRR(ctx, w / 2 - 150, 116, 300, 40, 9, c.panel, "#a98bff", 1.6);
+          u.text(ctx, "ptr · len 3 · cap 5", w / 2, 141, { align: "center", color: "#a98bff", size: 12.5, weight: 700, mono: true });
+          const x0 = drawSlice(ctx, c, u, w, 216, [4, 9, 2], 5, {});
+          u.arrow(ctx, w / 2 - 120, 156, x0 + 24, 212, "#a98bff", 1.5);
+          u.text(ctx, "backing array", w / 2, 292, { align: "center", color: c.dim, size: 11 });
+        },
+      },
+      {
+        t: 2.1,
+        title: "append with room: just write",
+        desc: "len 3, cap 5 - append(s, 7) writes into the existing array and bumps len. No allocation, nothing moves.",
+        why: "Within capacity, append is a single store - this is the fast path make([]T, 0, n) buys you when n is known.",
+        draw(ctx, p, w, h, c, u) {
+          u.text(ctx, "append(s, 7)  →  len 3→4, same array", w / 2, 141, { align: "center", color: c.text, size: 12, mono: true });
+          drawSlice(ctx, c, u, w, 216, p > 0.4 ? [4, 9, 2, 7] : [4, 9, 2], 5, { hot: 3 });
+        },
+      },
+      {
+        t: 4.2,
+        title: "append past cap: reallocate and copy",
+        desc: "cap exhausted → allocate a bigger array (double, then ~1.25× for large slices), copy every element, point the NEW slice at it. The old array is abandoned - but anyone still holding it sees stale data.",
+        why: "This copy is why append is 'amortized' O(1) - and why two slices that used to share storage silently diverge after one of them grows. The #1 slice interview trap.",
+        draw(ctx, p, w, h, c, u) {
+          u.text(ctx, "old (cap 5) - abandoned", w / 2, 128, { align: "center", color: c.dim, size: 10.5 });
+          ctx.globalAlpha = 0.45;
+          drawSlice(ctx, c, u, w, 140, [4, 9, 2, 7, 1], 5, {});
+          ctx.globalAlpha = 1;
+          u.text(ctx, "new (cap 10)", w / 2, 240, { align: "center", color: c.good, size: 10.5 });
+          const shown = Math.ceil(u.clamp(p * 1.5, 0, 1) * 6);
+          drawSlice(ctx, c, u, w, 252, [4, 9, 2, 7, 1, 6].slice(0, shown), 10, { hot: 5 });
+          if (p > 0.2) u.arrow(ctx, w / 2, 192, w / 2, 244, c.good, 1.6);
+        },
+      },
+      {
+        t: 6.6,
+        title: "A heap is a slice wearing a tree costume",
+        desc: "The same values, two views: slice [1,3,2,9,7] and a complete binary tree. No pointers exist - children of i are 2i+1 and 2i+2, parent is (i-1)/2.",
+        why: "Storing the tree as index math makes heaps allocation-free and cache-friendly - and means you can write one on a whiteboard in ten lines.",
+        draw(ctx, p, w, h, c, u) {
+          drawSlice(ctx, c, u, w, 124, [1, 3, 2, 9, 7], 5, {});
+          drawHeap(ctx, c, u, w, [1, 3, 2, 9, 7], {});
+          u.text(ctx, "min-heap: every parent ≤ its children", w / 2, h - 36, { align: "center", color: c.dim, size: 11 });
+        },
+      },
+      {
+        t: 8.7,
+        title: "Push 0: append, then sift up",
+        desc: "0 lands at index 5 (a leaf), then swaps with its parent while smaller: 0 < 2 → swap with [2], 0 < 1 → swap with the root. Two hops, done.",
+        why: "Sift-up touches one root-to-leaf path - log n swaps worst case, which is the entire cost of insertion.",
+        draw(ctx, p, w, h, c, u) {
+          const stage = p < 0.35 ? [1, 3, 2, 9, 7, 0] : p < 0.7 ? [1, 3, 0, 9, 7, 2] : [0, 3, 1, 9, 7, 2];
+          const hot = p < 0.35 ? 5 : p < 0.7 ? 2 : 0;
+          drawSlice(ctx, c, u, w, 124, stage, 6, { hot: hot });
+          drawHeap(ctx, c, u, w, stage, { hot: hot });
+        },
+      },
+      {
+        t: 10.8,
+        title: "Pop the min: last to root, sift down",
+        desc: "Take index 0 (always the minimum). Move the LAST element to the root, shrink the slice, and let it sink: swap with the smaller child until both children are bigger.",
+        why: "Pop is the other half of every priority queue - 'k largest', 'merge k lists' and heapsort are just push and pop in a loop.",
+        draw(ctx, p, w, h, c, u) {
+          const stage = p < 0.35 ? [2, 3, 1, 9, 7] : [1, 3, 2, 9, 7];
+          const hot = p < 0.35 ? 0 : 2;
+          drawSlice(ctx, c, u, w, 124, stage, 6, { hot: hot });
+          drawHeap(ctx, c, u, w, stage, { hot: hot });
+          u.badge(ctx, w / 2 - 210, 98, "popped: 0", "rgba(58,210,159,.9)", "#06121f");
+        },
+      },
+      {
+        t: 12.9,
+        title: "Choosing the structure",
+        desc: "Need lookup by key? Map. Need repeated access to the extreme? Heap. Need order and cheap append? Slice. Most interview problems are one of these three sentences.",
+        why: "Interviewers rarely want exotic structures - they want the right basic one, chosen out loud with its costs. That sentence is the answer.",
+        draw(ctx, p, w, h, c, u) {
+          u.legend(ctx, w / 2 - 240, 160, [["map: O(1) by key", "#00add8"], ["heap: O(log n) extreme", "#f5b14c"], ["slice: O(1) append*", "#3ad29f"]]);
+          u.text(ctx, "* amortized - now you can explain the asterisk", w / 2, 210, { align: "center", color: c.dim, size: 11.5 });
+        },
+      },
+    ];
+    return makeTimeline(canvas, {
+      duration: 15,
+      phases: STEPS.map((s) => ({ t: s.t, title: s.title, desc: s.desc, why: s.why })),
+      render: stepRender(STEPS, 15, "slices & heaps · memory layout as an algorithm"),
     });
   };
 

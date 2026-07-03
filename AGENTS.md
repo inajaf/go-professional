@@ -28,12 +28,20 @@ js/lessons.ru.js    window.COURSE_RU.LESSONS and .WORKED_EXAMPLES (code fields o
 js/animations.js    makeTimeline() engine + 28 ANIM["id"] canvas animations + CANVAS_RU dict + tr()/lang() helpers
 js/gopher3d.data.js auto-generated: base64 GLB of the dancing gopher hero mascot (window.GOPHER_GLB_B64) - never edit by hand
 js/gopher3d.js      zero-dependency GLB parser + raw-WebGL skinned-mesh renderer for the mascot (window.GOPHER3D.mount)
-js/app.js           routing, localStorage, rendering, mergeCourse()/mergeModule(), language switcher
+js/celebrate.data.js auto-generated: transparent PNG sticker data URI (window.GOPHER_STICKER_URI) for the completion toast - never edit by hand
+js/app.js           routing, localStorage, rendering, mergeCourse()/mergeModule(), language switcher, micro-interactions
 ```
 
 Script load order in `index.html` matters and must stay exactly:
-`strings.js, data.js, data.ru.js, lessons.js, lessons.ru.js, animations.js, gopher3d.data.js, gopher3d.js, app.js`.
+`strings.js, data.js, data.ru.js, lessons.js, lessons.ru.js, animations.js, gopher3d.data.js, gopher3d.js, celebrate.data.js, app.js`.
 Later files assume earlier globals already exist.
+
+## UI micro-interactions
+
+`app.js` has a micro-interactions block (route `page-enter` transition, IntersectionObserver scroll-reveal, hero stat count-up + ring draw-in, and a module-completion celebration with a canvas confetti burst + the `celebrate.data.js` gopher sticker).
+All of it respects `prefers-reduced-motion` via the shared `REDUCED` flag - any new animated flourish must check it too.
+The scroll-reveal removes its `reveal`/`revealed` classes after the transition finishes, specifically so `transform: none` can never fight an element's own hover/active transforms - keep that pattern if you extend the selector list.
+The completion celebration fires only on a false→true `moduleDone` transition from the checklist handlers, never on reset.
 
 ## 3D hero mascot
 
@@ -48,7 +56,7 @@ Texture dimensions must stay power-of-two: WebGL1 silently samples black from an
 
 ## Course content model
 
-22 modules total, keyed by stable opaque ids `f1`-`f5` and `m1`-`m17`.
+24 modules total, keyed by stable opaque ids `f1`-`f5` and `m1`-`m19`.
 Note: those ids are NO LONGER in learning order - the course sequence (sidebar, home, prev/next) is defined entirely by `PARTS` and each part's `modules` list (6 parts, a single beginner→principal ramp), and `app.js` derives an `ORDERED` list from `PARTS` for navigation. A module's `code`/`num`/`part` fields carry its displayed label/position; edit those + `PARTS`/`PARTS_RU` to reorder, never rely on the physical `MODULES` array order.
 Each module has: `title/short/level/summary/plain/animation{id,title,blurb}/concepts[]{title,body,code?}/ai/practice-or-capstone/pitfalls/takeaways/checklist`, plus a `GLOSSARY` entry, an `ASSIGNMENTS` entry, a `LESSONS` section list (`{h, p}` shape), and a `WORKED_EXAMPLES` entry (`{title, intro, steps: [{title, concept, code, lang, why}]}`).
 A module may ALSO carry an optional `animations: [{id,title,blurb}, ...]` array to render several visualizations on one page (the first module does this); when present it takes precedence over the single `animation` for the module page, while `animation` stays the representative shown on the home card. `app.js` deep-merges `animations` per-index for RU just like `WORKED_EXAMPLES` steps, so RU entries need only `title`/`blurb`.

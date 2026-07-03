@@ -13,7 +13,7 @@ Just open `index.html` in any modern browser (double-click it, or
 
 ## What's inside
 
-**22 modules across 6 ordered parts**, each with at least one interactive, step-by-step animation:
+**24 modules across 6 ordered parts**, each with at least one interactive, step-by-step animation:
 
 The home page also includes a **Distributed Financial Ledger roadmap** that shows the final project as one system and links each module to the ledger capability it adds.
 
@@ -27,8 +27,8 @@ The home page also includes a **Distributed Financial Ledger roadmap** that show
   - Native routing & `os.Root`, json/v2 & Swiss Tables, `runtime.AddCleanup` &
     interning, `testing/synctest`, sqlc & pgx, PostgreSQL schema/index/migration
     pitfalls, post-quantum ML-KEM, FlightRecorder & leak forensics, CPU caches,
-    SIMD & Green Tea GC, observability, resilience, Redis, container rollout &
-    governance.
+    SIMD & Green Tea GC, observability, resilience, Redis, SRE operations,
+    container rollout & governance.
 
 Every module page has:
 - **In plain terms** - a plain-English analogy
@@ -59,6 +59,6 @@ js/data.js         # English course structure and assignments
 js/data.ru.js      # Russian course structure and assignments
 js/lessons.js      # English deep-dive lessons and runnable examples
 js/lessons.ru.js   # Russian lesson text, inheriting Go code from English
-js/animations.js   # 28 canvas animations + timeline engine
+js/animations.js   # 35 canvas animations + timeline engine
 js/app.js          # routing, localStorage, rendering, controls
 ```

@@ -86,6 +86,22 @@ window.COURSE_EN.LESSONS = {
       p: "Go projects stay flat until they need not to. Two conventions do the heavy lifting. `cmd/<app>/main.go` holds entry points whose only job is wiring - parse config, build dependencies, start the server. `internal/` holds packages that *only your module* can import, enforced by the compiler - a real boundary that stops other teams (or your future self) from depending on internals. Name packages for the capability they provide (`ledger`, `postgres`), not for an architectural layer (`models`, `utils`); a package called `utils` is where cohesion goes to die." },
   ],
 
+  /* ============================================================== M19 */
+  m19: [
+    { h: "Why interviews ask about structures nobody implements at work",
+      p: "You will probably never hand-write a hashmap in production - Go's `map` is right there. Interviews ask anyway, because these structures are the shared vocabulary of performance conversations: 'that's O(n²), use a set', 'that needs a heap, not a sort in a loop', 'BFS, because we want the nearest one'. The candidate who can rebuild a structure from parts can also predict its costs, and predicting costs is the actual job. This module covers the set that appears in the overwhelming majority of screens: slices and maps (because you claim Go on your resume), heaps, tree walks, graphs - and the LRU cache, the single most-assigned design exercise." },
+    { h: "The slice header: three words that explain five interview questions",
+      p: "Internalize one picture: a slice is `{pointer, len, cap}` pointing into a backing array. Everything follows. Why is passing a slice cheap? You copy three words, not the elements. Why can a function modify my slice's elements? The copy points at the same array. Why did my two slices diverge after an append? Growth allocated a NEW array for one of them - the other still points at the old one. Why preallocate with `make([]T, 0, n)`? Because growth is a copy of everything so far, and n known up front means zero copies. Say the picture out loud in an interview and the follow-ups answer themselves." },
+    { h: "Inside the map: buckets, tophash, incremental growth",
+      p: "Go's map is a hash table of buckets, each holding up to eight key/value pairs. The hash of a key is split: LOW bits choose the bucket (that is why table size is a power of two - picking low bits is a mask, not a division), HIGH eight bits are stored as one-byte `tophash` stamps. A lookup scans eight tophash bytes - a single cache line - before touching any actual key, so most non-matches cost almost nothing. Past a load factor of ~6.5 the table doubles, and entries move to their new buckets *incrementally* as they are touched, spreading the cost instead of freezing the world. Two production-grade consequences: iteration order is randomized (never depend on it), and concurrent writes are a fatal error, not a data race you might get away with (use a mutex or sync.Map)." },
+    { h: "Heaps: the tree that lives in a slice",
+      p: "A binary heap keeps only one promise: every parent is ≤ its children (min-heap). That weak ordering is exactly enough to always know the minimum - it is at index 0 - while staying cheap to maintain. The elegance is the storage: a complete tree needs no pointers, because index math IS the structure (`children of i: 2i+1, 2i+2; parent: (i-1)/2`). Push appends to the slice and sifts up; Pop swaps the last element into the root and sifts down; both touch one path of height log n. Interviews reach for heaps whenever you hear 'k largest', 'top N', 'merge k sorted streams' or 'process by priority' - anything where you repeatedly need the extreme element but never a full sort." },
+    { h: "BFS and DFS: one algorithm, two containers",
+      p: "Strip away the code and the two traversals are the same loop: take a node out of a container, mark it visited, put its unvisited neighbors in. The container decides everything. A queue (FIFO) gives breadth-first: nodes are processed in the order discovered, so the search expands as a wave, level by level - and the first time you touch the target, you got there via a fewest-edges path. A stack (LIFO, often the call stack via recursion) gives depth-first: dive along one branch to the bottom, backtrack, repeat - the natural shape for 'is there a path', cycle detection, and anything where you must finish a subtree before its siblings (topological sort). The visited set is not an optimization - without it, the first cycle in the graph is an infinite loop." },
+    { h: "The LRU cache: why this one question never dies",
+      p: "'Design a fixed-size cache with O(1) Get and Put, evicting the least recently used entry' endures because it tests composition, not memorization. One structure gives O(1) lookup (a map) and another gives O(1) reordering and eviction (a doubly-linked list); neither alone suffices, and the trick is the map storing pointers INTO the list, welding them together. Every operation is a handful of pointer moves: touch = unlink + push-front; evict = unlink tail. The worked example builds it with a hand-rolled list - interviewers routinely disallow `container/list` precisely to see whether you can do the pointer surgery. Sentinel head/tail nodes are the pro move: with them, 'empty list' and 'single node' stop being special cases." },
+  ],
+
   /* =============================================================== M1 */
   m1: [
     { h: "What a router actually does",
@@ -334,6 +350,22 @@ window.COURSE_EN.LESSONS = {
       p: "The identical guarantee that makes SETNX safe as a lock makes INCR safe as a counter: it atomically adds one and hands back the new total in a single round trip, so two simultaneous callers can never both read the same old value and both write the same new one, silently losing an increment. A fixed-window rate limiter is nothing more than INCR plus one EXPIRE call made only on the very first hit of a window: once the count crosses your limit inside that window, you reject; once the window's TTL elapses, the whole counter simply resets itself by disappearing." },
     { h: "The failure mode to avoid: forgetting Redis is a cache, not the database",
       p: "Every pitfall in this module comes from the same root mistake: treating Redis as more durable, more authoritative, or more coordinated than it actually is. Data that only ever lived in Redis vanishes on a flush or an eviction - if that would actually hurt, it belongs in a real database, with Redis only ever holding a disposable copy. A burst of keys expiring together (or one very hot key expiring) can send a stampede of simultaneous misses at your real database all at once - worth guarding against with staggered TTLs or a lock around the repopulation itself. And a lock or a counter built with a manual GET-then-SET, instead of SETNX or INCR, quietly reintroduces the exact race those atomic commands exist to eliminate." },
+  ],
+  m18: [
+    { h: "Read the vacancy as an operating model",
+      p: "This SRE vacancy is not asking for someone who merely knows tool names. It describes an operating loop: define reliability with SLIs and SLOs, instrument the system so reality is visible, alert only when action is needed, run incidents without chaos, find root causes, remove toil with automation, and influence engineering teams before reliability problems ship. That is why the right interview answer usually starts from a user journey, then connects tools to outcomes: lower detection time, lower recovery time, safer deploys, and fewer repeated manual tasks." },
+    { h: "SLI, SLO and error budget interview answer",
+      p: "For a microservice, pick SLIs that match user-visible behavior: successful requests divided by total requests, p95 or p99 latency below a threshold, queue freshness, durable write success, or background job completion time. Then set an SLO over a window: for example, 99.9% of ledger transfers succeed over 30 days. The error budget is the failure you are allowed: 0.1%. A strong candidate explains how that budget governs release risk. If the budget is healthy, you can ship. If the burn rate is high, you pause risky changes and mitigate. This turns reliability from opinion into an engineering control." },
+    { h: "Dashboards and alerts that matter",
+      p: "A dashboard should answer one operational question, not prove that you collected every metric. For request-driven services use RED: Rate, Errors, Duration. For resources use USE: Utilization, Saturation, Errors. The top dashboard should show user impact first: SLO compliance, error-budget burn, traffic, error rate and latency percentiles. Infrastructure panels explain causes below that. Alerts should be actionable and tied to urgency. A fast-burn SLO alert pages the on-call engineer because user impact is growing quickly; a slow burn can open a ticket. Paging on raw CPU alone is weak unless it maps to saturation and a clear action." },
+    { h: "Telemetry stack: OpenTelemetry, Prometheus/Thanos, Tempo and Loki",
+      p: "OpenTelemetry belongs at the application boundary: instrument handlers, clients, queues and database calls once, then export traces, metrics and logs through a collector. Prometheus scrapes metrics and evaluates alerts; Thanos gives long retention, deduplication and cross-cluster querying; Tempo stores traces; Loki stores logs with indexed labels. The workflow matters more than the product list: an SLO burn alert starts from a metric, the linked trace shows which hop is slow, and logs with the same trace ID explain the concrete event. Keep labels bounded, especially route templates instead of raw URLs or user IDs." },
+    { h: "Incident response and on-call",
+      p: "Structured on-call is a process. During an incident, separate roles: incident commander coordinates, operations lead mitigates, communications lead updates stakeholders, and scribe records the timeline. The first goal is mitigation, not a perfect root cause. After service is stable, run a blameless RCA: impact, timeline, detection path, contributing technical and process factors, and action items with owners and deadlines. Strong interview answers mention both people and systems, because most incidents are combinations of code, deployment, monitoring, process and communication gaps." },
+    { h: "Toil automation and platform review",
+      p: "Toil is manual, repetitive, automatable work that scales with the service: collecting the same diagnostics, restarting the same pod, resizing the same queue, or following the same checklist every night. Good SRE work identifies toil, quantifies it, automates the safe part, adds guardrails, and measures whether the automation reduced incidents or minutes spent. Platform review is the preventive side: code review and architecture review should check readiness probes, resource requests, rollout strategy, PDBs, HPA signals, load balancer behavior, data-store failure modes, secrets and network policies before production learns about the mistake." },
+    { h: "Linux, networking, Kubernetes and OpenShift troubleshooting",
+      p: "Troubleshooting should be systematic. Start from the symptom and move down the stack: DNS resolution, TCP connection, TLS handshake, HTTP status, load balancer, service endpoints, pod readiness, application logs, database latency and node pressure. Know the evidence tools: `dig`, `curl -v`, `ss`, `journalctl`, `top`, `pidstat`, `iostat`, `tcpdump`, plus `kubectl get/describe/logs/events`. For OpenShift, also understand Routes, SecurityContextConstraints and the platform's stricter defaults. In interviews, say what you would check first and what each result would prove or eliminate." },
   ],
 };
 
@@ -714,6 +746,120 @@ func main() {
 //   worker-A: cancelled (context deadline exceeded)`,
         lang: "go",
         why: "If a real request handler used this pattern instead of a bare time.Sleep, an upstream timeout would cancel every goroutine it started - no leaks, no waiting.",
+      },
+    ],
+  },
+
+  m19: {
+    title: "Build the interview LRU cache: O(1) Get and Put",
+    intro: "The classic design exercise, built the way interviews demand it: a map for lookup welded to a hand-rolled doubly-linked list for recency - no container/list allowed.",
+    steps: [
+      {
+        title: "The layout: a map pointing into a linked list",
+        concept: "The map answers 'where is key K' in O(1); the list keeps recency order so the eviction victim is always at the tail. Sentinel head/tail nodes mean the list is never empty - no nil checks, no special cases.",
+        code: `package main
+
+import "fmt"
+
+// node is one entry in the doubly-linked recency list.
+type node struct {
+	key, val   int
+	prev, next *node
+}
+
+// LRU is a fixed-capacity cache with O(1) Get and Put.
+// The map finds a node by key; the list orders nodes by recency:
+// head sentinel <-> most recent ... least recent <-> tail sentinel.
+type LRU struct {
+	cap        int
+	items      map[int]*node
+	head, tail *node // sentinels: never hold data, never nil
+}
+
+func NewLRU(capacity int) *LRU {
+	h, t := &node{}, &node{}
+	h.next, t.prev = t, h
+	return &LRU{cap: capacity, items: make(map[int]*node, capacity), head: h, tail: t}
+}`,
+        lang: "go",
+        why: "Storing *node pointers in the map is the weld between the two structures: the map jump lands directly on the list node, so no list scan ever happens. The node keeps its own key so eviction can delete the map entry without a reverse lookup.",
+      },
+      {
+        title: "Pointer surgery: unlink and pushFront",
+        concept: "Every cache operation reduces to these two moves. unlink cuts a node out of wherever it is; pushFront reinserts it right after the head sentinel, making it the most recent.",
+        code: `// unlink removes n from wherever it is in the list.
+func (c *LRU) unlink(n *node) {
+	n.prev.next = n.next
+	n.next.prev = n.prev
+}
+
+// pushFront inserts n right after the head sentinel (most recent).
+func (c *LRU) pushFront(n *node) {
+	n.prev, n.next = c.head, c.head.next
+	c.head.next.prev = n
+	c.head.next = n
+}`,
+        lang: "go",
+        why: "This is the part interviewers watch closely - four pointer writes per operation, in the right order. Thanks to the sentinels, the same code works when the list has one node, many, or none: n.prev and n.next always exist.",
+      },
+      {
+        title: "Get and Put: compose the two moves",
+        concept: "Get = map lookup + move to front. Put = update-in-place, or insert - evicting the node before the tail sentinel when the cache is full.",
+        code: `func (c *LRU) Get(key int) (int, bool) {
+	n, ok := c.items[key]
+	if !ok {
+		return 0, false
+	}
+	c.unlink(n)    // touching a key makes it most recent:
+	c.pushFront(n) // move its node to the front
+	return n.val, true
+}
+
+func (c *LRU) Put(key, val int) {
+	if n, ok := c.items[key]; ok {
+		n.val = val
+		c.unlink(n)
+		c.pushFront(n)
+		return
+	}
+	if len(c.items) == c.cap {
+		lru := c.tail.prev // least recently used lives before the tail sentinel
+		c.unlink(lru)
+		delete(c.items, lru.key)
+	}
+	n := &node{key: key, val: val}
+	c.items[key] = n
+	c.pushFront(n)
+}`,
+        lang: "go",
+        why: "Count the work: one map operation plus a constant number of pointer writes - O(1) for both Get and Put, which is the whole requirement. The eviction victim is found in O(1) too, because the list keeps it parked at the tail.",
+      },
+      {
+        title: "Prove the eviction order",
+        concept: "A capacity-2 cache: touching key 1 with Get must save it from eviction, so the later Put(3) evicts key 2 instead.",
+        code: `func main() {
+	c := NewLRU(2)
+	c.Put(1, 100)
+	c.Put(2, 200)
+	v, ok := c.Get(1) // touch 1 - now 2 is the LRU
+	fmt.Println(v, ok)
+	c.Put(3, 300) // evicts 2, not 1
+	_, ok = c.Get(2)
+	fmt.Println(ok)
+	v, ok = c.Get(1)
+	fmt.Println(v, ok)
+	v, ok = c.Get(3)
+	fmt.Println(v, ok)
+}
+
+// run it:  go run main.go
+// real output:
+//   100 true
+//   false
+//   100 true
+//   300 true`,
+        lang: "go",
+        why: "The middle line is the proof: key 2 is gone (false) while key 1 survived - the Get reordered the recency list, exactly the behavior the interviewer will test first. If Get did not move nodes, this test would evict 1 and the cache would be FIFO, not LRU.",
       },
     ],
   },
@@ -2126,6 +2272,126 @@ func allow(ctx context.Context, rdb *redis.Client, key string, window time.Durat
 //   request 5: rejected - 429 Too Many Requests (count=5)`,
         lang: "go",
         why: "This is the same atomicity as SETNX, just counting instead of locking - Incr's single round trip is what stops two simultaneous requests from both reading count=2 and both writing count=3, which would silently let one extra request through.",
+      },
+    ],
+  },
+  m18: {
+    title: "Calculate SLO budget and burn rate in Go",
+    intro: "A small standard-library program that turns a service SLO into numbers an on-call engineer can act on: availability, allowed bad events, burn rate and response level.",
+    steps: [
+      {
+        title: "Model a rolling SLO window",
+        concept: "A window needs total events, bad events and an SLO target. Everything else is derived from those three facts.",
+        code: `package main
+
+import "fmt"
+
+type Window struct {
+	Total int64
+	Bad   int64
+	SLO   float64
+}`,
+        lang: "go",
+        why: "This is how you keep an SRE answer grounded: start from a measured user-visible event stream, not from a dashboard screenshot or infrastructure symptom.",
+      },
+      {
+        title: "Compute availability and error budget",
+        concept: "Availability is good events divided by total events. Error budget is total events times the allowed failure fraction.",
+        code: `func (w Window) Availability() float64 {
+	if w.Total == 0 {
+		return 1
+	}
+	return 1 - float64(w.Bad)/float64(w.Total)
+}
+
+func (w Window) ErrorBudget() float64 {
+	return float64(w.Total) * (1 - w.SLO)
+}`,
+        lang: "go",
+        why: "An SLO target like 99.9% becomes operational only when you can say how many bad events are allowed in the current window.",
+      },
+      {
+        title: "Convert budget spend into an action",
+        concept: "Burn rate compares actual bad events with allowed bad events. Low burn is budget usage; high burn is an operational risk.",
+        code: `func (w Window) BurnRate() float64 {
+	budget := w.ErrorBudget()
+	if budget == 0 {
+		return 0
+	}
+	return float64(w.Bad) / budget
+}
+
+func action(rate float64) string {
+	switch {
+	case rate >= 14:
+		return "page now"
+	case rate >= 2:
+		return "ticket and watch"
+	default:
+		return "within budget"
+	}
+}`,
+        lang: "go",
+        why: "This is the interview distinction between a noisy alert and a useful alert: the page is tied to how quickly the service is burning user-visible reliability.",
+      },
+      {
+        title: "Run the calculation",
+        concept: "One million transfer attempts, 2500 failures and a 99.9% SLO means the service has spent 2.5 budgets in the window.",
+        code: `package main
+
+import "fmt"
+
+type Window struct {
+	Total int64
+	Bad   int64
+	SLO   float64
+}
+
+func (w Window) Availability() float64 {
+	if w.Total == 0 {
+		return 1
+	}
+	return 1 - float64(w.Bad)/float64(w.Total)
+}
+
+func (w Window) ErrorBudget() float64 {
+	return float64(w.Total) * (1 - w.SLO)
+}
+
+func (w Window) BurnRate() float64 {
+	budget := w.ErrorBudget()
+	if budget == 0 {
+		return 0
+	}
+	return float64(w.Bad) / budget
+}
+
+func action(rate float64) string {
+	switch {
+	case rate >= 14:
+		return "page now"
+	case rate >= 2:
+		return "ticket and watch"
+	default:
+		return "within budget"
+	}
+}
+
+func main() {
+	window := Window{Total: 1_000_000, Bad: 2_500, SLO: 0.999}
+	burn := window.BurnRate()
+
+	fmt.Printf("availability %.3f%%\\n", window.Availability()*100)
+	fmt.Printf("budget %.0f bad requests\\n", window.ErrorBudget())
+	fmt.Printf("burn %.1fx -> %s\\n", burn, action(burn))
+}
+
+// Output:
+// availability 99.750%
+// budget 1000 bad requests
+// burn 2.5x -> ticket and watch`,
+        lang: "go",
+        why: "This answer is compact enough for an interview whiteboard, but it contains the core SRE judgment: reliability is measured, budgeted and connected to an action.",
       },
     ],
   },

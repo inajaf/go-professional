@@ -18,6 +18,10 @@ const COURSE_META = {
       title: "Ledger command pipeline",
       body: "Build the bounded goroutine/channel pipeline that accepts transfer commands, fans out validation work, and shuts down cleanly under cancellation.",
     },
+    m19: {
+      title: "Hot-account LRU cache",
+      body: "Add the O(1) LRU cache that keeps hot account balances in memory, plus the BFS-style dependency walk used to validate transfer chains.",
+    },
     f5: {
       title: "Request lifecycle and error contract",
       body: "Define context propagation, wrapped domain errors, and package boundaries so every ledger request has one owner and one observable failure path.",
@@ -101,6 +105,10 @@ const COURSE_META = {
     m9: {
       title: "Production rollout and governance",
       body: "Package, deploy, refactor, and govern the ledger with container-aware runtime settings and ADR-backed production controls.",
+    },
+    m18: {
+      title: "SRE operating model",
+      body: "Define SLOs, alerts, on-call, RCA, toil automation and platform review standards so the ledger is operated like a reliable production service.",
     },
   },
   finalProjectFiles: [
@@ -619,7 +627,7 @@ const PARTS = [
     label: "Part 1",
     title: "Writing Idiomatic Go",
     level: "Beginner",
-    modules: ["f4", "f5", "f3"],
+    modules: ["f4", "f5", "f3", "m19"],
   },
   {
     id: "part-1",
@@ -654,7 +662,7 @@ const PARTS = [
     label: "Part 6",
     title: "Distributed Systems & Production",
     level: "Staff / Principal",
-    modules: ["m6", "m14", "m15", "m16", "m9"],
+    modules: ["m6", "m14", "m15", "m16", "m9", "m18"],
   },
 ];
 
@@ -3459,6 +3467,345 @@ if count > 100 {
       "Every lock key carries its own TTL, so a crashed holder cannot lock a resource forever.",
     ],
   },
+  /* ================================================================ M18 */
+  {
+    id: "m18",
+    code: "D6",
+    num: 23,
+    part: "part-5",
+    title: "SRE: SLOs, Observability, Incidents & Platform Reliability",
+    short: "SRE & Interview Prep",
+    level: "Production",
+    duration: "self-paced",
+    icon: "activity",
+    summary:
+      "Turn an SRE vacancy into engineering skill: define SLI/SLO/error budgets, build useful dashboards and alerts, operate OpenTelemetry + Prometheus/Thanos + Tempo + Loki, run on-call/RCA, automate toil, and reason about Kubernetes/OpenShift reliability.",
+    plain:
+      "SRE is the discipline of making production systems reliable on purpose. You do not just 'watch dashboards'; you define what reliability means for users (SLIs/SLOs), alert only when users are being hurt or the error budget is burning, collect telemetry that shortens debugging, run incidents with a clear command structure, and remove repetitive manual work with automation. In an interview, the strongest answers connect tools to outcomes: Prometheus is not the goal - lower detection time, lower recovery time, and safer releases are the goal.",
+    animation: {
+      id: "sre-slo-budget",
+      title: "SLO Error Budget & Burn Rate",
+      blurb:
+        "Watch a 99.9% availability SLO turn into an error budget, then see how slow burn and fast burn alerts mean very different operational responses.",
+    },
+    animations: [
+      {
+        id: "sre-slo-budget",
+        title: "SLO Error Budget & Burn Rate",
+        blurb:
+          "Watch a 99.9% availability SLO turn into an error budget, then see how slow burn and fast burn alerts mean very different operational responses.",
+      },
+      {
+        id: "sre-telemetry-stack",
+        title: "OpenTelemetry → Prometheus/Thanos + Tempo + Loki",
+        blurb:
+          "Follow one request as it becomes metrics, traces and logs, then see where Prometheus, Thanos, Tempo and Loki fit in the operational stack.",
+      },
+      {
+        id: "sre-incident-toil",
+        title: "On-call, RCA and Toil Automation",
+        blurb:
+          "Move from alert to triage, mitigation, root cause analysis and automation backlog - the loop that turns incidents into reliability improvements.",
+      },
+    ],
+    concepts: [
+      {
+        title: "SLI, SLO and error budget",
+        body:
+          "An SLI is a measured signal of user experience: availability, successful requests, latency under a threshold, freshness of a queue. An SLO is the target for that signal, such as 99.9% of transfers succeed over 30 days. The error budget is the allowed failure: 0.1% for a 99.9% SLO. Strong SRE work starts here because alerts, release gates and reliability investments become objective. If the budget is healthy, ship. If it is burning fast, freeze risky releases and mitigate.",
+        code: `// Availability SLI over a rolling window:
+//   successful_requests / total_requests
+//
+// 99.9% SLO means a 0.1% error budget.
+// If 1,000,000 requests happen in the window:
+//   allowed bad requests = 1,000,000 * 0.001 = 1,000
+//
+// Burn rate asks: are we consuming that budget too fast?`,
+        lang: "go",
+      },
+      {
+        title: "Dashboards and alerts that matter",
+        body:
+          "A good dashboard answers an operational question: are users affected, where is the bottleneck, and what changed? For services use RED: Rate, Errors, Duration. For infrastructure use USE: Utilization, Saturation, Errors. Alerts should be actionable and tied to SLO burn or hard saturation, not every noisy symptom. In interviews, explain why paging on CPU 80% is weak while paging on 'checkout SLO burns 14x for 5 minutes' is strong: it maps to user impact and urgency.",
+        code: `# Prometheus-style alert shape:
+# page when the 5m error-budget burn is severe
+sum(rate(http_requests_total{status=~"5.."}[5m]))
+/
+sum(rate(http_requests_total[5m]))
+> 0.014
+
+# Ticket, not page: slow burn over hours.
+# Page: fast burn over minutes.`,
+        lang: "promql",
+      },
+      {
+        title: "OpenTelemetry and the Grafana/Prometheus stack",
+        body:
+          "OpenTelemetry is instrumentation and transport: it standardizes traces, metrics and logs at the application boundary. Prometheus scrapes metrics; Thanos stores and queries Prometheus data across clusters and long retention; Tempo stores traces cheaply; Loki indexes log labels and keeps log text compressed. The point is correlation: an alert fires on a metric, you open a trace for the slow request, then jump to logs with the same trace ID.",
+        code: `// Interview answer structure:
+// 1. Instrument with OpenTelemetry SDK/collector.
+// 2. Expose RED metrics for Prometheus.
+// 3. Ship traces to Tempo, logs to Loki.
+// 4. Put trace_id in logs so metric -> trace -> log is one workflow.
+// 5. Keep labels bounded: route="/transfers/{id}", never raw user IDs.`,
+        lang: "go",
+      },
+      {
+        title: "On-call and incident command",
+        body:
+          "Structured on-call is a process, not a person heroically fixing production at 3 AM. A good incident has roles: incident commander coordinates, operations lead mitigates, communications lead updates stakeholders, scribe captures timeline. The first goal is mitigation, not perfect root cause. After the system is stable, run a blameless postmortem: impact, timeline, contributing factors, what detected it, what delayed response, and concrete follow-up actions with owners.",
+        code: `Incident note template:
+Impact: which users / SLO / duration
+Detection: alert, customer report, synthetic check
+Timeline: UTC events, decisions, mitigations
+Root cause: technical + contributing process factors
+Action items: owner, due date, measurable outcome`,
+        lang: "text",
+      },
+      {
+        title: "Toil automation",
+        body:
+          "Toil is manual, repetitive, automatable work that grows with the service: restarting stuck pods, collecting the same diagnostics, resizing the same queues, running a checklist by hand. SRE does not automate for style; it automates to reduce operational load and variance. The best candidates can name a toil source, quantify it, write a small script or controller, add guardrails, and prove the automation reduced incidents or minutes spent.",
+        code: `// Good toil story:
+// Before: on-call manually collected pods/logs/events for every incident.
+// Automation: one command captures kubectl describe, previous logs,
+// node pressure, recent deploys and SLO burn into an incident bundle.
+// Result: triage starts with evidence, not copy-paste archaeology.`,
+        lang: "go",
+      },
+      {
+        title: "Kubernetes/OpenShift reliability review",
+        body:
+          "For Kubernetes or OpenShift, reliability review means looking at probes, resource requests/limits, HPA signals, pod disruption budgets, rollout strategy, network policies, service/load balancer behavior, storage classes, database dependencies and secret handling. OpenShift adds platform conventions: Routes, SecurityContextConstraints, integrated registry/builds and stricter defaults. Interview answers should connect these knobs to failure modes: bad readiness sends traffic to cold pods; missing PDB turns node drain into downtime; wrong limits create throttling.",
+        code: `# Review checklist:
+# readinessProbe: protects users during startup and rollout
+# livenessProbe: restarts truly wedged processes, not slow ones
+# requests/limits: scheduling and throttling behavior
+# PDB + rollingUpdate: how many replicas can disappear safely
+# HPA metric: scale on saturation, not vanity CPU alone
+# NetworkPolicy/SCC/secrets: safety boundary in multi-tenant clusters`,
+        lang: "yaml",
+      },
+      {
+        title: "Linux and networking troubleshooting",
+        body:
+          "SRE interviews often test systematic debugging. Start from symptoms and move down the stack: DNS resolution, TCP connection, TLS handshake, HTTP status, load balancer, pod endpoints, app logs, database latency, node pressure. On Linux know the basic evidence: `ss` for sockets, `dig` for DNS, `curl -v` for HTTP/TLS, `journalctl` for system logs, `top`/`pidstat` for CPU, `iostat` for disk, `tcpdump` when you need packets. The skill is forming and eliminating hypotheses quickly.",
+        code: `# Fast path for "service is down":
+dig api.internal
+curl -vk https://api.internal/healthz
+ss -tnp | grep 443
+kubectl get endpoints,po -l app=ledger
+kubectl logs deploy/ledger --previous
+kubectl describe pod <pod> | grep -A5 -E "Events|Limits|Requests"`,
+        lang: "sh",
+      },
+    ],
+    ai: {
+      title: "AI-Workflow Integration",
+      body:
+        "Use an assistant as an SRE interview coach: feed it a job description and ask it to generate SLO, alerting, incident and Kubernetes troubleshooting scenarios, then grade your answers against concrete signals.",
+      prompt:
+        "Act as a senior SRE interviewer. Ask me one scenario at a time based on this vacancy: SLI/SLO, Prometheus/Thanos, OpenTelemetry, Tempo/Loki, Kubernetes/OpenShift, Linux networking, on-call, RCA and toil automation. After each answer, grade it on correctness, operational judgment and communication, then show the stronger answer.",
+    },
+    capstone: {
+      title: "Ledger Capstone",
+      body:
+        "Add the SRE operating layer to the ledger: SLOs and burn-rate alerts, Grafana dashboards, OpenTelemetry correlation, an on-call runbook, a postmortem template, toil automation and Kubernetes/OpenShift readiness review.",
+    },
+    pitfalls: [
+      "Defining SLOs from infrastructure symptoms instead of user-visible behavior.",
+      "Paging on noisy metrics that have no action or user impact.",
+      "Letting traces, logs and metrics use different IDs so correlation is manual.",
+      "Treating postmortems as blame documents instead of reliability learning tools.",
+      "Automating toil without guardrails, audit logs or rollback paths.",
+      "Ignoring Kubernetes basics: readiness, requests/limits, PDBs, rollout settings and endpoint health.",
+    ],
+    takeaways: [
+      "SRE starts with user-visible reliability: SLI, SLO and error budget.",
+      "Metrics page you, traces locate the slow hop, logs explain the event - correlate all three.",
+      "Incidents need roles, mitigation first, then blameless RCA and owned follow-ups.",
+      "Toil automation is production engineering: reduce repeat work and make response consistent.",
+      "Strong interview answers connect tools to reliability outcomes, not tool names to buzzwords.",
+    ],
+    checklist: [
+      "Can design SLIs/SLOs and calculate error-budget burn for a microservice.",
+      "Can build a RED/USE dashboard and separate page-worthy alerts from tickets.",
+      "Can explain OpenTelemetry, Prometheus/Thanos, Tempo and Loki in one request-debugging workflow.",
+      "Can run an incident from alert to mitigation, RCA and action items.",
+      "Can review Kubernetes/OpenShift deployment reliability and debug Linux/network symptoms.",
+      "Can identify toil and propose safe automation with measurable benefit.",
+    ],
+  },
+
+  /* ============================================================ F4 (m19) */
+  {
+    id: "m19",
+    code: "F4",
+    num: 4,
+    part: "part-0",
+    title: "Interview Data Structures & Algorithms in Go",
+    short: "Interview DS & Algorithms",
+    level: "Beginner → Mid",
+    duration: "3 hrs",
+    icon: "layers",
+    summary:
+      "The structures every coding interview probes - slices, maps, heaps, trees and graphs - explained the way Go actually implements them: growth rules, bucket layout, sift operations, BFS/DFS mechanics and when to reach for which.",
+    plain:
+      "Interviews keep asking the same handful of questions: how does a hashmap actually work, why is append sometimes slow, walk this tree, find the shortest path. The honest answers are not memorized trivia - they come from knowing what the machine does. A slice is a tiny header pointing at an array. A map is buckets of eight slots picked by hash bits. A heap is a tree flattened into a slice. BFS is just a queue; DFS is just a stack. This module builds each of those pictures, in Go, so the interview answer is a description of something you have seen move.",
+    animation: {
+      id: "bfs-wave",
+      title: "BFS: The Wave and the Queue",
+      blurb:
+        "Watch breadth-first search spread through a graph level by level - nodes enter the queue, get visited exactly once, and the first time you reach the target IS the shortest path.",
+    },
+    // Interview prep leans on pictures: four visualizations, one per core
+    // structure family, ordered from graphs (the most-asked) to memory layout.
+    animations: [
+      {
+        id: "bfs-wave",
+        title: "BFS: The Wave and the Queue",
+        blurb:
+          "Watch breadth-first search spread through a graph level by level - nodes enter the queue, get visited exactly once, and the first time you reach the target IS the shortest path.",
+      },
+      {
+        id: "lru-cache",
+        title: "LRU Cache: Map + Linked List",
+        blurb:
+          "Get and Put move nodes to the front of a doubly-linked list while a map jumps straight to them - and when capacity runs out, the tail is evicted in O(1).",
+      },
+      {
+        id: "hashmap-internals",
+        title: "Inside a Go Map: Buckets & Growth",
+        blurb:
+          "Follow a key through hashing: low bits pick the bucket, tophash bytes shortcut the scan, and when buckets fill up the whole table grows and evacuates.",
+      },
+      {
+        id: "slice-heap",
+        title: "Slice Growth & the Heap in a Slice",
+        blurb:
+          "See append run out of capacity and reallocate, then watch a binary heap live inside a plain slice - parent and child are just index arithmetic, sift-up and sift-down restore order.",
+      },
+    ],
+    concepts: [
+      {
+        title: "Slices: a header over an array",
+        body:
+          "A slice is three words: a pointer into a backing array, a length, and a capacity. append is O(1) amortized because growth doubles (then ~1.25×) the backing array - but any append past cap copies everything and ABANDONS the old array, which is why two slices sharing a backing array stop seeing each other's writes after one of them grows. Interviewers love this question because it separates people who used slices from people who understand them.",
+        code: `s := make([]int, 0, 2)
+a := append(s, 1)      // len 1, cap 2 - same backing array as s
+b := append(a, 2, 3)   // exceeds cap -> NEW array, copies 1,2
+a[0] = 99              // writes the OLD array
+fmt.Println(b[0])      // still 1 - b no longer sees a's writes
+// The three-word header is why slices are passed by value cheaply:
+// copying a slice never copies the elements.`,
+        lang: "go",
+      },
+      {
+        title: "Maps: hash, bucket, tophash",
+        body:
+          "A Go map hashes the key, uses the LOW bits of the hash to pick one of 2^B buckets, and each bucket holds up to eight key/value pairs plus eight one-byte 'tophash' values (the hash's HIGH bits). A lookup scans the eight tophash bytes first - one cache line - and only compares full keys on a tophash match. When average load passes ~6.5 pairs per bucket the table doubles and entries evacuate incrementally. That evacuation is also why iteration order is deliberately randomized: code must never depend on it.",
+        code: `m := map[string]int{"a": 1, "b": 2, "c": 3}
+for k := range m {
+    fmt.Println(k) // order differs run to run - BY DESIGN
+}
+// Interview answer sketch for "how does a map work?":
+// hash(key) -> low bits pick bucket -> tophash scan (8 slots)
+// -> full key compare on match -> overflow bucket if full
+// -> grow at ~6.5 load factor, evacuate incrementally.`,
+        lang: "go",
+      },
+      {
+        title: "Heaps: a tree flattened into a slice",
+        body:
+          "A binary heap is a complete tree stored in a slice with pure index math: children of i live at 2i+1 and 2i+2, the parent at (i-1)/2. Push appends and sifts up; Pop takes index 0, moves the last element to the root and sifts down. Both are O(log n), and the top is always the minimum (or maximum). This is THE structure for 'k largest', 'merge k sorted lists' and every priority queue - and container/heap just asks you for the same five methods over your own slice.",
+        code: `// A min-heap is index arithmetic on a slice:
+func siftUp(h []int, i int) {
+    for i > 0 {
+        p := (i - 1) / 2
+        if h[p] <= h[i] { break }
+        h[p], h[i] = h[i], h[p]
+        i = p
+    }
+}
+// push: h = append(h, x); siftUp(h, len(h)-1)
+// peek min: h[0]  -  always the smallest, in O(1)`,
+        lang: "go",
+      },
+      {
+        title: "Tree walks: BFS is a queue, DFS is a stack",
+        body:
+          "Every tree/graph traversal question reduces to one choice: queue or stack. Breadth-first uses a queue and visits nodes level by level - which is why the FIRST time BFS reaches a node is via a shortest path (in unweighted graphs). Depth-first uses a stack - usually the call stack via recursion - and dives to the bottom before backtracking; it is the skeleton for 'does a path exist', tree recursion and topological sort. If the interviewer says 'shortest' or 'nearest', that word means BFS.",
+        code: `func bfs(root *Node) {
+    queue := []*Node{root}
+    for len(queue) > 0 {
+        n := queue[0]
+        queue = queue[1:] // dequeue
+        visit(n)
+        queue = append(queue, n.Children...) // enqueue next level
+    }
+}
+func dfs(n *Node) { // the call stack IS the stack
+    if n == nil { return }
+    visit(n)
+    for _, c := range n.Children { dfs(c) }
+}`,
+        lang: "go",
+      },
+      {
+        title: "Graphs: adjacency list, visited set, and when which",
+        body:
+          "Represent a graph as map[node][]node (adjacency list) unless it is genuinely dense - the list costs O(V+E) memory and lets BFS/DFS run in O(V+E) time, while a matrix costs O(V²) no matter how sparse. The one mistake that fails graph interviews is forgetting the visited set: with it every node is processed once; without it any cycle loops forever. Say the complexity out loud when you code it - that is usually the follow-up question anyway.",
+        code: `graph := map[int][]int{1: {2, 3}, 2: {4}, 3: {4}, 4: {1}}
+visited := map[int]bool{}
+var stack []int
+stack = append(stack, 1)
+for len(stack) > 0 {
+    n := stack[len(stack)-1]
+    stack = stack[:len(stack)-1] // pop - LIFO makes this DFS
+    if visited[n] { continue }   // the line that prevents ∞ loops
+    visited[n] = true
+    stack = append(stack, graph[n]...)
+}
+// swap the pop for queue[0]/queue[1:] and it becomes BFS.`,
+        lang: "go",
+      },
+    ],
+    ai: {
+      title: "Learn faster with an AI tutor",
+      body:
+        "Rehearse the interview loop itself: have an LLM play the interviewer, drill the follow-up questions (complexity, trade-offs, what breaks at scale), and grade your spoken explanation of a structure against what Go really does.",
+      prompt:
+        "Act as a Go coding interviewer. Ask me to implement an LRU cache without container/list. After my solution, drill me with follow-ups: complexity of each operation, what changes with concurrent access, how Go's map behaves under growth, and when I would use a heap instead. Point out any claim I make about Go internals that is wrong.",
+    },
+    practice: {
+      title: "Try it yourself",
+      body: "Interview muscles grow by re-implementing, not re-reading.",
+      steps: [
+        "Re-implement the LRU cache from the worked example from memory, then diff against the lesson version.",
+        "Write BFS shortest-path over map[int][]int and verify the distance to every node on a small graph you draw on paper.",
+        "Implement siftUp/siftDown on a plain []int and heap-sort 20 random numbers with them.",
+        "Predict the output of the slice-aliasing snippet in concept 1 before running it - then run it.",
+      ],
+    },
+    pitfalls: [
+      "Forgetting the visited set in graph traversal - the classic infinite loop the moment the graph has a cycle.",
+      "Assuming append never moves data: two slices share a backing array only until one append exceeds cap, then writes silently diverge.",
+      "Relying on map iteration order (it is randomized on purpose) or reading a map from multiple goroutines without synchronization - both are real production bugs, not just interview trivia.",
+    ],
+    takeaways: [
+      "Slice = pointer+len+cap header; growth copies and abandons the old array.",
+      "Map = hash → bucket via low bits → tophash scan; grows at ~6.5 load factor; iteration order is random by design.",
+      "Heap = complete tree in a slice, O(log n) sift operations, O(1) peek of the extreme.",
+      "BFS(queue) finds shortest paths in unweighted graphs; DFS(stack) answers reachability and structure questions.",
+    ],
+    checklist: [
+      "Can explain slice growth and the aliasing trap with a concrete code example.",
+      "Can walk a key through a Go map lookup: hash bits, bucket, tophash, growth.",
+      "Can implement a min-heap's siftUp/siftDown on a plain slice from memory.",
+      "Can write BFS and DFS over an adjacency list and state their O(V+E) complexity.",
+      "Can build an O(1) LRU cache from a map plus a hand-rolled doubly-linked list.",
+    ],
+  },
 ];
 
 /* ------------------------ Extra depth concepts (merged into modules) */
@@ -3594,6 +3941,14 @@ const GLOSSARY = {
     ["Fuzzing", "Auto-generated random inputs that hunt for crashes and edge cases."],
     ["t.Helper()", "Marks a function as a helper so failures point at the caller."],
     ["Golden file", "A recorded 'expected output' file a test compares against."],
+  ],
+  m19: [
+    ["Slice header", "The three words - pointer, length, capacity - a slice really is."],
+    ["Bucket / tophash", "A map's 8-slot cell; tophash bytes shortcut key comparison."],
+    ["Load factor", "Average entries per bucket; Go maps grow past ~6.5."],
+    ["Binary heap", "A complete tree in a slice; children of i at 2i+1 and 2i+2."],
+    ["BFS / DFS", "Traversal by queue (level order, shortest paths) vs by stack (depth first)."],
+    ["Adjacency list", "Graph as node → neighbors map; O(V+E) space and traversal."],
   ],
   f4: [
     ["Goroutine", "A lightweight, runtime-scheduled concurrent function (~2 KB starting stack)."],
@@ -3747,6 +4102,14 @@ const GLOSSARY = {
     ["INCR", "An atomic increment-and-return, the building block of a race-free counter or rate limiter."],
     ["Cache stampede", "A burst of simultaneous misses (from mass expiry or one hot key) hitting the real database all at once."],
   ],
+  m18: [
+    ["SLI", "A measured indicator of user-visible reliability, such as successful requests or latency under a threshold."],
+    ["SLO", "A target for an SLI over a window, e.g. 99.9% successful transfers over 30 days."],
+    ["Error budget", "The allowed failure implied by an SLO; spending it too fast triggers operational action."],
+    ["Burn rate", "How quickly the service is consuming its error budget compared with the allowed pace."],
+    ["Toil", "Manual, repetitive, automatable operational work that scales with the service."],
+    ["Postmortem / RCA", "A blameless analysis of impact, timeline, contributing factors and owned follow-up actions."],
+  ],
 };
 
 /* ----------------------------------------------------- Verification grid */
@@ -3778,6 +4141,17 @@ const VERIFICATION = [
                 { re:  "regex"  } must match
    ------------------------------------------------------------------- */
 const ASSIGNMENTS = {
+  m19: [
+    { type: "mcq", prompt: "b := append(a, x) exceeded a's capacity. What is now true?",
+      options: ["a and b share a backing array", "b points at a new array; writes to a no longer affect b", "a is invalidated and must not be used", "append always copies, capacity or not"],
+      answer: 1, explain: "Growth allocates a NEW backing array and copies - the old array (and a) is untouched but disconnected. Within capacity they would still share." },
+    { type: "blank", prompt: "In a binary heap stored in a slice, the parent of index i is at index ____ (integer division):",
+      code: `p := (i - 1) / ____`, accept: ["2"],
+      explain: "(i-1)/2 - the mirror of children at 2i+1 and 2i+2. This index math is the whole trick of storing a tree in a slice." },
+    { type: "predict", prompt: "BFS runs from node A in an UNWEIGHTED graph and reaches node T for the first time at depth 3. Can any shorter A→T path exist? (yes/no)",
+      accept: ["no"],
+      explain: "BFS explores strictly by level: all depth-1 and depth-2 nodes were visited before any depth-3 node, so a shorter path would have found T earlier." },
+  ],
   f1: [
     { type: "mcq", prompt: "At the end of the mark phase, what does a WHITE object represent?",
       options: ["Reachable and fully scanned", "Reachable but not yet scanned", "Unreachable - it will be swept", "Pinned in memory forever"],
@@ -4030,6 +4404,24 @@ const ASSIGNMENTS = {
     { type: "blank", prompt: "Fill in the atomic command that increments a counter and returns its new value in one round trip:",
       code: `count, err := rdb.____(ctx, "ratelimit:ip:1.2.3.4").Result()`, accept: ["Incr"],
       explain: "rdb.Incr atomically adds 1 and returns the new total - two concurrent callers can never both read the old value and overwrite each other's increment." },
+  ],
+  m18: [
+    { type: "mcq", prompt: "A good SLI should primarily measure:",
+      options: ["CPU usage on one node", "user-visible service behavior such as success rate or request latency", "how many dashboards exist", "how many alerts fire per day"], answer: 1,
+      explain: "SLIs should reflect the user experience. CPU can explain a problem, but success rate and latency tell whether users are being hurt." },
+    { type: "mcq", prompt: "A fast-burn alert is useful because it:",
+      options: ["pages on every small error", "shows the service is consuming its error budget much faster than allowed", "replaces incident review", "proves Kubernetes is broken"], answer: 1,
+      explain: "Burn rate connects alert urgency to SLO risk. A high burn over a short window means the budget will be exhausted quickly if nothing changes." },
+    { type: "blank", prompt: "The standard telemetry framework preferred in this vacancy is Open____.",
+      code: `Open____`, accept: ["Telemetry"],
+      explain: "OpenTelemetry standardizes instrumentation and export of traces, metrics and logs." },
+    { type: "mcq", prompt: "Which tool is primarily used for traces in the listed Grafana stack?",
+      options: ["Prometheus", "Thanos", "Tempo", "Loki"], answer: 2,
+      explain: "Tempo stores traces. Prometheus/Thanos handle metrics, and Loki handles logs." },
+    { type: "code", prompt: "Write a tiny on-call postmortem action item with owner and measurable outcome.",
+      starter: `Action item:\n`,
+      checks: [{ has: "owner", msg: "Name an owner" }, { has: "due", msg: "Include a due date or deadline" }, { re: "SLO|alert|dashboard|runbook|automation|toil", msg: "Tie it to a reliability outcome" }],
+      explain: "A useful postmortem action has an owner, deadline and measurable reliability outcome - not just 'investigate more'." },
   ],
 };
 
