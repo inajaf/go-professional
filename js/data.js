@@ -102,6 +102,10 @@ const COURSE_META = {
       title: "Redis coordination and cache-aside",
       body: "Use Redis deliberately for cache-aside reads, distributed locks, and invalidation without making it the ledger source of truth.",
     },
+    m20: {
+      title: "Replicated, sharded ledger",
+      body: "Replicate the transaction log across nodes via leader election so one node's failure never halts transfers, and shard accounts by consistent hashing so the ledger scales horizontally.",
+    },
     m9: {
       title: "Production rollout and governance",
       body: "Package, deploy, refactor, and govern the ledger with container-aware runtime settings and ADR-backed production controls.",
@@ -662,7 +666,7 @@ const PARTS = [
     label: "Part 6",
     title: "Distributed Systems & Production",
     level: "Staff / Principal",
-    modules: ["m6", "m14", "m15", "m16", "m9", "m18"],
+    modules: ["m6", "m14", "m15", "m16", "m20", "m9", "m18"],
   },
 ];
 
@@ -1483,10 +1487,15 @@ tool (
       prompt:
         "Refactor this gin router group into a Go 1.22+ http.ServeMux. Preserve every status code, keep GET/POST method matching explicit, replace c.Param(\"id\") with r.PathValue(\"id\"), and return 405 with an Allow header for method mismatches. Output only the rewritten handler + mux wiring.",
     },
-    capstone: {
-      title: "Ledger Capstone",
-      body:
-        "Build the public REST gateway for transaction ingestion with zero third-party routing imports: GET /ledger/{id}, POST /ledger, GET /ledger/{id}/audit, plus an os.Root-jailed config loader.",
+    practice: {
+      title: "Try it yourself",
+      body: "Wire up a native router, then jail its file access.",
+      steps: [
+        "Build an http.NewServeMux with at least 3 routes using method+wildcard patterns (GET /x/{id}, POST /x), and confirm r.PathValue extracts the wildcard.",
+        "Hit an undefined method on an existing path and confirm ServeMux returns 405 with the correct Allow header automatically.",
+        "Wrap a directory with os.OpenRoot and try to read \"../../etc/passwd\" through it - confirm it errors instead of escaping.",
+        "Add a tool directive to go.mod for a real dev tool (e.g. golangci-lint) and run it via `go tool`.",
+      ],
     },
     pitfalls: [
       "Assuming the old catch-all behaviour: a pattern like \"/\" no longer matches everything - ServeMux now uses longest-pattern-wins precedence.",
@@ -1601,10 +1610,15 @@ v := m["USD"] // ~1 cache line, no pointer chasing`,
       prompt:
         "Write a golangci-lint custom rule (ruleguard/gorules) that flags json.Marshal/json.Unmarshal usage inside any function whose name matches /Encode|Serialize|hot/ and suggests the encoding/json/v2 MarshalWrite + jsontext.Encoder equivalent.",
     },
-    capstone: {
-      title: "Ledger Capstone",
-      body:
-        "Design the transaction serialization engine: a jsontext streaming encoder for outbound payloads and json/v2 decoders for ingestion, benchmarked under sustained high-throughput stress.",
+    practice: {
+      title: "Try it yourself",
+      body: "Feel the difference reflection-based JSON, new(expr), and Swiss Tables actually make.",
+      steps: [
+        "Benchmark json.Marshal against a jsontext streaming encoder for the same struct and compare ns/op and allocs/op with `go test -bench=. -benchmem`.",
+        "Use new(expr) to set an optional *int64 field inline, and confirm the zero-value case still marshals as omitted.",
+        "Build a map[string]int64 with 1M entries and benchmark random-key lookups - there's no API change from earlier Go versions, only the internal Swiss Table layout differs.",
+        "Compile a small encode function with `-gcflags='-m'` and confirm a non-escaping buffer stays on the stack.",
+      ],
     },
     pitfalls: [
       "Reaching for map[string]any to parse JSON on a hot path - it allocates heavily and defeats the point of json/v2.",
@@ -1708,10 +1722,15 @@ for {
       prompt:
         "Audit this struct graph for runtime.AddCleanup safety. Flag any cleanup closure that captures the cleaned object (creating a self-reference leak) and rewrite it to capture only the primitive resource handle by value.",
     },
-    capstone: {
-      title: "Ledger Capstone",
-      body:
-        "Build an interning cache for currency symbols and account-prefix strings so millions of active accounts share canonical handles, and attach AddCleanup release hooks to pooled connection structs.",
+    practice: {
+      title: "Try it yourself",
+      body: "Watch a cleanup fire exactly once, then measure interning's memory win.",
+      steps: [
+        "Attach runtime.AddCleanup to a struct, drop every reference to it, force runtime.GC(), and confirm the cleanup fires exactly once.",
+        "Intern 1000 repeated strings with unique.Make and compare memory (or pointer identity) against 1000 separately-allocated copies of the same string.",
+        "Launch a CPU-bound `for {}` goroutine next to others and confirm they still get scheduled (async preemption) instead of the program freezing.",
+        "Capture the parent struct itself inside an AddCleanup closure on purpose and confirm, via a rising memory profile, that it never gets collected - the exact leak this module warns about.",
+      ],
     },
     pitfalls: [
       "Capturing the object itself in an AddCleanup closure - it keeps the object alive forever, the exact leak you were trying to avoid. Capture the raw handle by value.",
@@ -1811,10 +1830,15 @@ func TestTimeout(t *testing.T) {
       prompt:
         "Convert this integration test from time.Sleep-based synchronization to testing/synctest. Wrap the body in synctest.Test, replace each 'sleep then assert' with synctest.Wait, and keep all original assertions. Explain any sleep you could not mechanically remove.",
     },
-    capstone: {
-      title: "Ledger Capstone",
-      body:
-        "Write deterministic tests for the audit-log processing pipeline that reliably catch concurrent updates, plus B.Loop benchmarks for the validation hot path.",
+    practice: {
+      title: "Try it yourself",
+      body: "Turn a flaky sleep-based test into a deterministic one and feel the speed difference.",
+      steps: [
+        "Write a test that spawns a goroutine doing time.Sleep(5*time.Second) and asserts on the result using a real sleep - time how long the test takes.",
+        "Rewrite the same test inside synctest.Test and confirm it passes in milliseconds, not seconds.",
+        "Add synctest.Wait() before your assertion instead of a sleep, and confirm it blocks until every goroutine in the bubble is parked.",
+        "Convert a `for i := 0; i < b.N` benchmark to `for b.Loop()` and confirm the benchmark result is stable across repeated runs.",
+      ],
     },
     pitfalls: [
       "Doing real I/O (network, disk) inside a synctest bubble - only the fake clock is virtualized; real blocking still blocks. Keep bubbles to in-memory concurrency.",
@@ -1910,10 +1934,15 @@ row := pool.QueryRow(ctx, sql, id)`,
       prompt:
         "Here are pg_stat_statements rows for the 10 slowest queries plus the schema. Propose covering indexes and query rewrites, output the modified SQL files in sqlc format, and list the exact sqlc generate command and the migration order.",
     },
-    capstone: {
-      title: "Ledger Capstone",
-      body:
-        "Build the account-balancing engine: double-entry validation, SELECT ... FOR UPDATE row locks, retry-on-serialization-failure, and clean context-cancel on client disconnect.",
+    practice: {
+      title: "Try it yourself",
+      body: "Break a query at compile time before it ever reaches Postgres.",
+      steps: [
+        "Write one sqlc query (e.g. debit an account) and confirm a misspelled column name fails at `sqlc generate`, not at runtime.",
+        "Configure a pgxpool with explicit MaxConns/MaxConnLifetime, then cancel a context mid-query and confirm the query aborts instead of running to completion.",
+        "Trigger a real unique_violation against a local Postgres and catch it precisely with errors.AsType[*pgconn.PgError].",
+        "Run two concurrent debit/credit transactions on the same two accounts and confirm SELECT ... FOR UPDATE serializes them instead of racing.",
+      ],
     },
     pitfalls: [
       "Setting MaxConns far higher than Postgres can handle - connections aren't free; size to the database, not the app.",
@@ -2036,7 +2065,7 @@ ALTER TABLE transfers ALTER COLUMN risk_score SET NOT NULL;`,
       {
         title: "Isolation, locks and deadlocks are design inputs",
         body:
-          "Read Committed does not make multi-row business invariants magically safe. For transfers, lock the affected accounts in a deterministic order, keep transactions short, and retry serialization failures. Lock order is application design, not an afterthought.",
+          "Postgres's default isolation level, Read Committed (each statement sees only rows committed before that statement began), does not make multi-row business invariants magically safe - two concurrent transfers can each read a stale balance and both proceed. For transfers, lock the affected accounts in a deterministic order, keep transactions short, and retry serialization failures. Lock order is application design, not an afterthought.",
         code: `SELECT id, balance_cents
   FROM accounts
  WHERE id = ANY($1::uuid[])
@@ -2050,7 +2079,7 @@ ALTER TABLE transfers ALTER COLUMN risk_score SET NOT NULL;`,
       {
         title: "Vacuum, bloat and long transactions",
         body:
-          "MVCC keeps old row versions so concurrent readers see a stable snapshot. That is powerful, but a long transaction can pin old versions and prevent vacuum from cleaning them. Watch idle-in-transaction sessions, dead tuples, and slow statements before bloat becomes the incident.",
+          "Postgres never overwrites a row in place on UPDATE/DELETE - it keeps the old version around under MVCC (Multi-Version Concurrency Control), so concurrent readers always see a stable snapshot without ever blocking writers. That is powerful, but a long-running transaction can pin old versions in place and prevent vacuum, the background process that reclaims them, from cleaning them up. Watch idle-in-transaction sessions, dead tuples, and slow statements before bloat becomes the incident.",
         code: `SELECT pid, state, now() - xact_start AS age, query
   FROM pg_stat_activity
  WHERE xact_start IS NOT NULL
@@ -2070,10 +2099,15 @@ SELECT relname, n_dead_tup, vacuum_count, autovacuum_count
       prompt:
         "Review this Postgres schema and migration plan for a financial ledger. Identify invariant gaps, missing constraints, unsafe DDL locks, indexes that do not match the query shapes, long-transaction/vacuum risks, and the exact EXPLAIN ANALYZE BUFFERS evidence you would require before approving it.",
     },
-    capstone: {
-      title: "Ledger Capstone",
-      body:
-        "Design the production Postgres layer for the ledger: schema, constraints, idempotency keys, outbox, query indexes, online migrations, lock order, retry policy, and operational dashboards for vacuum, bloat, slow queries, and connection pressure.",
+    practice: {
+      title: "Try it yourself",
+      body: "Make the schema reject bad states before your Go code ever runs.",
+      steps: [
+        "Create the accounts/transfers/outbox tables with CHECK/UNIQUE/foreign-key constraints, then try inserting a negative balance and confirm Postgres itself rejects it.",
+        "Run EXPLAIN (ANALYZE, BUFFERS) on a filtered+sorted query before and after adding a matching composite index, and compare the plan.",
+        "Open two psql sessions, lock the same two accounts in different orders in each, and reproduce a real deadlock - then fix it by locking in a fixed order.",
+        "Start a transaction, leave it idle, and watch n_dead_tup climb in pg_stat_user_tables on a table you're updating concurrently from another session.",
+      ],
     },
     pitfalls: [
       "Adding NOT NULL, defaults, or rewritten columns to a hot table as one big migration without measuring the lock it will take.",
@@ -2137,7 +2171,7 @@ SELECT relname, n_dead_tup, vacuum_count, autovacuum_count
       {
         title: "Hybrid PQC with crypto/mlkem + crypto/hpke",
         body:
-          "A 'harvest now, decrypt later' adversary records today's traffic to crack with a future quantum computer. Hybrid key exchange combines classical X25519 with ML-KEM-768 - the session is safe unless BOTH are broken.",
+          "A 'harvest now, decrypt later' adversary records today's traffic to crack with a future quantum computer. Hybrid key exchange combines classical X25519 with ML-KEM-768, so the session stays safe unless BOTH are broken. crypto/mlkem gives you the raw shared secret; crypto/hpke (RFC 9180) is the layer on top that turns a KEM into ready-to-use authenticated encryption - it bundles the key exchange with a key-derivation function and an AEAD cipher behind one Seal/Open API, so you never hand-wire a KDF and a cipher together yourself.",
         code: `import "crypto/mlkem"
 
 // Receiver publishes an encapsulation key.
@@ -2155,7 +2189,7 @@ recovered, _ := dk.Decapsulate(ct)
       {
         title: "Self-referencing generic constraints",
         body:
-          "The curiously-recurring pattern type Node[T Node[T]] lets the compiler enforce that a method returns the concrete implementing type - encoding cluster-topology invariants that would otherwise be runtime asserts.",
+          "Without this pattern, a Peers() []Node method could return a mix of different node implementations, forcing a runtime type assertion every time you called a method on one. Writing type Node[T Node[T]] - nicknamed 'curiously recurring' because the type names itself inside its own constraint - tells the compiler 'T must itself satisfy Node[T]', which forces every method that returns T to return that SAME concrete type everywhere. So LedgerNode.Peers() is provably []*LedgerNode, never a mixed bag, with zero runtime checks.",
         code: `type Node[T Node[T]] interface {
     ID() string
     Peers() []T          // returns concrete node type, not interface
@@ -2176,10 +2210,15 @@ func (n *LedgerNode) Merge(o *LedgerNode) *LedgerNode { /* ... */ }`,
       prompt:
         "Given proto schema v1 (repo A) and a proposed v2, check wire-compatibility: flag any reused/changed field numbers or type changes, confirm new fields are optional, and generate a buf breaking-change report plus the safe migration diff.",
     },
-    capstone: {
-      title: "Ledger Capstone",
-      body:
-        "Secure intra-cluster ledger updates over a hybrid quantum-resistant transport, with Protobuf schemas versioned for zero-break rolling upgrades.",
+    practice: {
+      title: "Try it yourself",
+      body: "Run a real hybrid key exchange and break Protobuf compatibility on purpose.",
+      steps: [
+        "Generate an ML-KEM-768 keypair, encapsulate, decapsulate, and confirm both sides land on the identical shared secret.",
+        "Add a new optional field to a .proto message, regenerate, and confirm an old-generated client still decodes messages from the new server.",
+        "Reuse a retired field number on purpose and observe how a client silently misreads the wrong field - the exact bug 'reserved' exists to prevent.",
+        "Implement type Node[T Node[T]] for two different concrete node types and confirm the compiler rejects mixing them where a single concrete T is required.",
+      ],
     },
     pitfalls: [
       "Reusing a retired Protobuf field number - old and new nodes will silently misinterpret bytes. Always 'reserved' it.",
@@ -2277,10 +2316,15 @@ func TestNoLeak(t *testing.T) {
       prompt:
         "Analyze this runtime/trace flight recording captured around a p99 latency spike. Identify the dominant blocking events, the goroutines on the critical path, and whether the cause is GC, lock contention, or a syscall stall. Output a ranked root-cause hypothesis list.",
     },
-    capstone: {
-      title: "Ledger Capstone",
-      body:
-        "Add automatic diagnostic-dump hooks to the balance processor so anomalous latency spikes auto-capture a flight trace plus goroutine/heap profiles.",
+    practice: {
+      title: "Try it yourself",
+      body: "Capture the seconds before a synthetic failure - then hunt a leak automatically.",
+      steps: [
+        "Start a trace.FlightRecorder, run some load, then trigger a manual dump and open it with `go tool trace`.",
+        "Wire a dump to fire only when a fake latency threshold is crossed, and confirm normal traffic never triggers a write.",
+        "Leak a goroutine on purpose (block on a channel nobody closes) and catch it with a goroutine-leak check in a test.",
+        "Benchmark a bounded FlightRecorder's overhead against leaving full continuous tracing on, under the same load.",
+      ],
     },
     pitfalls: [
       "Turning on a full continuous trace 'just in case' - that's expensive. The FlightRecorder's bounded ring buffer is the cheap, always-on option.",
@@ -2374,10 +2418,15 @@ func sign(msg []byte) []byte {
       prompt:
         "Vectorize this scalar checksum loop using simd/archsimd. Process 16 bytes per iteration, handle the non-multiple-of-16 tail with a scalar remainder loop, and keep a build-tag fallback for architectures without the intrinsics. Add a benchmark comparing both.",
     },
-    capstone: {
-      title: "Ledger Capstone",
-      body:
-        "Build an ultra-fast transaction-validation loop that verifies block checksums with vector instructions, with secure zeroing of encryption keys via runtime/secret.",
+    practice: {
+      title: "Try it yourself",
+      body: "Vectorize a hot loop, then make sure a secret key can't outlive its use.",
+      steps: [
+        "Benchmark a scalar byte-checksum loop against a simd/archsimd version processing 16 bytes at a time.",
+        "Add a scalar remainder loop for the tail (length not a multiple of 16) and confirm the vectorized version still gives the correct checksum on odd-length input.",
+        "Hold a fake key in a plain []byte, dump the process's memory, and find the key bytes still sitting there - then redo it with runtime/secret and confirm Destroy actually zeroes them.",
+        "Build with GOEXPERIMENT=greenteagc and benchmark GC pause/throughput against the default collector on a large-heap workload.",
+      ],
     },
     pitfalls: [
       "Vectorizing without a scalar fallback - your binary then breaks on CPUs/arches without those instructions. Always keep a tail/remainder path.",
@@ -2400,8 +2449,8 @@ func sign(msg []byte) []byte {
   /* ================================================================= M9 */
   {
     id: "m9",
-    code: "D5",
-    num: 22,
+    code: "D6",
+    num: 23,
     part: "part-5",
     title: "Production Governance & Automated Refactoring",
     short: "Governance & Rollout",
@@ -2481,10 +2530,15 @@ Consequences: +1 RTT handshake cost; quantum-resistant confidentiality;
       prompt:
         "From these Slack threads and design-doc excerpts, draft an ADR in the Context / Decision / Consequences format. Extract the real options that were debated, the chosen one, the trade-offs raised, and mark anything still unresolved as an open question.",
     },
-    capstone: {
-      title: "Ledger Capstone",
-      body:
-        "Package the complete distributed ledger with health/readiness probes and a distroless image, ready for zero-downtime rolling updates on Kubernetes.",
+    practice: {
+      title: "Try it yourself",
+      body: "Watch GOMAXPROCS follow a container's real CPU quota, then ship a hardened image.",
+      steps: [
+        "Run a Go program inside a --cpus=2 container and confirm runtime.GOMAXPROCS(0) reports 2, not the host's core count.",
+        "Build a multi-stage Dockerfile that ends on distroless/static and confirm the final image has no shell (docker run ... sh fails).",
+        "Mark a function //go:fix inline in a small library, then run `go fix ./...` on a caller and confirm the call site rewrites automatically.",
+        "Write one real ADR (Context/Decision/Consequences) for a choice you made earlier in this course.",
+      ],
     },
     pitfalls: [
       "Hard-coding GOMAXPROCS in a container - let the cgroup-aware default match the real CPU quota, or you'll thrash under throttling.",
@@ -3467,11 +3521,137 @@ if count > 100 {
       "Every lock key carries its own TTL, so a crashed holder cannot lock a resource forever.",
     ],
   },
+  /* ================================================================ M20 */
+  {
+    id: "m20",
+    code: "D5",
+    num: 22,
+    part: "part-5",
+    title: "Distributed Consensus, Replication & Sharding",
+    short: "Consensus & Sharding",
+    level: "Staff",
+    duration: "3–4 hrs",
+    icon: "share",
+    summary:
+      "Why you can't just run two databases and hope they agree: leader election with randomized timeouts, replicating a log so every node ends up with the same sequence of commands, consistent hashing to shard data without a full reshuffle, and the quorum math that makes the whole thing tunable.",
+    plain:
+      "Imagine three clerks who each keep a copy of the same ledger, spread across three different rooms with an unreliable intercom between them. If you just let 'whoever writes first, wins,' two clerks who can't hear each other for a moment might both start writing different things at the same time - now the three ledgers disagree and nobody can say which is right. The fix isn't a fancier intercom; it's a rule: a clerk may only start writing once a MAJORITY of clerks have agreed, out loud, that this clerk (and only this clerk) is in charge right now. That agreement - a majority, not everyone, not just one - is the single idea underneath leader election, log replication, and sharding alike. A majority can always be reached even if one room goes silent, and a majority can never form in two rooms at once, which is exactly why the ledger never ends up in two disagreeing versions.",
+    animation: {
+      id: "raft-consensus",
+      title: "Leader Election & Log Replication",
+      blurb:
+        "Watch three nodes heartbeat happily, one go silent past its randomized election timeout, a candidate collect votes from a majority, become leader, and replicate a log entry out until it's safely committed.",
+    },
+    concepts: [
+      {
+        title: "The problem: why two databases can't just 'agree'",
+        body:
+          "A naive 'primary with manual failover' design looks fine until the network partitions: the primary is still running, it just can't be reached, so an operator (or a script) promotes the backup to primary too. Now two nodes both believe they are authoritative, both accept writes, and the instant the partition heals you have two histories that disagree - a split brain. The fix is not a smarter health check; it's requiring a MAJORITY of the cluster to agree before anyone is allowed to act as leader, because a network partition can isolate a minority from a majority, but it can never produce two majorities out of the same set of nodes at the same time.",
+        code: `// Naive primary/backup - BROKEN under partition:
+//   primary unreachable for 3s -> backup promotes itself
+//   primary was actually fine, just partitioned -> now TWO primaries
+//   both accept writes -> split brain, divergent data
+//
+// Quorum-based election - safe under the same partition:
+//   a node may only become leader with votes from a MAJORITY
+//   a 5-node cluster split 2 / 3 -> only the 3-side can ever
+//   reach a majority -> at most one leader exists, ever`,
+        lang: "go",
+      },
+      {
+        title: "Leader election: heartbeats, terms, and randomized timeouts",
+        body:
+          "Every node tracks a 'term', a number that only ever goes up. The leader sends periodic heartbeats; as long as followers hear them, they stay followers. If a follower hears nothing for its election timeout, it assumes the leader is gone, increments the term, becomes a candidate, and requests votes from everyone else. The timeout is randomized per node specifically so that nodes don't all become candidates in the same instant and split the vote every round - one node's timer almost always fires first, giving it a clean run at a majority before anyone else even starts.",
+        code: `func electionTimeout() time.Duration {
+    // randomized so nodes don't all time out together and
+    // repeatedly split the vote
+    return time.Duration(150+rand.Intn(150)) * time.Millisecond
+}
+// heartbeat received -> reset the timer, stay follower
+// timer fires first  -> term++, become candidate, request votes`,
+        lang: "go",
+      },
+      {
+        title: "Log replication: agreeing on an ordered sequence of commands",
+        body:
+          "Once elected, the leader is the only node allowed to accept new commands. Each command becomes a log entry the leader appends locally, then sends to every follower via AppendEntries. The entry is 'committed' - safe to apply and report back to the client - the instant a MAJORITY of nodes (leader included) have durably stored it, not when the leader wrote it locally, and not when every follower has it. That distinction matters: the leader never waits on a slow or unreachable minority, so the cluster keeps making progress even while one node lags or is down.",
+        code: `type LogEntry struct {
+    Term    int
+    Command string
+}
+// leader appends locally, then replicates concurrently:
+//   go appendEntries(entry, follower1, acks)
+//   go appendEntries(entry, follower2, acks)
+// committed the moment acked (including self) >= majority -
+// the leader does NOT wait for every follower to reply`,
+        lang: "go",
+      },
+      {
+        title: "Consistent hashing: sharding without a full reshuffle",
+        body:
+          "Plain `hash(key) % N` looks fine until N changes: adding or removing a single node changes almost every key's `% N` result, forcing a near-total data reshuffle. Consistent hashing places both nodes and keys on a ring (by hashing their IDs to the same numeric space); a key belongs to the first node found walking clockwise from its position. Removing a node only remaps the keys that were pointing at it - not the whole ring. Real systems also add 'virtual nodes' (many ring positions per physical node) so that responsibility stays evenly spread instead of dumping an uneven slice onto whichever real node happens to sit next to the gap.",
+        code: `// plain modulo - changing N reshuffles almost everything:
+//   hash(key) % 4  vs  hash(key) % 5   -> ~80% of keys move
+//
+// consistent hashing - only the affected slice moves:
+//   ring positions: node hashes sorted ascending
+//   owner(key) := first node clockwise from hash(key)
+//   remove one node -> only ITS keys move to their new
+//   clockwise neighbor; everyone else's keys are untouched`,
+        lang: "go",
+      },
+      {
+        title: "Quorums: majority reads/writes and the tunable consistency trade",
+        body:
+          "Generalize 'majority' with three numbers: N replicas total, W replicas that must ack a write, R replicas a read must consult. Whenever W + R > N, every possible read quorum and every possible write quorum are guaranteed to overlap by at least one replica - so a read can never completely miss the most recently committed write. Shrink W or R below that line and you get faster, cheaper operations at the cost of that guarantee: a read might return a slightly stale value because it never had to ask a replica that has the newest one. Neither choice is 'wrong' - it's a dial, and production systems document exactly where they've set it.",
+        code: `// N = 3 replicas
+// W + R > N  ->  strongly consistent reads
+//   W=2, R=2 : 2+2=4 > 3  -> every read/write pair overlaps
+// W + R <= N ->  faster, but reads can be stale
+//   W=1, R=1 : 1+1=2 <= 3 -> a read may miss the latest write`,
+        lang: "go",
+      },
+    ],
+    ai: {
+      title: "AI-Workflow Integration",
+      body:
+        "Feed an LLM a leader-election trace and have it explain exactly why a specific node won, or predict the outcome of a simulated partition.",
+      prompt:
+        "Here is a log of RequestVote/AppendEntries RPCs from a 5-node cluster over 2 seconds, with terms and vote grants: <paste>. Walk through why one specific node became leader for its term, whether a split vote occurred in any earlier term, and what would happen if the network partitioned nodes {1,2} away from {3,4,5} right after this trace ends.",
+    },
+    practice: {
+      title: "Try it yourself",
+      body: "Run the leader-election program repeatedly and watch the guarantee hold even as the winner changes.",
+      steps: [
+        "Run the worked-example program (go run .) five times in a row and note which node wins each time - it should never be predictable in advance, but always exactly one winner.",
+        "Re-run it under go run -race and confirm zero data races despite the concurrent RequestVote/AppendEntries goroutines.",
+        "Change the cluster size from 3 to 5 nodes and update the majority threshold (n/2+1) so a majority now requires 3 acks, not 2.",
+        "Hash three fake node IDs and three fake keys onto a numeric ring by hand (or a tiny script), remove one node, and confirm only the keys pointing at it move to their new neighbor.",
+      ],
+    },
+    pitfalls: [
+      "Building a 'primary with manual failover' instead of real quorum-based election - a network partition makes both sides think they're primary, and now two 'leaders' accept conflicting writes.",
+      "Treating a log entry as safe the moment the leader writes it locally - it's only committed once a MAJORITY of replicas have durably stored it, and a leader that crashes before replicating can lose work nobody else ever received.",
+      "Choosing W and R so that W + R <= N and then being surprised reads return stale data - that's not a bug, it's exactly the consistency trade you configured.",
+      "Hashing keys with plain `hash(key) % N` instead of consistent hashing - adding or removing a single node reshuffles nearly every key instead of just the ones near it on the ring.",
+    ],
+    takeaways: [
+      "Consensus turns N independent nodes into one replicated log everyone agrees on, one entry at a time, using randomized-timeout leader election so no single node is a point of failure.",
+      "'Committed' means a majority durably has it - not that the leader wrote it locally, and not that every replica has it yet.",
+      "Consistent hashing plus virtual nodes lets a cluster grow or shrink by one node without reshuffling the whole keyspace, and W + R > N is the dial that trades latency for read consistency.",
+    ],
+    checklist: [
+      "Leader election uses randomized timeouts and per-term majority votes - never a fixed 'whoever's up first' primary.",
+      "A write is only ever treated as durable once a majority of replicas have acknowledged it, not just the leader.",
+      "Sharding uses consistent hashing (with virtual nodes), so adding or removing a node remaps a small, bounded slice of keys.",
+      "The read/write quorum sizes (W, R, N) are a deliberate, documented choice - not an accident of default settings.",
+    ],
+  },
   /* ================================================================ M18 */
   {
     id: "m18",
-    code: "D6",
-    num: 23,
+    code: "D7",
+    num: 24,
     part: "part-5",
     title: "SRE: SLOs, Observability, Incidents & Platform Reliability",
     short: "SRE & Interview Prep",
@@ -3607,10 +3787,15 @@ kubectl describe pod <pod> | grep -A5 -E "Events|Limits|Requests"`,
       prompt:
         "Act as a senior SRE interviewer. Ask me one scenario at a time based on this vacancy: SLI/SLO, Prometheus/Thanos, OpenTelemetry, Tempo/Loki, Kubernetes/OpenShift, Linux networking, on-call, RCA and toil automation. After each answer, grade it on correctness, operational judgment and communication, then show the stronger answer.",
     },
-    capstone: {
-      title: "Ledger Capstone",
-      body:
-        "Add the SRE operating layer to the ledger: SLOs and burn-rate alerts, Grafana dashboards, OpenTelemetry correlation, an on-call runbook, a postmortem template, toil automation and Kubernetes/OpenShift readiness review.",
+    practice: {
+      title: "Try it yourself",
+      body: "Turn an SLO into a number, then break it on purpose and watch the alert logic respond.",
+      steps: [
+        "Pick one endpoint, define its SLI (e.g. success/total), set a 99.9% SLO, and calculate the error budget for 1,000,000 requests by hand.",
+        "Write the burn-rate expression from this module and compute it for two scenarios: 14x burn over 5 minutes vs 2x burn over 6 hours - decide page vs ticket for each.",
+        "Add a trace_id to a log line and a span, and manually trace one fake request end-to-end: metric flags it, trace shows the slow hop, log explains the event.",
+        "Write one real postmortem action item with an owner, a deadline, and a concrete reliability outcome - not \"investigate more\".",
+      ],
     },
     pitfalls: [
       "Defining SLOs from infrastructure symptoms instead of user-visible behavior.",
@@ -4102,6 +4287,14 @@ const GLOSSARY = {
     ["INCR", "An atomic increment-and-return, the building block of a race-free counter or rate limiter."],
     ["Cache stampede", "A burst of simultaneous misses (from mass expiry or one hot key) hitting the real database all at once."],
   ],
+  m20: [
+    ["Leader election", "The process by which one node in a cluster is chosen, for a given term, to be the only one allowed to accept and order new writes."],
+    ["Term / epoch", "A monotonically increasing counter that identifies one leader's reign; a higher term always wins and tells every node to abandon a stale leader."],
+    ["Split brain", "Two nodes simultaneously believing they are the leader, usually after a network partition - the exact failure mode quorum-based election exists to prevent."],
+    ["Log replication", "Copying the leader's ordered sequence of commands to follower nodes so every replica ends up applying the same operations in the same order."],
+    ["Quorum", "The minimum number of nodes (a majority, N/2+1) that must agree before a write or an election is considered valid."],
+    ["Consistent hashing", "A hashing scheme that maps both nodes and keys onto a ring, so adding or removing one node only remaps the keys near it instead of the entire keyspace."],
+  ],
   m18: [
     ["SLI", "A measured indicator of user-visible reliability, such as successful requests or latency under a threshold."],
     ["SLO", "A target for an SLI over a window, e.g. 99.9% successful transfers over 30 days."],
@@ -4404,6 +4597,17 @@ const ASSIGNMENTS = {
     { type: "blank", prompt: "Fill in the atomic command that increments a counter and returns its new value in one round trip:",
       code: `count, err := rdb.____(ctx, "ratelimit:ip:1.2.3.4").Result()`, accept: ["Incr"],
       explain: "rdb.Incr atomically adds 1 and returns the new total - two concurrent callers can never both read the old value and overwrite each other's increment." },
+  ],
+  m20: [
+    { type: "mcq", prompt: "In a 5-node cluster using majority quorum, how many nodes must acknowledge a write before it's considered committed?",
+      options: ["Any 1 node", "3 nodes (a majority)", "All 5 nodes", "Exactly 2 nodes"], answer: 1,
+      explain: "Majority of 5 is 3 - the smallest quorum that guarantees any two majorities overlap by at least one node, which is what keeps the cluster consistent despite failures." },
+    { type: "mcq", prompt: "Why does each node use a RANDOMIZED election timeout instead of a fixed one?",
+      options: ["To save CPU", "So nodes don't all time out at the same moment and repeatedly split the vote", "Because Go's time package requires it", "To make the demo animation look nicer"], answer: 1,
+      explain: "If every node's timeout were identical, many nodes would become candidates in the same instant, split the vote every term, and never elect a leader. Randomizing timeouts means one node almost always times out first." },
+    { type: "blank", prompt: "Fill in the quorum inequality that guarantees a read always overlaps with the latest committed write, given N replicas, W required write acks, and R required read acks:",
+      code: `W + R > ____`, accept: ["N"],
+      explain: "W + R > N guarantees any write quorum and any read quorum share at least one replica in common, so a read can never completely miss the most recent write." },
   ],
   m18: [
     { type: "mcq", prompt: "A good SLI should primarily measure:",

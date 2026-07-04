@@ -351,6 +351,22 @@ window.COURSE_EN.LESSONS = {
     { h: "The failure mode to avoid: forgetting Redis is a cache, not the database",
       p: "Every pitfall in this module comes from the same root mistake: treating Redis as more durable, more authoritative, or more coordinated than it actually is. Data that only ever lived in Redis vanishes on a flush or an eviction - if that would actually hurt, it belongs in a real database, with Redis only ever holding a disposable copy. A burst of keys expiring together (or one very hot key expiring) can send a stampede of simultaneous misses at your real database all at once - worth guarding against with staggered TTLs or a lock around the repopulation itself. And a lock or a counter built with a manual GET-then-SET, instead of SETNX or INCR, quietly reintroduces the exact race those atomic commands exist to eliminate." },
   ],
+  m20: [
+    { h: "Concept: a cluster must survive losing a minority of itself, on purpose",
+      p: "A single database is a single point of failure by definition - lose that one machine and you lose the data, or at least availability, until it comes back. Replicating the data across several nodes fixes availability but creates a new problem: now several nodes might disagree about what the truth is. Distributed consensus is the discipline of making N independent nodes behave like one reliable node, on purpose, even though any minority of them can crash, slow down, or get cut off by the network at any moment. The nodes that remain simply need to be a majority - that one requirement is what everything else in this module is built on." },
+    { h: "How it works: heartbeats, terms and a randomized race to become leader",
+      p: "Exactly one node is elected leader for a given 'term' - a number that only increases, so any two claims to leadership can always be compared and the higher term wins. The leader sends heartbeats; as long as followers hear them, nothing happens - they just keep following. The moment a follower's own randomized election timeout elapses without a heartbeat, it assumes the leader is gone, bumps the term, becomes a candidate, and requests votes from the rest of the cluster. Randomizing each node's timeout (rather than using one fixed value everywhere) is the detail that keeps elections from constantly splitting three-ways: with randomized timers, one node's clock reliably fires first, and it usually wins the whole term before any other node even starts trying." },
+    { h: "Why it works: log replication and the meaning of 'committed'",
+      p: "Once elected, the leader is the only node allowed to accept new commands from clients. Each command becomes an entry in the leader's log; the leader then replicates that entry to every follower via an AppendEntries call. Here is the detail that matters most: the entry is 'committed' - safe to apply, safe to tell the client 'yes, this happened' - the moment a MAJORITY of nodes (the leader included) have durably stored it. Not when the leader wrote it locally (that's just one node), and not when every single follower has it (that could mean waiting forever on a node that's down). Majority is the exact threshold that lets the cluster keep making real progress even while a minority of it is slow, unreachable, or crashed outright." },
+    { h: "Why a network partition doesn't produce two leaders",
+      p: "Split a 5-node cluster into a group of 2 and a group of 3 by cutting the network between them, and both groups still try to keep working. The 2-side can never gather a majority (3 out of 5) no matter how hard it tries - so it can elect no new leader and commit no new writes; it simply stalls, which is safe, if inconvenient. The 3-side CAN gather a majority among itself, so it elects a leader and keeps committing new entries normally. When the partition heals, the stale leader on the 2-side (if there was one, at a lower term) hears about the higher term from the 3-side and immediately steps down, and its followers catch up on whatever committed entries they missed. Nothing was ever accepted by both sides at once, so nothing ever needs to be reconciled - unlike the naive primary/backup design, where two live 'leaders' can each accept writes that later conflict." },
+    { h: "How sharding works: consistent hashing and virtual nodes",
+      p: "Consensus keeps one replicated log correct; sharding is the separate decision to split the overall keyspace across several such groups so no single group has to hold (or serve) everything. Consistent hashing maps both node IDs and keys onto the same numeric ring, and a key belongs to whichever node's position it reaches first walking clockwise. The payoff over plain `hash(key) % N` shows up exactly when N changes: removing one node only remaps the keys that were pointing at it, handing them to their new clockwise neighbor, while every other key stays exactly where it was. Production systems also give each physical node many positions on the ring ('virtual nodes') so that the keys freed up by a departing node spread evenly across the rest of the cluster instead of piling onto whichever single node happened to sit next to the gap." },
+    { h: "Quorums: the dial between speed and consistency",
+      p: "Generalize 'majority' into three numbers: N total replicas, W replicas required to acknowledge a write, and R replicas a read must consult. The rule W + R > N guarantees that any write quorum and any read quorum are mathematically forced to overlap by at least one node - so a read can never completely miss the most recently committed write, no matter which R nodes it happens to ask. Turn W or R down below that line and reads/writes get faster and cheaper, at the honest cost of that guarantee: a read might land entirely on replicas that haven't heard about the latest write yet. Neither setting is 'the right one' in the abstract - it is a deliberate trade between latency and consistency that a production system should document, not one it should back into by accident." },
+    { h: "The failure mode to avoid: treating any of this as free",
+      p: "Every technique here trades some latency or engineering complexity for a specific guarantee, and the pitfalls all come from forgetting that. A 'primary with manual failover' looks simpler than real leader election right up until a partition creates two primaries that both accept writes - the complexity didn't go away, it just moved to a 3am incident. Calling an entry 'committed' as soon as the leader writes it locally looks fine until that leader crashes before replicating, silently losing work nobody else ever received. And picking W + R <= N for speed is a perfectly valid choice - as long as everyone downstream knows reads can be stale, instead of discovering it in production." },
+  ],
   m18: [
     { h: "Read the vacancy as an operating model",
       p: "This SRE vacancy is not asking for someone who merely knows tool names. It describes an operating loop: define reliability with SLIs and SLOs, instrument the system so reality is visible, alert only when action is needed, run incidents without chaos, find root causes, remove toil with automation, and influence engineering teams before reliability problems ship. That is why the right interview answer usually starts from a user journey, then connects tools to outcomes: lower detection time, lower recovery time, safer deploys, and fewer repeated manual tasks." },
@@ -2272,6 +2288,133 @@ func allow(ctx context.Context, rdb *redis.Client, key string, window time.Durat
 //   request 5: rejected - 429 Too Many Requests (count=5)`,
         lang: "go",
         why: "This is the same atomicity as SETNX, just counting instead of locking - Incr's single round trip is what stops two simultaneous requests from both reading count=2 and both writing count=3, which would silently let one extra request through.",
+      },
+    ],
+  },
+  m20: {
+    title: "Simulate a leader election with heartbeats and randomized timeouts",
+    intro: "A small, complete, dependency-free Go program: three in-memory nodes race randomized election timeouts, the first to fire becomes a candidate and wins a majority vote, then the new leader replicates one log entry to both followers and commits it the instant a majority - not all three - has acknowledged it.",
+    steps: [
+      {
+        title: "Step 1 - Concept: every node picks its own randomized election timeout",
+        concept: "electionTimeout returns a random duration in a fixed range. Three nodes each get one; whichever timeout is SMALLEST determines which node times out first and becomes a candidate.",
+        code: `func electionTimeout() time.Duration {
+	return time.Duration(150+rand.Intn(150)) * time.Millisecond
+}
+
+const n = 3 // a 3-node cluster; majority is 2
+
+timeouts := make([]time.Duration, n)
+for i := range timeouts {
+	timeouts[i] = electionTimeout()
+}
+candidate := 0
+for i, t := range timeouts {
+	if t < timeouts[candidate] {
+		candidate = i
+	}
+}
+term := 1
+fmt.Printf("node %d times out first (%v) -> becomes candidate for term %d\\n",
+	candidate, timeouts[candidate], term)
+// node 2 times out first (188ms) -> becomes candidate for term 1`,
+        lang: "go",
+        why: "Randomizing the timeout per node - instead of using one fixed value everywhere - is what keeps three nodes from all becoming candidates in the same instant and splitting the vote forever. One node's timer reliably fires first.",
+      },
+      {
+        title: "Step 2 - How it works: the candidate requests votes concurrently",
+        concept: "requestVote simulates one follower deciding whether to grant its vote, run as a goroutine per follower - just like real vote requests would arrive over the network at slightly different times. The candidate counts itself plus every granted vote.",
+        code: `type voteReply struct {
+	from    int
+	granted bool
+}
+
+func requestVote(term, from int, replies chan<- voteReply) {
+	time.Sleep(time.Duration(rand.Intn(20)) * time.Millisecond) // simulated latency
+	replies <- voteReply{from: from, granted: true}             // hasn't voted this term -> grants
+}
+
+votes := 1 // votes for itself
+replies := make(chan voteReply, n-1)
+for i := 0; i < n; i++ {
+	if i == candidate {
+		continue
+	}
+	go requestVote(term, i, replies)
+}
+for i := 0; i < n-1; i++ {
+	r := <-replies
+	if r.granted {
+		votes++
+		fmt.Printf("  node %d grants its vote (total votes: %d)\\n", r.from, votes)
+	}
+}
+// node 1 grants its vote (total votes: 2)
+// node 0 grants its vote (total votes: 3)`,
+        lang: "go",
+        why: "Sending every RequestVote concurrently (one goroutine per follower) mirrors how a real cluster gathers votes in parallel over the network - the candidate doesn't wait for node 0 to finish before asking node 1.",
+      },
+      {
+        title: "Step 3 - Why it works: commit the instant a majority acknowledges, not everyone",
+        concept: "Once the candidate holds a majority of votes it becomes leader and replicates one log entry the same way - concurrently - but stops counting the moment it has a majority of acks, including its own.",
+        code: `if votes <= n/2 {
+	fmt.Println("no majority - split vote, term expires, try again next term")
+	return
+}
+fmt.Printf("node %d has a majority (%d/%d) -> becomes LEADER for term %d\\n",
+	candidate, votes, n, term)
+
+type appendReply struct {
+	from int
+	ok   bool
+}
+func appendEntries(entry string, from int, replies chan<- appendReply) {
+	time.Sleep(time.Duration(rand.Intn(20)) * time.Millisecond)
+	replies <- appendReply{from: from, ok: true}
+}
+
+entry := "SET balance[alice] = 900"
+acked := 1 // the leader's own log already has it
+appendReplies := make(chan appendReply, n-1)
+for i := 0; i < n; i++ {
+	if i == candidate {
+		continue
+	}
+	go appendEntries(entry, i, appendReplies)
+}
+majority := n/2 + 1
+for i := 0; i < n-1 && acked < majority; i++ {
+	r := <-appendReplies
+	if r.ok {
+		acked++
+		fmt.Printf("  node %d acknowledges the entry (acked: %d)\\n", r.from, acked)
+	}
+	if acked >= majority {
+		fmt.Printf("entry committed after %d/%d acks - not waiting on the remaining follower\\n", acked, n)
+	}
+}
+// node 1 acknowledges the entry (acked: 2)
+// entry committed after 2/3 acks - not waiting on the remaining follower`,
+        lang: "go",
+        why: "The loop condition 'i < n-1 && acked < majority' is the whole point: it stops reading replies (and the program moves on) the instant a majority is reached, so one slow or unreachable follower can never block the cluster from making progress.",
+      },
+      {
+        title: "Step 4 - Predict: run it several times - a different node wins, but the guarantee holds",
+        concept: "Run the full program (go run .) five times in a row under `go run -race` and compare who becomes leader each time.",
+        code: `// run 1: node 2 times out first (166ms) -> LEADER for term 1
+//         node 1 acknowledges the entry (acked: 2) -> committed
+// run 2: node 0 times out first (156ms) -> LEADER for term 1
+//         node 2 acknowledges the entry (acked: 2) -> committed
+// run 4: node 1 times out first (190ms) -> LEADER for term 1
+//         node 2 acknowledges the entry (acked: 2) -> committed
+//
+// WHO wins the election changes every run - that's just timing.
+// THAT exactly one node wins, and THAT the entry always commits
+// after exactly a majority of acks, never changes. go test -race
+// reports zero data races: every shared value only ever crosses
+// between goroutines over a channel.`,
+        lang: "go",
+        why: "This is the same lesson as SETNX in the Redis module, one level up the stack: which node wins a race is never guaranteed and never should be relied on - but that exactly one of them wins, every single time, is the actual guarantee the algorithm provides.",
       },
     ],
   },

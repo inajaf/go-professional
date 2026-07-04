@@ -583,16 +583,6 @@
       ? `<section class="plain"><span class="plain-ic">${ico("lightbulb", 22)}</span>
            <div><span class="plain-k">${esc(UI.inPlainTerms)}</span><p>${esc(m.plain)}</p></div></section>`
       : "";
-    const ledgerBuild = ledgerBuildOf(m);
-    const buildHtml = `<section class="module-build cap-build">
-       <span class="build-ic">${ico("landmark", 20)}</span>
-       <div>
-         <span class="build-k">${esc(UI.moduleBuildTitle)}</span>
-         <h2>${esc(ledgerBuild.title || UI.ledgerBuild)}</h2>
-         <p>${esc(ledgerBuild.body || "")}</p>
-         <span class="cap-tag">${esc(UI.ledgerBuild)} · ${esc(m.code)}</span>
-       </div>
-     </section>`;
     const pitfallsHtml = (m.pitfalls || []).map((p) => `<li>${esc(p)}</li>`).join("");
     const takeawaysHtml = (m.takeaways || []).map((p) => `<li>${esc(p)}</li>`).join("");
     const lesson = LESSONS[m.id] || [];
@@ -652,8 +642,6 @@
         </header>
 
         ${plainHtml}
-
-        ${buildHtml}
 
         ${animsOf(m).map((a, i) => vizSectionHtml(a, i, animsOf(m).length)).join("")}
 

@@ -989,6 +989,42 @@
     "Five clients call SET … NX on the same lock key at the same instant. Because Redis executes one command at a time, exactly one of them creates the key and gets the lock - the other four fail immediately.": "Пять клиентов вызывают SET … NX на один и тот же ключ блокировки в один и тот же момент. Поскольку Redis выполняет по одной команде за раз, ровно один из них создаёт ключ и получает блокировку - остальные четыре немедленно проваливаются.",
     "No extra coordination code was added anywhere. This atomicity is a free property of how Redis executes commands - it's what makes one Redis instance a correct distributed lock.": "Никакой дополнительный код координации не был добавлен нигде. Эта атомарность - бесплатное свойство того, как Redis выполняет команды - именно оно делает один инстанс Redis корректной распределённой блокировкой.",
 
+    // raft-consensus
+    "consensus · leader election & log replication": "консенсус · выборы лидера и репликация журнала",
+    "A · term 3": "A · term 3",
+    "B · term 4": "B · term 4",
+    "LEADER": "ЛИДЕР",
+    "CANDIDATE": "КАНДИДАТ",
+    "follower": "фолловер",
+    "unreachable": "недоступен",
+    "heartbeat resets the timer before it ever fires": "heartbeat сбрасывает таймер прежде, чем тот успевает сработать",
+    "no heartbeat - both timers keep climbing": "heartbeat нет - оба таймера продолжают расти",
+    "RequestVote(term 4)": "RequestVote(term 4)",
+    "votes: ": "голоса: ",
+    "AppendEntries": "AppendEntries",
+    "log: [SET balance[alice]=900]": "log: [SET balance[alice]=900]",
+    "acked: ": "подтвердили: ",
+    " - committed": " - закоммичено",
+    // raft-consensus - step captions
+    "A leader sends heartbeats to keep followers calm": "Лидер шлёт heartbeat, чтобы фолловеры оставались спокойны",
+    "Node A is the current leader for term 3. It periodically pings B and C. As long as heartbeats keep arriving, each follower's election timer keeps getting reset - and stays quiet.": "Узел A - текущий лидер в term 3. Он периодически пингует B и C. Пока heartbeat приходит вовремя, таймер выборов у каждого фолловера постоянно сбрасывается - и молчит.",
+    "A heartbeat is the leader saying 'I'm still here.' The whole election mechanism only ever activates once those heartbeats stop.": "Heartbeat - это способ лидера сказать «я всё ещё здесь». Весь механизм выборов включается только тогда, когда heartbeat пропадает.",
+    "The leader goes silent": "Лидер замолкает",
+    "A crashes, or the network partitions it away. No more heartbeats arrive - B and C's election timers now keep rising, uninterrupted, for the first time.": "A падает или оказывается отрезан сетевым разделением. Heartbeat больше не приходит - таймеры выборов у B и C впервые растут без остановки.",
+    "One missed heartbeat proves nothing by itself. It takes a full election timeout with NO heartbeat in between to convince a follower the leader is really gone.": "Один пропущенный heartbeat сам по себе ничего не доказывает. Фолловер убеждается, что лидер действительно пропал, только когда весь election timeout проходит без единого heartbeat.",
+    "B's timeout fires first -> becomes candidate, term++": "Таймаут у B срабатывает первым -> он становится кандидатом, term++",
+    "B's randomized timeout elapses before C's. B increments its term (3 -> 4), becomes a candidate, and requests votes from everyone it can still reach.": "Случайный таймаут у B истекает раньше, чем у C. B увеличивает term (3 -> 4), становится кандидатом и запрашивает голоса у всех, до кого может достучаться.",
+    "Randomizing each node's timeout is what keeps B and C from timing out at the exact same instant and splitting the vote forever.": "Именно рандомизация таймаута у каждого узла не даёт B и C истечь в один и тот же момент и вечно делить голоса пополам.",
+    "A majority of votes -> B becomes leader": "Большинство голосов -> B становится лидером",
+    "C grants its vote (A is unreachable, so it never gets asked). B now holds 2 of 3 votes - a majority - and becomes leader for term 4.": "C отдаёт свой голос (A недоступен, поэтому его даже не спрашивают). У B теперь 2 из 3 голосов - большинство - и он становится лидером в term 4.",
+    "A majority can always be reached even with one node down, and two different candidates can never both reach a majority in the same term - that's exactly what guarantees at most one leader.": "Большинство всегда можно набрать, даже если один узел не работает, а два разных кандидата не могут одновременно набрать большинство в одном и том же term - именно это гарантирует не более одного лидера.",
+    "New leader replicates a log entry": "Новый лидер реплицирует запись в журнал",
+    "A client asks B to process one command. B appends it to its own log and sends AppendEntries to every follower it can reach - here, just C.": "Клиент просит B обработать одну команду. B добавляет её в свой журнал и отправляет AppendEntries каждому фолловеру, до которого может достучаться - здесь это только C.",
+    "The leader is the only node ever allowed to accept new commands - that single-writer rule is what keeps the log's order unambiguous.": "Только лидеру разрешено принимать новые команды - именно это правило единственного писателя делает порядок записей в журнале однозначным.",
+    "Committed the instant a majority acks - not waiting on the third": "Commit происходит сразу после подтверждения большинством - без ожидания третьего",
+    "C acknowledges the entry. B (itself) plus C is 2 of 3 - a majority - so the entry commits immediately. B never waits on A, which is still down.": "C подтверждает запись. B (сам) плюс C - это 2 из 3, большинство - поэтому запись коммитится немедленно. B не ждёт A, который всё ещё недоступен.",
+    "Waiting for every node to reply would let one slow or crashed node stall the whole cluster. Majority is the exact threshold that keeps replication both safe and always able to make progress.": "Если бы ждали ответа от всех узлов, один медленный или упавший узел мог бы остановить весь кластер. Большинство - это именно тот порог, который делает репликацию одновременно безопасной и всегда способной двигаться дальше.",
+
     // bfs-wave
     "graph traversal · breadth-first search": "обход графа · поиск в ширину",
     "A graph and a question": "Граф и вопрос",
@@ -4599,6 +4635,146 @@
       duration: 14.6,
       phases: STEPS.map((s) => ({ t: s.t, title: s.title, desc: s.desc, why: s.why })),
       render: stepRender(STEPS, 14.6, "Redis · cache-aside lifecycle & the atomic lock"),
+    });
+  };
+
+  /* =================================================================== */
+  /* M20. CONSENSUS - LEADER ELECTION & LOG REPLICATION                  */
+  /* =================================================================== */
+  ANIM["raft-consensus"] = (canvas) => {
+    function positions(w, h) {
+      return {
+        A: { x: w / 2, y: h * 0.2 },
+        B: { x: w * 0.22, y: h * 0.76 },
+        C: { x: w * 0.78, y: h * 0.76 },
+      };
+    }
+    function node(ctx, c, u, x, y, label, sub, state) {
+      let fill = c.panel, stroke = c.line, fg = c.dim, lw = 1.4;
+      if (state === "leader") { fill = "rgba(58,210,159,0.16)"; stroke = c.good; fg = c.good; lw = 2.2; }
+      if (state === "candidate") { fill = "rgba(245,177,76,0.14)"; stroke = c.warn; fg = c.warn; lw = 2; }
+      if (state === "down") { fill = c.panel; stroke = c.line; fg = c.dim; lw = 1.2; }
+      ctx.save();
+      if (state === "down") ctx.globalAlpha = 0.4;
+      u.fillRR(ctx, x - 64, y - 27, 128, 54, 10, fill, stroke, lw);
+      u.text(ctx, label, x, y - 5, { align: "center", color: fg, size: 13, weight: 700, mono: true });
+      if (sub) u.text(ctx, sub, x, y + 14, { align: "center", color: fg, size: 10.5, mono: true });
+      ctx.restore();
+    }
+    function timerBar(ctx, c, u, x, y, frac, color) {
+      const w = 64, h = 7;
+      u.fillRR(ctx, x - w / 2, y, w, h, 3.5, c.panel, c.line, 1);
+      if (frac > 0) u.fillRR(ctx, x - w / 2, y, w * u.clamp(frac, 0, 1), h, 3.5, color);
+    }
+
+    const STEPS = [
+      {
+        t: 0,
+        title: "A leader sends heartbeats to keep followers calm",
+        desc: "Node A is the current leader for term 3. It periodically pings B and C. As long as heartbeats keep arriving, each follower's election timer keeps getting reset - and stays quiet.",
+        why: "A heartbeat is the leader saying 'I'm still here.' The whole election mechanism only ever activates once those heartbeats stop.",
+        draw(ctx, p, w, h, c, u) {
+          const pos = positions(w, h);
+          node(ctx, c, u, pos.A.x, pos.A.y, "A · term 3", "LEADER", "leader");
+          node(ctx, c, u, pos.B.x, pos.B.y, "B", "follower", "follower");
+          node(ctx, c, u, pos.C.x, pos.C.y, "C", "follower", "follower");
+          u.flow(ctx, pos.A.x, pos.A.y + 30, pos.B.x + 10, pos.B.y - 30, c.good, 1.6, u.t || 0);
+          u.flow(ctx, pos.A.x, pos.A.y + 30, pos.C.x - 10, pos.C.y - 30, c.good, 1.6, u.t || 0);
+          const cyc = (p * 3) % 1;
+          timerBar(ctx, c, u, pos.B.x, pos.B.y + 34, cyc, c.good);
+          timerBar(ctx, c, u, pos.C.x, pos.C.y + 34, (cyc + 0.4) % 1, c.good);
+          if (cyc < 0.08) { u.ring(ctx, pos.B.x, pos.B.y, c.good, cyc / 0.08, { from: 8, to: 40, lw: 1.6 }); }
+          u.text(ctx, "heartbeat resets the timer before it ever fires", w / 2, h * 0.95, { align: "center", color: c.dim, size: 12 });
+        },
+      },
+      {
+        t: 2.4,
+        title: "The leader goes silent",
+        desc: "A crashes, or the network partitions it away. No more heartbeats arrive - B and C's election timers now keep rising, uninterrupted, for the first time.",
+        why: "One missed heartbeat proves nothing by itself. It takes a full election timeout with NO heartbeat in between to convince a follower the leader is really gone.",
+        draw(ctx, p, w, h, c, u) {
+          const pos = positions(w, h);
+          node(ctx, c, u, pos.A.x, pos.A.y, "A · term 3", "unreachable", "down");
+          node(ctx, c, u, pos.B.x, pos.B.y, "B", "follower", "follower");
+          node(ctx, c, u, pos.C.x, pos.C.y, "C", "follower", "follower");
+          const bFrac = u.clamp(p * 1.15, 0, 1), cFrac = u.clamp(p * 0.85, 0, 1);
+          timerBar(ctx, c, u, pos.B.x, pos.B.y + 34, bFrac, c.warn);
+          timerBar(ctx, c, u, pos.C.x, pos.C.y + 34, cFrac, c.warn);
+          u.text(ctx, "no heartbeat - both timers keep climbing", w / 2, h * 0.95, { align: "center", color: c.warn, size: 12.5, weight: 600 });
+        },
+      },
+      {
+        t: 4.8,
+        title: "B's timeout fires first -> becomes candidate, term++",
+        desc: "B's randomized timeout elapses before C's. B increments its term (3 -> 4), becomes a candidate, and requests votes from everyone it can still reach.",
+        why: "Randomizing each node's timeout is what keeps B and C from timing out at the exact same instant and splitting the vote forever.",
+        draw(ctx, p, w, h, c, u) {
+          const pos = positions(w, h);
+          node(ctx, c, u, pos.A.x, pos.A.y, "A · term 3", "unreachable", "down");
+          node(ctx, c, u, pos.B.x, pos.B.y, "B · term 4", "CANDIDATE", "candidate");
+          node(ctx, c, u, pos.C.x, pos.C.y, "C", "follower", "follower");
+          const a = u.clamp(p / 0.7, 0, 1);
+          u.flow(ctx, pos.B.x + 40, pos.B.y - 10, pos.C.x - 40, pos.C.y - 10, c.warn, 1.8 * a, u.t || 0);
+          u.text(ctx, "RequestVote(term 4)", (pos.B.x + pos.C.x) / 2, (pos.B.y + pos.C.y) / 2 - 34, { align: "center", color: c.warn, size: 12, weight: 700, alpha: a });
+        },
+      },
+      {
+        t: 7.2,
+        title: "A majority of votes -> B becomes leader",
+        desc: "C grants its vote (A is unreachable, so it never gets asked). B now holds 2 of 3 votes - a majority - and becomes leader for term 4.",
+        why: "A majority can always be reached even with one node down, and two different candidates can never both reach a majority in the same term - that's exactly what guarantees at most one leader.",
+        draw(ctx, p, w, h, c, u) {
+          const pos = positions(w, h);
+          const won = p > 0.55;
+          node(ctx, c, u, pos.A.x, pos.A.y, "A · term 3", "unreachable", "down");
+          node(ctx, c, u, pos.B.x, pos.B.y, "B · term 4", won ? "LEADER" : "CANDIDATE", won ? "leader" : "candidate");
+          node(ctx, c, u, pos.C.x, pos.C.y, "C", "follower", "follower");
+          const seg = u.clamp(p / 0.55, 0, 1);
+          u.flow(ctx, pos.C.x - 40, pos.C.y - 10, pos.B.x + 40, pos.B.y - 10, c.good, 1.8, u.t || 0);
+          const votes = seg >= 1 ? 2 : 1;
+          u.text(ctx, tr("votes: ") + votes + "/3", w / 2, h * 0.5, { align: "center", color: votes >= 2 ? c.good : c.dim, size: 14, weight: 700, mono: true });
+          if (won) u.ring(ctx, pos.B.x, pos.B.y, c.good, u.clamp((p - 0.55) / 0.4, 0, 1), { from: 8, to: 48, lw: 2 });
+        },
+      },
+      {
+        t: 9.6,
+        title: "New leader replicates a log entry",
+        desc: "A client asks B to process one command. B appends it to its own log and sends AppendEntries to every follower it can reach - here, just C.",
+        why: "The leader is the only node ever allowed to accept new commands - that single-writer rule is what keeps the log's order unambiguous.",
+        draw(ctx, p, w, h, c, u) {
+          const pos = positions(w, h);
+          node(ctx, c, u, pos.A.x, pos.A.y, "A · term 3", "unreachable", "down");
+          node(ctx, c, u, pos.B.x, pos.B.y, "B · term 4", "LEADER", "leader");
+          node(ctx, c, u, pos.C.x, pos.C.y, "C", "follower", "follower");
+          u.text(ctx, "log: [SET balance[alice]=900]", pos.B.x, pos.B.y + 46, { align: "center", color: c.good, size: 10.5, mono: true });
+          const a = u.clamp(p / 0.7, 0, 1);
+          u.flow(ctx, pos.B.x + 40, pos.B.y - 10, pos.C.x - 40, pos.C.y - 10, c.go, 1.8 * a, u.t || 0);
+          u.text(ctx, "AppendEntries", (pos.B.x + pos.C.x) / 2, (pos.B.y + pos.C.y) / 2 - 34, { align: "center", color: c.go, size: 12, weight: 700, alpha: a });
+        },
+      },
+      {
+        t: 12,
+        title: "Committed the instant a majority acks - not waiting on the third",
+        desc: "C acknowledges the entry. B (itself) plus C is 2 of 3 - a majority - so the entry commits immediately. B never waits on A, which is still down.",
+        why: "Waiting for every node to reply would let one slow or crashed node stall the whole cluster. Majority is the exact threshold that keeps replication both safe and always able to make progress.",
+        draw(ctx, p, w, h, c, u) {
+          const pos = positions(w, h);
+          const committed = p > 0.5;
+          node(ctx, c, u, pos.A.x, pos.A.y, "A · term 3", "unreachable", "down");
+          node(ctx, c, u, pos.B.x, pos.B.y, "B · term 4", "LEADER", "leader");
+          node(ctx, c, u, pos.C.x, pos.C.y, "C", "follower", "follower");
+          const acked = committed ? 2 : 1;
+          u.text(ctx, tr("log: [SET balance[alice]=900]") + (committed ? " ✓" : ""), pos.B.x, pos.B.y + 46, { align: "center", color: c.good, size: 10.5, mono: true });
+          u.text(ctx, tr("acked: ") + acked + "/3" + (committed ? tr(" - committed") : ""), w / 2, h * 0.5, { align: "center", color: committed ? c.good : c.dim, size: 14, weight: 700, mono: true });
+          if (committed) u.burst(ctx, pos.B.x, pos.B.y, c.good, u.clamp((p - 0.5) / 0.4, 0, 1), 10);
+        },
+      },
+    ];
+
+    return makeTimeline(canvas, {
+      duration: 14.4,
+      phases: STEPS.map((s) => ({ t: s.t, title: s.title, desc: s.desc, why: s.why })),
+      render: stepRender(STEPS, 14.4, "consensus · leader election & log replication"),
     });
   };
 
