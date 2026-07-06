@@ -125,6 +125,17 @@
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
   const esc = (s) =>
     s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  // Turns a plain YouTube/Vimeo watch URL into its embeddable player URL.
+  // Only these two hosts are ever used for module videos, and the embed is
+  // injected lazily on click (see wireModule) - the page makes zero network
+  // calls to either host just from being opened over file://.
+  function videoEmbedSrc(url) {
+    let m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
+    if (m) return `https://www.youtube-nocookie.com/embed/${m[1]}?autoplay=1&rel=0`;
+    m = url.match(/vimeo\.com\/(\d+)/);
+    if (m) return `https://player.vimeo.com/video/${m[1]}?autoplay=1`;
+    return null;
+  }
   function copy(txt, btn) {
     const done = () => { if (btn) { const o = btn.textContent; btn.textContent = UI.copied; btn.classList.add("ok"); setTimeout(() => { btn.textContent = o; btn.classList.remove("ok"); }, 1300); } };
     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -624,6 +635,27 @@
          </section>`
       : "";
 
+    const videos = m.videos || [];
+    const videosHtml = videos.length
+      ? `<section class="block video-lessons">
+           <h2 class="block-h">${esc(UI.videoLessons)}</h2>
+           <div class="videos">${videos.map((v, i) => `
+             <div class="video-card">
+               <button class="video-card-head" type="button" data-play-video="${i}" aria-expanded="false">
+                 <span class="video-ic">${ico("film", 18)}</span>
+                 <div class="video-card-main">
+                   <h4>${esc(v.title)}</h4>
+                   <span class="video-card-speaker">${esc(v.speaker)}</span>
+                   <p>${esc(v.blurb)}</p>
+                 </div>
+                 <span class="video-open">${esc(UI.watchOn)} ${ico("play", 14)}</span>
+               </button>
+               <div class="video-player" id="video-player-${i}"></div>
+               <a class="video-ext-link" href="${esc(v.url)}" target="_blank" rel="noopener noreferrer">${esc(UI.openExternally)}</a>
+             </div>`).join("")}</div>
+         </section>`
+      : "";
+
     $("#main").innerHTML = `
       <article class="module">
         <div class="mod-breadcrumb">
@@ -680,6 +712,8 @@
 
         ${glossaryHtml}
 
+        ${videosHtml}
+
         <section class="two-col">
           <div class="card">
             <h3>${esc(UI.masteryChecklist)}</h3>
@@ -712,6 +746,36 @@
     $$(".concept-head").forEach((b, i) => {
       if (i === 0) b.parentElement.classList.add("open");
       b.addEventListener("click", () => b.parentElement.classList.toggle("open"));
+    });
+    // video lessons: inject the iframe only on click, so opening the page
+    // never itself reaches out to YouTube/Vimeo - only pressing play does.
+    $$(".video-card-head").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const i = btn.dataset.playVideo;
+        const holder = $("#video-player-" + i);
+        if (holder.classList.contains("on")) {
+          holder.classList.remove("on");
+          holder.innerHTML = "";
+          btn.setAttribute("aria-expanded", "false");
+          return;
+        }
+        const video = (m.videos || [])[i];
+        if (!video) return;
+        // YouTube (Error 153) and Vimeo (fails its Cloudflare bot check) both
+        // refuse to play inside an iframe whose parent page has a file://
+        // (null) origin - confirmed by hand, not a guess. That's exactly how
+        // this site is meant to be opened (see AGENTS.md), so embedding would
+        // silently show a broken player for every such reader. Embed only
+        // when actually served over http(s) (e.g. GitHub Pages); otherwise
+        // fall back to opening the real page, same as "Open externally".
+        const src = location.protocol !== "file:" && videoEmbedSrc(video.url);
+        if (!src) { window.open(video.url, "_blank", "noopener"); return; }
+        $$(".video-player.on").forEach((h) => { h.classList.remove("on"); h.innerHTML = ""; });
+        $$(".video-card-head[aria-expanded=true]").forEach((b) => b.setAttribute("aria-expanded", "false"));
+        holder.innerHTML = `<div class="video-embed"><iframe src="${esc(src)}" title="${esc(video.title)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe></div>`;
+        holder.classList.add("on");
+        btn.setAttribute("aria-expanded", "true");
+      });
     });
     // checklist
     $$(".check").forEach((li) => {

@@ -149,6 +149,29 @@ const MODULES_RU = [
       blurb:
         "Смотрите, как сборщик стартует от корней, красит достижимые объекты в серый, затем в чёрный, и подметает всё, что осталось белым - и всё это пока программа продолжает работать.",
     },
+    videos: [
+      {
+        title: "GopherCon 2015: Go GC: Solving the Latency Problem",
+        speaker: "Rick Hudson · GopherCon 2015",
+        url: "https://www.youtube.com/watch?v=aiv1JOfMjm0",
+        blurb:
+          "Инженер Go, построивший конкурентный сборщик, объясняет, почему он трёхцветный и конкурентный - дизайн, с которого начинается этот модуль.",
+      },
+      {
+        title: "GopherCon Europe 2022: Respecting Memory Limits In Go",
+        speaker: "Michael Knyszek · GopherCon Europe 2022",
+        url: "https://www.youtube.com/watch?v=07wduWyWx8M",
+        blurb:
+          "Глубокое погружение в GOMEMLIMIT от инженера рантайма, который его реализовал - из первых рук про регулятор памяти этого модуля.",
+      },
+      {
+        title: "GopherCon 2025: Advancing Go Garbage Collection with Green Tea",
+        speaker: "Michael Knyszek · GopherCon 2025",
+        url: "https://www.youtube.com/watch?v=gPJkM95KpKo",
+        blurb:
+          "Показывает, как конкурентный сборщик Go продолжает эволюционировать ради снижения нагрузки на CPU - взгляд на то, куда движется GC этого модуля.",
+      },
+    ],
     concepts: [
       {
         title: "Трёхцветная разметка и сборка - в картинках",
@@ -241,6 +264,22 @@ const MODULES_RU = [
           "Пройдите продакшен-цикл оптимизации: воспроизведите медленный путь, соберите факты, измените одну горячую точку и подтвердите, что граф действительно стал ровнее.",
       },
     ],
+    videos: [
+      {
+        title: "GopherCon 2019: Two Go Programs, Three Different Profiling Techniques",
+        speaker: "Dave Cheney · GopherCon 2019",
+        url: "https://www.youtube.com/watch?v=nok0aYiGiYA",
+        blurb:
+          "Dave Cheney вживую профилирует CPU и память через go tool pprof, затем использует трассировщик выполнения - ровно тот воркфлоу top/list/web, который учит этот модуль.",
+      },
+      {
+        title: "GopherCon 2021: Go Profiling and Observability from Scratch",
+        speaker: "Felix Geisendörfer · GopherCon 2021",
+        url: "https://www.youtube.com/watch?v=7hg4T2Qqowk",
+        blurb:
+          "Проходит по профилировщикам CPU, кучи, горутин, mutex и block от начала до конца - точное соответствие разделу этого модуля про типы профилей.",
+      },
+    ],
     concepts: [
       {
         title: "Типы профилей",
@@ -316,6 +355,29 @@ const MODULES_RU = [
       blurb:
         "Следите за таблицей случаев, пока `go test` прогоняет каждый как подтест: входные данные текут через функцию, результат сравнивается с want, и каждая строка становится зелёной.",
     },
+    videos: [
+      {
+        title: "GopherCon 2017: Advanced Testing with Go",
+        speaker: "Mitchell Hashimoto · GopherCon 2017",
+        url: "https://www.youtube.com/watch?v=8hQG7QlcLBk",
+        blurb:
+          "Подход HashiCorp к табличным подтестам и тестовым фикстурам для реальных систем - ровно тот паттерн, вокруг которого построена глава о тестировании этого модуля.",
+      },
+      {
+        title: "GopherCon 2022: Fuzz Testing Made Easy",
+        speaker: "Katie Hockman · GopherCon 2022",
+        url: "https://www.youtube.com/watch?v=7KWPiRq3ZYI",
+        blurb:
+          "От тимлида фаззинга в команде Go, выпустившей нативный fuzzing в go test в Go 1.18 - ту же самую функцию, что покрывает этот модуль.",
+      },
+      {
+        title: "Go Testing By Example",
+        speaker: "Russ Cox · GopherCon Australia 2023",
+        url: "https://www.youtube.com/watch?v=X4rxi9jStLo",
+        blurb:
+          "Технический лидер Go проходит по тулчейну go test на реальных примерах из стандартной библиотеки, закрепляя идиоматичную структуру табличных тестов из первых рук.",
+      },
+    ],
     concepts: [
       { title: "Простейший возможный тест",
         body: "Тест - это функция с именем TestXxx, принимающая *testing.T. Используйте t.Errorf, чтобы сообщить о провале и продолжить, или t.Fatalf, чтобы немедленно остановить именно этот тест. Всегда печатайте got и want, чтобы провал был самоочевиден." },
@@ -391,6 +453,29 @@ const MODULES_RU = [
           "Задания встают в очередь на канал, несколько горутин-воркеров забирают их конкурентно (fan-out), обрабатывают и отправляют результаты обратно в один канал (fan-in).",
       },
     ],
+    videos: [
+      {
+        title: "Go Concurrency Patterns",
+        speaker: "Rob Pike · Google I/O 2012",
+        url: "https://www.youtube.com/watch?v=f6kdp27TYZs",
+        blurb:
+          "Оригинальный доклад, представивший горутины, каналы, select и паттерн worker-pool/fan-in, на котором построен этот модуль - от самого создателя Go.",
+      },
+      {
+        title: "Concurrency Is Not Parallelism",
+        speaker: "Rob Pike · Heroku Waza 2012",
+        url: "https://vimeo.com/49718712",
+        blurb:
+          "Идея, стоящая за вступлением этого модуля: структурировать программу как набор независимых, общающихся частей - это другой вопрос, чем «сколько ядер я могу использовать», и обычно его стоит задавать первым.",
+      },
+      {
+        title: "Go's Trace Tooling and Concurrency",
+        speaker: "Bill Kennedy (Ardan Labs) · GopherCon 2025",
+        url: "https://www.youtube.com/watch?v=Gqo0oCfZSjg",
+        blurb:
+          "Актуальный взгляд (2025 год) на те же идеи: Билл Кеннеди вживую пишет программу, добавляя слои конкурентности, и использует trace-инструмент Go, чтобы показать, что горутины и каналы реально делают под нагрузкой.",
+      },
+    ],
     concepts: [
       { title: "Горутины: конкурентность почти бесплатно",
         body: "Поставьте go перед любым вызовом, чтобы выполнить его конкурентно. Горутина стартует с крошечным стеком ~2 КБ, который растёт по мере надобности, поэтому запускать их тысячами - нормально. Но у каждой горутины должен быть владелец и способ остановиться: утёкшая горутина - это утечка памяти." },
@@ -449,6 +534,29 @@ const MODULES_RU = [
       blurb:
         "Запрос строит дерево контекстов через горутины. Когда в корне срабатывает таймаут, отмена распространяется вниз по каждой ветке, и каждая горутина останавливается.",
     },
+    videos: [
+      {
+        title: "GopherCon 2018: How Do You Structure Your Go Apps",
+        speaker: "Kat Zien · GopherCon 2018",
+        url: "https://www.youtube.com/watch?v=oL6JBUk6tj0",
+        blurb:
+          "Проходит по плоской, сгруппированной по типам и domain-driven раскладкам реального Go-сервиса - то самое решение, которое сокращают рекомендации этого модуля про cmd/ + internal/.",
+      },
+      {
+        title: "GopherCon 2020: Working with Errors",
+        speaker: "Jonathan Amsterdam · GopherCon 2020",
+        url: "https://www.youtube.com/watch?v=IKoSsJFdRtI",
+        blurb:
+          "От соавтора предложения Go 1.13 про оборачивание ошибок - точная семантика errors.Is, errors.As и %w, которую учит этот модуль.",
+      },
+      {
+        title: "The context package internals",
+        speaker: "Damiano Petrungaro · GopherCon UK 2023",
+        url: "https://www.youtube.com/watch?v=mfgBhGu5pco",
+        blurb:
+          "Раскрывает реальную реализацию context на деревьях и каналах, показывая, почему отмена и дедлайны распространяются именно так, как описывает этот модуль.",
+      },
+    ],
     concepts: [
       { title: "Ошибки - это значения",
         body: "Этот идиоматический паттерн повсюду: функция возвращает (result, error), и вы сразу проверяете err != nil. Определяйте sentinel-ошибки через errors.New для условий, на которые вызывающий код будет ветвиться (например, «не найдено»)." },
@@ -507,6 +615,15 @@ const MODULES_RU = [
       blurb:
         "Смотрите, как роутер сопоставляет входящий URL с внутренним radix trie, пока вызов IO физически не может вырваться за границу os.Root.",
     },
+    videos: [
+      {
+        title: "GopherCon Europe 2024: HTTP Routing Enhancements",
+        speaker: "Jonathan Amsterdam · GopherCon Europe 2024",
+        url: "https://www.youtube.com/watch?v=4VSyrJI09K0",
+        blurb:
+          "Инженер команды Go, спроектировавший эту функцию, объясняет сопоставление методов и wildcard/PathValue маршрутизацию ServeMux из Go 1.22 - с этого начинается модуль.",
+      },
+    ],
     concepts: [
       { title: "Нативное сопоставление паттернов через http.ServeMux",
         body: "Go 1.22 превратил стандартный ServeMux в полноценный роутер: сопоставление методов, wildcard-сегменты и правила приоритета уже встроены. Больше не нужно платить за маршрутизацию финансового шлюза налог в виде сторонней зависимости." },
@@ -563,6 +680,29 @@ const MODULES_RU = [
       blurb:
         "Трассировка поиска бок о бок: старая карта прощупывает бакеты по одному слоту за раз, а Swiss Table хэширует группу из 8 слотов и проверяет все контрольные байты разом.",
     },
+    videos: [
+      {
+        title: "Faster Go Maps With Swiss Tables",
+        speaker: "Michael Pratt · GopherCon EU 2025",
+        url: "https://www.youtube.com/watch?v=aqtIM5AK9t4",
+        blurb:
+          "Инженер команды Go, стоящий за этим изменением, объясняет, почему и как Go 1.24 переписал встроенную map на Swiss Tables - главная тема памяти этого модуля.",
+      },
+      {
+        title: "GopherCon 2023: The Future of JSON in Go",
+        speaker: "Joe Tsai · GopherCon 2023",
+        url: "https://www.youtube.com/watch?v=avilmOcHKHE",
+        blurb:
+          "Разработчик encoding/json/v2 рассказывает, что было не так в v1 и как новый API и потоковые токены jsontext это исправляют.",
+      },
+      {
+        title: "GopherCon 2025: Understanding Escape Analysis to Speed Up Your Code",
+        speaker: "Bill Kennedy (Ardan Labs) · GopherCon 2025",
+        url: "https://www.youtube.com/watch?v=FUm0pfgWehI",
+        blurb:
+          "Показывает, как читать вывод escape-анализа компилятора, чтобы понять, когда слайсы и структуры остаются на стеке, а когда убегают в кучу - раздел этого модуля про стек.",
+      },
+    ],
     concepts: [
       { title: "encoding/json/v2 и потоковые токены",
         body: "json/v2 заменяет модель reflection-на-каждый-вызов более быстрым, управляемым опциями кодировщиком и низкоуровневым потоком токенов jsontext. Для леджера, проталкивающего миллионы payload'ов, потоковые токены избегают сборки всего документа в памяти." },
@@ -619,6 +759,15 @@ const MODULES_RU = [
       blurb:
         "Объект становится недостижимым; GC детерминированно запускает его обработчик AddCleanup - не задерживая сборку родительского span'а.",
     },
+    videos: [
+      {
+        title: "GopherCon 2018: The Scheduler Saga",
+        speaker: "Kavya Joshi · GopherCon 2018",
+        url: "https://www.youtube.com/watch?v=YHRO5WQGh0k",
+        blurb:
+          "Исчерпывающее погружение во внутренности планировщика рантайма Go - вторая половина этого модуля про внутренности рантайма (доклада именно про новые API AddCleanup/unique/weak пока не существует - они появились только в Go 1.23-1.24).",
+      },
+    ],
     concepts: [
       { title: "Детерминированная очистка через runtime.AddCleanup",
         body: "runtime.SetFinalizer хрупок: он воскрешает объекты, выполняется в неопределённом порядке и задерживает сборку. runtime.AddCleanup (Go 1.24) прикрепляет очистку, которая выполняется ровно один раз, после того как объект по-настоящему стал недостижим - без воскрешения объекта и без проблем с циклическими ссылками." },
@@ -675,6 +824,22 @@ const MODULES_RU = [
       blurb:
         "Горутины выполняются внутри изолированного пузыря с фейковыми часами. Когда все горутины заблокированы, время аккуратно перематывается вперёд - без sleep, без нестабильных падений.",
     },
+    videos: [
+      {
+        title: "Testing Time (and other asynchronous code)",
+        speaker: "Damien Neil (команда Go) · GopherCon EU 2025",
+        url: "https://www.youtube.com/watch?v=oIC3zhTAOsY",
+        blurb:
+          "Инженер команды Go, стоящий за testing/synctest, объясняет пузырь с фейковыми часами, synctest.Wait и автоматическое обнаружение дедлоков - ровно тему этого модуля.",
+      },
+      {
+        title: "GopherCon UK 2021: Deadlocks: The Dark Side of Concurrency",
+        speaker: "Nick Craig-Wood · GopherCon UK 2021",
+        url: "https://www.youtube.com/watch?v=9j0oQkqzhAE",
+        blurb:
+          "Объясняет, почему дедлоки горутин так трудно ловить на практике - именно ту боль, которую призвано решить автоматическое обнаружение дедлоков в synctest.",
+      },
+    ],
     concepts: [
       { title: "Изолированное время через synctest.Run",
         body: "testing/synctest (стабилен с Go 1.25) выполняет дерево горутин внутри «пузыря» с фейковыми часами. time.Sleep, таймеры и тикеры виртуальны: когда все горутины в пузыре заблокированы, фейковые часы мгновенно и детерминированно прыгают к следующему таймеру." },
@@ -731,6 +896,29 @@ const MODULES_RU = [
       blurb:
         "Проследите запись леджера от Go-функции через пакет pgx, визуализируя блокировки на уровне строк, пока две транзакции конкурируют под нагрузкой.",
     },
+    videos: [
+      {
+        title: "PGX Top to Bottom",
+        speaker: "Jack Christensen (автор pgx) · Golang Estonia",
+        url: "https://www.youtube.com/watch?v=sXMSWhcHCf8",
+        blurb:
+          "Создатель pgx проводит по архитектуре драйвера, включая pgxpool и транзакции - из первых рук про содержание этого модуля о пуле соединений и pgx.Tx.",
+      },
+      {
+        title: "Go & PostgreSQL",
+        speaker: "Pavlo Golub · FOSDEM 2023",
+        url: "https://www.youtube.com/watch?v=eC_XRGBqQN0",
+        blurb:
+          "Доклад в devroom PostgreSQL на FOSDEM о построении надёжного, хорошо протестированного Go-приложения поверх pgx - подкрепляет слой персистентности этого модуля.",
+      },
+      {
+        title: "Generate CRUD Golang code from SQL | Compare db/sql, gorm, sqlc & sqlx",
+        speaker: "TECH SCHOOL",
+        url: "https://www.youtube.com/watch?v=prh0hTyI1sU",
+        blurb:
+          "Демонстрирует генерацию типобезопасного Go-кода из сырого SQL через sqlc и сравнивает его с db/sql, gorm и sqlx - именно тот инструмент, с которого начинается модуль.",
+      },
+    ],
     concepts: [
       { title: "Проверяемые при компиляции запросы через sqlc",
         body: "sqlc читает ваш реальный SQL и вашу схему, затем генерирует типизированные Go-методы. Опечатка в колонке или неверный тип аргумента падает на этапе генерации кода, а не в 3 часа ночи в продакшене. Никакого ORM, никакой рантайм-reflection." },
@@ -804,6 +992,29 @@ const MODULES_RU = [
           "Визуализируйте продакшен-ловушки: тяжёлые DDL-блокировки, длинные транзакции, удерживающие dead tuples, и batch-backfill, который сохраняет записи живыми.",
       },
     ],
+    videos: [
+      {
+        title: "Explaining the Postgres Query Optimizer",
+        speaker: "Bruce Momjian (core team PostgreSQL) · Citus Con 2022",
+        url: "https://www.youtube.com/watch?v=wLpcVM9qxV0",
+        blurb:
+          "Разработчик ядра PostgreSQL объясняет, как планировщик превращает SQL в план выполнения - ментальную модель для чтения вывода EXPLAIN (ANALYZE, BUFFERS).",
+      },
+      {
+        title: "PGConf India 2024 - MVCC Unmasked",
+        speaker: "Bruce Momjian (core team PostgreSQL) · PGConf India 2024",
+        url: "https://www.youtube.com/watch?v=KSAy0QjHTN4",
+        blurb:
+          "Объясняет, как модель хранения MVCC в Postgres порождает dead tuples - именно те внутренности, что стоят за разделом этого модуля про vacuum и bloat.",
+      },
+      {
+        title: "PostgreSQL performance tips you have never seen before",
+        speaker: "Hans-Jürgen Schönig (Cybertec) · Citus Con 2023",
+        url: "https://www.youtube.com/watch?v=m8ogrogKjXo",
+        blurb:
+          "Набор малоизвестных трюков индексирования и тюнинга запросов, включая частичные и составные индексы, чтобы выжать реальную производительность из продакшен-Postgres.",
+      },
+    ],
     concepts: [
       { title: "Пусть схема защищает инварианты",
         body: "Схема леджера должна отвергать невозможные денежные состояния даже после неудачного деплоя сервиса. Используйте CHECK для локальных истин, внешние ключи для владения, UNIQUE для идемпотентности и outbox-таблицу, записываемую в той же транзакции, что и изменение леджера." },
@@ -869,6 +1080,22 @@ const MODULES_RU = [
       blurb:
         "Классическое TLS-рукопожатие рядом с гибридным обменом ML-KEM - посмотрите, почему будущий квантовый атакующий взломает один захваченный ключ, но не защищённый решёткой.",
     },
+    videos: [
+      {
+        title: "GopherCon 2025: The Go Cryptography State of the Union",
+        speaker: "Filippo Valsorda (мейнтейнер crypto в Go) · GopherCon 2025",
+        url: "https://www.youtube.com/watch?v=YnyeAQblUyA",
+        blurb:
+          "От инженера, реализовавшего crypto/mlkem в стандартной библиотеке - о постквантовой работе, напрямую лежащей в основе содержания этого модуля про гибрид ML-KEM/HPKE.",
+      },
+      {
+        title: "Post Quantum Cryptography",
+        speaker: "Computerphile (Mike Pound)",
+        url: "https://www.youtube.com/watch?v=_MoRcYLN-7U",
+        blurb:
+          "Качественный разбор того, почему квантовые компьютеры ломают текущую криптографию с открытым ключом - модель угрозы «harvest now, decrypt later», с которой начинается этот модуль.",
+      },
+    ],
     concepts: [
       { title: "gRPC + Protobuf со строгой обратной совместимостью",
         body: "Межузловой трафик леджера идёт по gRPC. Дисциплина - это эволюция схемы: никогда не переиспользовать номера полей, добавлять только опциональные поля, и проверять совместимость на уровне wire в CI, чтобы узел v2 никогда не сломал пира v1 посреди кластера." },
@@ -925,6 +1152,22 @@ const MODULES_RU = [
       blurb:
         "Заблокированная продакшен-горутина; анализатор утечек проходит по графу каналов назад к корневому блокировщику - несработавшему каналу или отсутствующему дедлайну context.",
     },
+    videos: [
+      {
+        title: "GopherCon 2017: An Introduction to \"go tool trace\"",
+        speaker: "Rhys Hiltner · GopherCon 2017",
+        url: "https://www.youtube.com/watch?v=V74JnrGTwKA",
+        blurb:
+          "Основополагающий доклад про сам go tool trace, объясняющий, как читать таймлайн трассы выполнения, на котором строятся снимки FlightRecorder.",
+      },
+      {
+        title: "GopherCon 2021: Go Profiling and Observability from Scratch",
+        speaker: "Felix Geisendörfer · GopherCon 2021",
+        url: "https://www.youtube.com/watch?v=7hg4T2Qqowk",
+        blurb:
+          "Покрывает весь набор диагностических инструментов Go - профилировщики плюс трассировщик рантайма - тот же настрой на продакшен-форензику, вокруг которого этот модуль строит пороговые дампы.",
+      },
+    ],
     concepts: [
       { title: "Постоянная трассировка через FlightRecorder",
         body: "trace.FlightRecorder (Go 1.25) хранит в памяти ограниченный кольцевой буфер недавних событий выполнения почти бесплатно. Вы платите за запись трассы только когда происходит что-то интересное - так что вы захватываете окно *до* падения, а не после того, как передеплоили с логированием." },
@@ -981,6 +1224,22 @@ const MODULES_RU = [
       blurb:
         "Скалярный цикл пережёвывает один элемент за такт, пока SIMD-полоса обрабатывает 8–16 разом; рядом Green Tea GC параллельно подметает смежные spans по 8 КиБ.",
     },
+    videos: [
+      {
+        title: "GopherCon 2024: Parquet, Go, and Unreasonable Amounts of SIMD",
+        speaker: "Achille Roussel · GopherCon 2024",
+        url: "https://www.youtube.com/watch?v=nY6D_zEiHnU",
+        blurb:
+          "Показывает, как продакшен-библиотека на Go опирается на векторизованное, SIMD-ускоренное кодирование ради больших выигрышей - прямая мотивация, зачем нужны векторные типы archsimd.",
+      },
+      {
+        title: "GopherCon 2025: Advancing Go Garbage Collection with Green Tea",
+        speaker: "Michael Knyszek (команда Go) · GopherCon 2025",
+        url: "https://www.youtube.com/watch?v=gPJkM95KpKo",
+        blurb:
+          "Инженер команды Go, стоящий за экспериментальным Green Tea GC, объясняет его алгоритм разметки на уровне страниц с учётом кэша - именно тот сборщик, что покрывает этот модуль.",
+      },
+    ],
     concepts: [
       { title: "Векторные полосы через simd/archsimd",
         body: "Экспериментальный пакет simd/archsimd предоставляет векторные типы CPU (Int8x16, Float64x8). Цикл контрольной суммы или валидации, трогающий каждый байт, может обработать целую полосу за инструкцию - часто на порядок быстрее скалярного Go." },
@@ -1037,6 +1296,29 @@ const MODULES_RU = [
       blurb:
         "Рантайм следит за readiness-пробами во время rolling-обновления, плавно перенаправляя трафик на новые инстансы по мере их готовности и опустошая старые.",
     },
+    videos: [
+      {
+        title: "GopherCon 2025: Analysis and Transformation Tools for Go Codebase Modernization",
+        speaker: "Alan Donovan (команда Go) · GopherCon 2025",
+        url: "https://www.youtube.com/watch?v=_VePjjjV9JU",
+        blurb:
+          "От тимлида инструментов Go - источник из первых рук про go fix и рефакторинг всего парка через //go:fix, чему учит этот модуль.",
+      },
+      {
+        title: "Containers From Scratch",
+        speaker: "Liz Rice · GOTO 2018",
+        url: "https://www.youtube.com/watch?v=8fi7uSYlOdc",
+        blurb:
+          "Вживую строит контейнер с нуля из namespaces и cgroups, давая механику, на которой работают защищённые distroless/scratch образы этого модуля.",
+      },
+      {
+        title: "Facilitating Software Architecture",
+        speaker: "Andrew Harmel-Law & Sonya Natanzon · GOTO 2024",
+        url: "https://www.youtube.com/watch?v=YpFR8qzwYSA",
+        blurb:
+          "Про то, как команды документируют и масштабируют архитектурные решения - тема ADR в этом модуле.",
+      },
+    ],
     concepts: [
       { title: "GOMAXPROCS, осведомлённый о cgroup",
         body: "Go 1.25 читает лимит полосы пропускания CPU из cgroup и выставляет GOMAXPROCS по реальной квоте контейнера вместо числа ядер хоста. Больше никакого пода с лимитом в 4 ядра, плодящего 128 P и страдающего от троттлинга CFS." },
@@ -1093,6 +1375,22 @@ const MODULES_RU = [
       blurb:
         "Проследите одно чтение памяти вниз по иерархии - промах L1, промах L2, промах L3, затем полная 64-байтная линия, вытянутая из RAM - и поймите, почему следующие несколько чтений внезапно бесплатны.",
     },
+    videos: [
+      {
+        title: "How CPU Memory & Caches Work",
+        speaker: "Computerphile",
+        url: "https://www.youtube.com/watch?v=SAk-6gVkio0",
+        blurb:
+          "Понятный разбор многоуровневой иерархии кэшей и того, зачем нужен каждый уровень - интуиция про лестницу задержек, с которой начинается этот модуль.",
+      },
+      {
+        title: "dotGo 2016 - Slices: Performance through cache-friendliness",
+        speaker: "Damian Gryski · dotGo 2016",
+        url: "https://www.youtube.com/watch?v=jEG4Qyo_4Bc",
+        blurb:
+          "Go-специфичный разбор пространственной локальности и раскладки структур/слайсов с учётом кэш-линий - практическое «и что с этого» для Go-инженеров, на которое нацелен этот модуль.",
+      },
+    ],
     concepts: [
       { title: "Иерархия: от маленького и быстрого к большому и медленному",
         body: "Память организована как пирамида. Регистры (несколько сотен байт) питают ALU за ноль тактов. Под ними сидят L1 (~32–64 КБ, ~1 нс), L2 (~256 КБ–2 МБ, ~4 нс), и общий L3 (несколько МБ, ~10–40 нс). Под кристаллом - RAM (~100 нс), а затем хранилище (микро- и миллисекунды). Каждый уровень ниже примерно на порядок больше и медленнее. Вся работа CPU - держать нужные данные ближе к вершине, а ваша работа - давать ему паттерны доступа, которые это позволяют." },
@@ -1151,6 +1449,29 @@ const MODULES_RU = [
       blurb:
         "Смотрите, как инструкции текут через пять перекрывающихся стадий, затем натыкаются на переход: CPU спекулирует, угадывает неверно, и сбрасывает конвейер - видимый пузырь потраченных тактов.",
     },
+    videos: [
+      {
+        title: "How Branch Prediction Works in CPUs",
+        speaker: "Computerphile (Matt Godbolt)",
+        url: "https://www.youtube.com/watch?v=nczJ58WvtYo",
+        blurb:
+          "Объясняет предсказание переходов и цену неверной догадки с нуля - тот самый механизм за демонстрацией «отсортированные данные ускоряют цикл с if» в этом модуле.",
+      },
+      {
+        title: "How CPUs do Out Of Order Operations",
+        speaker: "Computerphile (Matt Godbolt)",
+        url: "https://www.youtube.com/watch?v=jNC9LPc3BI0",
+        blurb:
+          "Покрывает выполнение не по порядку и параллелизм на уровне инструкций - аппаратную сторону обсуждения ILP в этом модуле.",
+      },
+      {
+        title: "GopherCon 2020: Common Patterns for Bounds Check Elimination",
+        speaker: "Agniva De Sarker · GopherCon 2020",
+        url: "https://www.youtube.com/watch?v=5toTS6kSWHA",
+        blurb:
+          "Go-специфичный взгляд на то, как инлайнинг компилятора и устранение проверок границ взаимодействуют с кодом, богатым переходами - связывает теорию CPU с тем, что реально контролирует Go-инженер.",
+      },
+    ],
     concepts: [
       { title: "Конвейер: инструкции перекрываются как сборочная линия",
         body: "Классический конвейер разбивает каждую инструкцию на стадии - Fetch, Decode, Execute, Memory, Write-back. Пока инструкция 1 выполняется, инструкция 2 декодируется, а инструкция 3 выбирается. В идеале ядро завершает одну инструкцию за такт, хотя каждая занимает несколько тактов от начала до конца. Реальные ядра глубже (15–20 стадий) и СУПЕРСКАЛЯРНЫ (несколько конвейеров бок о бок), завершая несколько инструкций за такт. Загвоздка: всё, что ломает ровный поток - неверная догадка перехода, промах кэша, зависимость по данным - оставляет «пузыри» простаивающих стадий." },
@@ -1209,6 +1530,29 @@ const MODULES_RU = [
       blurb:
         "Горутины (G) стоят в очереди на логических процессорах (P), выполняются OS-потоками (M). Смотрите, как P исчерпывает работу и КРАДЁТ её у занятого соседа, а блокирующий syscall передаёт свой P свежему потоку.",
     },
+    videos: [
+      {
+        title: "GopherCon 2018: The Scheduler Saga",
+        speaker: "Kavya Joshi · GopherCon 2018",
+        url: "https://www.youtube.com/watch?v=YHRO5WQGh0k",
+        blurb:
+          "Каноническое погружение в дизайн и историю модели G-M-P, включая то, как syscall передают свои P - основа, на которой построен раздел этого модуля про архитектуру.",
+      },
+      {
+        title: "GopherCon 2021: Queues, Fairness, and The Go Scheduler",
+        speaker: "Madhav Jivrajani · GopherCon 2021",
+        url: "https://www.youtube.com/watch?v=wQpC99Xu1U4",
+        blurb:
+          "Фокусируется именно на очередях запуска по P и справедливости кражи работы - деталь механики планирования, которую этот модуль раскрывает за пределами базовой картины GMP.",
+      },
+      {
+        title: "GopherCon 2020: Pardon the Interruption: Loop Preemption in Go 1.14",
+        speaker: "Austin Clements (команда Go) · GopherCon 2020",
+        url: "https://www.youtube.com/watch?v=1I1WmeSjRSw",
+        blurb:
+          "От инженера рантайма Go, который это построил - прямое объяснение асинхронного вытеснения, введённого в Go 1.14, точной темы вытеснения этого модуля.",
+      },
+    ],
     concepts: [
       { title: "G, M и P: три игрока",
         body: "Сотрудничают три сущности. G - это горутина: крошечная структура с растущим стеком ~2 КБ и счётчиком команд - дёшево создавать тысячами. M - это машина, то есть реальный OS-поток, который реально выполняет код. P - это процессор: контекст планирования, владеющий локальной очередью запуска готовых горутин; число P равно GOMAXPROCS. Правило, заставляющее всё работать: чтобы выполнять Go-код, M должен держать P. Так что максимум GOMAXPROCS горутин выполняются по-настоящему параллельно, сколько бы G или M ни существовало." },
@@ -1267,6 +1611,29 @@ const MODULES_RU = [
       blurb:
         "Три полосы, одна и та же задача под конкуренцией: lock-free atomic compare-and-swap, мьютекс, сериализующий критическую секцию, и канал, передающий значение от производителя к потребителю.",
     },
+    videos: [
+      {
+        title: "\"go test -race\" Under the Hood",
+        speaker: "Kavya Joshi · Strange Loop",
+        url: "https://www.youtube.com/watch?v=5erqWdlhQLA",
+        blurb:
+          "Бывший инженер рантайма Go объясняет, как детектор гонок моделирует гарантию happens-before - теоретическую базу для раздела этого модуля про гонки данных.",
+      },
+      {
+        title: "GopherCon 2017: Understanding Channels",
+        speaker: "Kavya Joshi · GopherCon 2017",
+        url: "https://www.youtube.com/watch?v=KBZlN0izeiY",
+        blurb:
+          "Заглядывает под капот внутренностей каналов, показывая, как именно каналы передают владение данными - третью ногу гида по выбору в этом модуле.",
+      },
+      {
+        title: "GopherCon 2018: Rethinking Classical Concurrency Patterns",
+        speaker: "Bryan C. Mills (команда Go) · GopherCon 2018",
+        url: "https://www.youtube.com/watch?v=5zXAHh5tJqQ",
+        blurb:
+          "Инженер команды Go переосмысляет классические паттерны mutex/semaphore как идиомы горутин и каналов, напрямую подкрепляя гид «какой примитив когда» этого модуля.",
+      },
+    ],
     concepts: [
       { title: "Гонка данных и модель памяти (happens-before)",
         body: "Гонка данных - это когда две горутины обращаются к одной памяти конкурентно, хотя бы одна - на запись, и без синхронизации между ними. Результат не определён - не «неверное число», а по-настоящему неопределённое поведение, потому что компилятор и CPU могут переупорядочить операции (модуль M11). Модель памяти Go определяет «happens-before»: операции синхронизации (отправка/приём в канал, Lock/Unlock мьютекса, atomic) устанавливают порядок, делающий записи одной горутины видимыми для другой. Каждая корректная конкурентная программа построена из этих гарантий порядка. Всегда тестируйте с `-race`." },
@@ -1325,6 +1692,29 @@ const MODULES_RU = [
       blurb:
         "Один запрос течёт через три сервиса. Смотрите, как он порождает трассу вложенных span'ов, поднимает метрики задержки/ошибок, и роняет строки структурированных логов - и как trace ID связывает их вместе.",
     },
+    videos: [
+      {
+        title: "GopherCon 2023: Structured Logging for the Standard Library",
+        speaker: "Jonathan Amsterdam (команда Go) · GopherCon 2023",
+        url: "https://www.youtube.com/watch?v=rJfvv_c9mYU",
+        blurb:
+          "Разработчик log/slog объясняет его API и производительность - напрямую соответствует столпу структурированного логирования в этом модуле.",
+      },
+      {
+        title: "OpenTelemetry for Dummies: Instrumenting Go Apps",
+        speaker: "Ricardo Ferreira · GopherCon Europe 2021",
+        url: "https://www.youtube.com/watch?v=NLXABIZ1gUQ",
+        blurb:
+          "Практический разбор инструментирования Go-сервисов через span'ы OpenTelemetry и передачу context - покрывает столп распределённой трассировки в этом модуле.",
+      },
+      {
+        title: "The RED Method: How To Instrument Your Services",
+        speaker: "Tom Wilkie (Kausal) · CNCF",
+        url: "https://www.youtube.com/watch?v=TJLpYXbnfQ4",
+        blurb:
+          "От инженера, придумавшего метод RED - доклад про Rate/Errors/Duration, на который опирается столп метрик в этом модуле.",
+      },
+    ],
     concepts: [
       { title: "Три столпа, и вопрос, на который отвечает каждый",
         body: "Логи, метрики и трассы - не конкуренты, они отвечают на разные вопросы, и вам нужны все три. Метрики отвечают «что-то не так, и насколько плохо?» дёшево и непрерывно (это агрегаты, так что цена не растёт с трафиком). Трассы отвечают «где на пути запроса случилась задержка/ошибка?» через границы сервисов. Логи отвечают «что именно случилось в этом одном событии?» с полной детализацией. Зрелый workflow: алерт срабатывает на МЕТРИКЕ, вы открываете ТРАССУ медленного запроса, чтобы найти провинившийся сервис, затем читаете его ЛОГИ ради точной причины. Коррелируйте их, проштамповав trace ID в логи и метки метрик." },
@@ -1383,6 +1773,22 @@ const MODULES_RU = [
       blurb:
         "Смотрите, как breaker двигается Closed → Open → Half-Open, пока нижестоящий сервис падает и восстанавливается: отказы переводят его в open, cooldown пропускает один пробный запрос, а успех снова закрывает его.",
     },
+    videos: [
+      {
+        title: "GopherCon 2015: Go kit: A Standard Library for Distributed Programming",
+        speaker: "Peter Bourgon · GopherCon 2015",
+        url: "https://www.youtube.com/watch?v=1AjaZi4QuGo",
+        blurb:
+          "Представляет встроенные circuit breaker и rate-limiter middleware Go kit для микросервисов на Go, обосновывая паттерны circuit-breaker и сброса нагрузки этого модуля в идиоматичном Go.",
+      },
+      {
+        title: "AWS re:Invent 2024 - Try again: The tools and techniques behind resilient systems",
+        speaker: "Marc Brooker (AWS) · AWS re:Invent 2024",
+        url: "https://www.youtube.com/watch?v=rvHd4Y76-fs",
+        blurb:
+          "Глубокий разбор от выдающегося инженера систем про повторы, экспоненциальный backoff/jitter и circuit breakers в масштабе гиперскейлера - основной набор инструментов устойчивости этого модуля.",
+      },
+    ],
     concepts: [
       { title: "Дедлайны повсюду: фундамент устойчивости",
         body: "Первое правило: ни один вызов не ждёт вечно. Каждая сетевая операция получает таймаут через `context.WithTimeout`, и этот context распространяется вниз по всей цепочке вызовов (модуль F5), так что когда дедлайн запроса проходит, каждый его вложенный вызов вниз по течению отменяется разом. Без дедлайнов одна застрявшая зависимость паркует горутины и соединения, пока сервер не исчерпается - классический каскад. Бюджет запроса (например, 2 секунды всего) делится между переходами, и каждый переход проверяет `ctx.Err()`. Таймауты - не любезность; они ограничивают радиус поражения от медленной зависимости." },
@@ -1441,6 +1847,29 @@ const MODULES_RU = [
       blurb:
         "Смотрите, как чтение падает от промаха к настоящей базе данных, кэшируется с TTL, возвращается почти мгновенным попаданием, истекает и снова становится промахом - а затем смотрите, как SETNX позволяет ровно одному из пяти соревнующихся клиентов получить блокировку.",
     },
+    videos: [
+      {
+        title: "Rate limiting with Redis: An essential guide",
+        speaker: "Redis (официальный канал)",
+        url: "https://www.youtube.com/watch?v=YV4ePyW3DO8",
+        blurb:
+          "Из первых рук от инженеров Redis - построение атомарного ограничителя частоты через INCR и TTL, ровно тот механизм, что учит этот модуль.",
+      },
+      {
+        title: "System Design: Why is single-threaded Redis so fast?",
+        speaker: "ByteByteGo (Alex Xu)",
+        url: "https://www.youtube.com/watch?v=5TRFpFBccQM",
+        blurb:
+          "Объясняет однопоточную in-memory архитектуру event loop, которая делает блокировки на SETNX и счётчики на INCR атомарными без дополнительной координации.",
+      },
+      {
+        title: "How Distributed Lock works ft Redis | System Design",
+        speaker: "ByteMonk",
+        url: "https://www.youtube.com/watch?v=qY4MfWv01pI",
+        blurb:
+          "Проходит по использованию SET NX как атомарного распределённого мьютекса, включая ловушки с падением и истечением TTL, которые покрывает раздел этого модуля про распределённые блокировки.",
+      },
+    ],
     concepts: [
       { title: "Что Redis такое на самом деле: хранилище в памяти с одним клерком",
         body: "Redis держит весь набор данных в памяти (не на диске, хотя МОЖЕТ сохраняться на диск для восстановления), поэтому чтения и записи измеряются в микросекундах, а не в миллисекундах, которые нужны дисковой базе данных. Удивляющая многих деталь: Redis однопоточен для выполнения команд - один event loop обрабатывает команды по одной, от начала до конца, даже если ваша Go-программа зовёт его из множества горутин одновременно. Этот однопоточный центр - не ограничение, которое нужно объезжать; это причина, по которой каждая отдельная команда атомарна без какой-либо дополнительной блокировки, свойство, на которое напрямую опирается весь остальной модуль." },
@@ -1501,6 +1930,29 @@ const MODULES_RU = [
       blurb:
         "Смотрите, как три узла спокойно обмениваются heartbeat, один замолкает после истечения случайного election timeout, кандидат собирает голоса большинства, становится лидером и реплицирует запись в журнал, пока она не будет надёжно закоммичена.",
     },
+    videos: [
+      {
+        title: "Lecture 4: Primary-Backup Replication",
+        speaker: "MIT 6.824: Distributed Systems",
+        url: "https://www.youtube.com/watch?v=M_teob23ZzY",
+        blurb:
+          "Использует VMware FT как кейс, почему наивная primary-backup репликация ломается при сетевых разделениях - ровно та мотивация про split brain, с которой начинается этот модуль.",
+      },
+      {
+        title: "Lecture 7: Fault Tolerance: Raft (2)",
+        speaker: "MIT 6.824: Distributed Systems",
+        url: "https://www.youtube.com/watch?v=4r8Mz3MMivY",
+        blurb:
+          "Золотой стандарт объяснения выборов лидера Raft через случайные таймауты/term и того, как записи журнала становятся «закоммичены» через подтверждение большинством.",
+      },
+      {
+        title: "GopherCon 2023: Build Your Own Distributed System Using Go",
+        speaker: "Philip O'Toole · GopherCon 2023",
+        url: "https://www.youtube.com/watch?v=8XbxQ1Epi5w",
+        blurb:
+          "Go-специфичная, практическая сборка key-value хранилища на Raft, заземляющая теорию консенсуса и репликации этого модуля в реальном Go-коде.",
+      },
+    ],
     concepts: [
       { title: "Проблема: почему две базы данных не могут просто «договориться»",
         body: "Наивная схема «primary с ручным failover» выглядит нормально, пока не случается сетевое разделение: primary всё ещё работает, просто до него нельзя достучаться, и оператор (или скрипт) повышает backup тоже до primary. Теперь два узла оба считают себя авторитетными, оба принимают записи, и в момент, когда разделение исчезает, у вас две истории, которые не совпадают - split brain. Решение - не более умная проверка здоровья, а требование, чтобы БОЛЬШИНСТВО кластера согласилось прежде, чем кому-либо разрешат действовать как лидер, потому что сетевое разделение может изолировать меньшинство от большинства, но никогда не может создать два большинства из одного и того же набора узлов одновременно." },
@@ -1576,6 +2028,29 @@ const MODULES_RU = [
         title: "On-call, RCA и toil automation",
         blurb:
           "Пройдите путь от alert к triage, mitigation, root cause analysis и automation backlog - цикл, который превращает инциденты в улучшение надёжности.",
+      },
+    ],
+    videos: [
+      {
+        title: "SREcon21 - Food for Thought: What Restaurants Can Teach Us about Reliability",
+        speaker: "Alex Hidalgo (автор \"Implementing Service Level Objectives\") · USENIX SREcon21",
+        url: "https://www.youtube.com/watch?v=qDfPrl4l31w",
+        blurb:
+          "От ведущего автора по теме SLO - доступное объяснение мышления SLI/SLO/error budget, на котором держится математика надёжности этого модуля.",
+      },
+      {
+        title: "SREcon21 - Evolution of Incident Management at Slack",
+        speaker: "Brent Chapman (Slack) · USENIX SREcon21",
+        url: "https://www.youtube.com/watch?v=FYYTglQoS3w",
+        blurb:
+          "Подробно про реальную структуру ролей incident commander/comms-lead/ops-lead и культуру blameless postmortem в Slack - раздел этого модуля про incident response.",
+      },
+      {
+        title: "OpenTelemetry Is the Kubernetes of Observability",
+        speaker: "Chris Aniszczyk (CTO CNCF) · The Linux Foundation",
+        url: "https://www.youtube.com/watch?v=d7d6JN0J3SQ",
+        blurb:
+          "Объясняет, почему OpenTelemetry стал стандартным слоем инструментирования для стеков вроде Prometheus/Thanos/Tempo/Loki - технологический костяк этого модуля.",
       },
     ],
     concepts: [
@@ -1671,6 +2146,29 @@ const MODULES_RU = [
         title: "Рост слайса и куча в слайсе",
         blurb:
           "Посмотрите, как append исчерпывает ёмкость и переаллоцирует, а затем - как бинарная куча живёт внутри обычного слайса: родитель и ребёнок - просто арифметика индексов, всплытие и погружение восстанавливают порядок.",
+      },
+    ],
+    videos: [
+      {
+        title: "GopherCon 2016: Inside the Map Implementation",
+        speaker: "Keith Randall · GopherCon 2016",
+        url: "https://www.youtube.com/watch?v=Tl7mi9QmLns",
+        blurb:
+          "Инженер команды Go препарирует бакеты и байт tophash прямо из исходников рантайма - классическая механика, о которой этот модуль просит вас рассуждать.",
+      },
+      {
+        title: "dotGo 2016 - Slices: Performance through cache-friendliness",
+        speaker: "Damian Gryski · dotGo 2016",
+        url: "https://www.youtube.com/watch?v=jEG4Qyo_4Bc",
+        blurb:
+          "Объясняет, почему заголовок слайса, базовый массив и стратегия роста важны - механическая картина, на которой держится обсуждение роста и алиасинга слайсов в этом модуле.",
+      },
+      {
+        title: "Faster Go Maps With Swiss Tables",
+        speaker: "Michael Pratt · GopherCon EU 2025",
+        url: "https://www.youtube.com/watch?v=aqtIM5AK9t4",
+        blurb:
+          "Современный преемник дизайна бакетов и tophash, который объясняет этот модуль - из первых рук от инженера рантайма Go, который его построил.",
       },
     ],
     concepts: [

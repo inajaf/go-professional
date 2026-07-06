@@ -692,6 +692,29 @@ const MODULES = [
       blurb:
         "Watch the collector start at the roots, paint reachable objects grey then black, and sweep away everything left white - all while the program keeps running.",
     },
+    videos: [
+      {
+        title: "GopherCon 2015: Go GC: Solving the Latency Problem",
+        speaker: "Rick Hudson · GopherCon 2015",
+        url: "https://www.youtube.com/watch?v=aiv1JOfMjm0",
+        blurb:
+          "The Go team engineer who built the concurrent collector explains why it's tri-color and concurrent in the first place - the design this module opens with.",
+      },
+      {
+        title: "GopherCon Europe 2022: Respecting Memory Limits In Go",
+        speaker: "Michael Knyszek · GopherCon Europe 2022",
+        url: "https://www.youtube.com/watch?v=07wduWyWx8M",
+        blurb:
+          "A deep dive into GOMEMLIMIT from the runtime engineer who implemented it, straight from the source on this module's memory-cap tuning knob.",
+      },
+      {
+        title: "GopherCon 2025: Advancing Go Garbage Collection with Green Tea",
+        speaker: "Michael Knyszek · GopherCon 2025",
+        url: "https://www.youtube.com/watch?v=gPJkM95KpKo",
+        blurb:
+          "Shows how Go's concurrent collector keeps evolving to cut CPU overhead - a look at where the GC this module explains is headed next.",
+      },
+    ],
     concepts: [
       {
         title: "Tri-color mark & sweep, in pictures",
@@ -841,6 +864,22 @@ b.Reset(); defer bufPool.Put(b)`,
           "Walk the production optimization loop: reproduce the slow path, collect evidence, change one hotspot, and confirm the graph actually got flatter.",
       },
     ],
+    videos: [
+      {
+        title: "GopherCon 2019: Two Go Programs, Three Different Profiling Techniques",
+        speaker: "Dave Cheney · GopherCon 2019",
+        url: "https://www.youtube.com/watch?v=nok0aYiGiYA",
+        blurb:
+          "Dave Cheney live-codes CPU and memory profiling with go tool pprof, then the execution tracer - exactly the top/list/web workflow this module teaches.",
+      },
+      {
+        title: "GopherCon 2021: Go Profiling and Observability from Scratch",
+        speaker: "Felix Geisendörfer · GopherCon 2021",
+        url: "https://www.youtube.com/watch?v=7hg4T2Qqowk",
+        blurb:
+          "Walks through Go's CPU, heap, goroutine, mutex and block profilers end to end, mapping directly onto this module's profile-types section.",
+      },
+    ],
     concepts: [
       {
         title: "The profile types",
@@ -971,6 +1010,29 @@ defer pprof.StopCPUProfile()`,
       blurb:
         "Follow a table of cases as `go test` runs each one as a subtest: inputs flow through the function, the result is compared to want, and each row turns green.",
     },
+    videos: [
+      {
+        title: "GopherCon 2017: Advanced Testing with Go",
+        speaker: "Mitchell Hashimoto · GopherCon 2017",
+        url: "https://www.youtube.com/watch?v=8hQG7QlcLBk",
+        blurb:
+          "HashiCorp's approach to table-driven subtests and test fixtures for real systems - the exact pattern this module's testing chapter is built around.",
+      },
+      {
+        title: "GopherCon 2022: Fuzz Testing Made Easy",
+        speaker: "Katie Hockman · GopherCon 2022",
+        url: "https://www.youtube.com/watch?v=7KWPiRq3ZYI",
+        blurb:
+          "Taught by the Go team's fuzzing lead who shipped go test's native fuzzing support in Go 1.18 - the same feature this module covers.",
+      },
+      {
+        title: "Go Testing By Example",
+        speaker: "Russ Cox · GopherCon Australia 2023",
+        url: "https://www.youtube.com/watch?v=X4rxi9jStLo",
+        blurb:
+          "Go's tech lead walks the go test toolchain through real standard-library examples, reinforcing idiomatic table-driven test structure straight from the source.",
+      },
+    ],
     concepts: [
       {
         title: "The simplest possible test",
@@ -1135,6 +1197,33 @@ func TestExpiry(t *testing.T) {
           "Jobs queue on a channel, several worker goroutines pull them concurrently (fan-out), process, and send results back onto a single channel (fan-in).",
       },
     ],
+    // Two canonical talks by Go's co-creator - picked because they are the
+    // direct source of this module's own mantra and patterns, not generic
+    // tutorials. Links only (no embed), so the page stays dependency-free
+    // and still renders fully offline over file://.
+    videos: [
+      {
+        title: "Go Concurrency Patterns",
+        speaker: "Rob Pike · Google I/O 2012",
+        url: "https://www.youtube.com/watch?v=f6kdp27TYZs",
+        blurb:
+          "The original talk that introduced goroutines, channels, select, and the worker-pool/fan-in pattern this module builds on - straight from Go's co-creator.",
+      },
+      {
+        title: "Concurrency Is Not Parallelism",
+        speaker: "Rob Pike · Heroku Waza 2012",
+        url: "https://vimeo.com/49718712",
+        blurb:
+          "The idea behind this module's opening line: structuring a program as independent, communicating pieces is a different question from 'how many cores can I use' - and usually the more useful one to ask first.",
+      },
+      {
+        title: "Go's Trace Tooling and Concurrency",
+        speaker: "Bill Kennedy (Ardan Labs) · GopherCon 2025",
+        url: "https://www.youtube.com/watch?v=Gqo0oCfZSjg",
+        blurb:
+          "A current (2025) look at the same ideas: Bill Kennedy live-codes a program, adding layers of concurrency, and uses Go's trace tool to show exactly what goroutines and channels are doing under load.",
+      },
+    ],
     concepts: [
       {
         title: "Goroutines: concurrency for almost free",
@@ -1276,6 +1365,29 @@ close(jobs)`,
       blurb:
         "A request builds a tree of contexts across goroutines. When a timeout fires at the root, the cancellation propagates down every branch and each goroutine stops.",
     },
+    videos: [
+      {
+        title: "GopherCon 2018: How Do You Structure Your Go Apps",
+        speaker: "Kat Zien · GopherCon 2018",
+        url: "https://www.youtube.com/watch?v=oL6JBUk6tj0",
+        blurb:
+          "Walks through flat, grouped-by-type, and domain-driven layouts for a real Go service - the concrete decision this module's cmd/ + internal/ guidance is shortcutting.",
+      },
+      {
+        title: "GopherCon 2020: Working with Errors",
+        speaker: "Jonathan Amsterdam · GopherCon 2020",
+        url: "https://www.youtube.com/watch?v=IKoSsJFdRtI",
+        blurb:
+          "Delivered by the engineer who co-authored the Go 1.13 error-wrapping proposal - the exact semantics of errors.Is, errors.As, and %w this module teaches.",
+      },
+      {
+        title: "The context package internals",
+        speaker: "Damiano Petrungaro · GopherCon UK 2023",
+        url: "https://www.youtube.com/watch?v=mfgBhGu5pco",
+        blurb:
+          "Opens up context's actual tree/channel-based implementation to show why cancellation and deadlines propagate the way this module describes.",
+      },
+    ],
     concepts: [
       {
         title: "Errors are values",
@@ -1409,6 +1521,15 @@ func (e *ValidationError) Unwrap() error { return e.Err }`,
       blurb:
         "Watch the router match an inbound URL against an internal radix trie while an IO call is physically blocked from escaping its os.Root boundary.",
     },
+    videos: [
+      {
+        title: "GopherCon Europe 2024: HTTP Routing Enhancements",
+        speaker: "Jonathan Amsterdam · GopherCon Europe 2024",
+        url: "https://www.youtube.com/watch?v=4VSyrJI09K0",
+        blurb:
+          "The Go team engineer who designed the feature explains Go 1.22's ServeMux method matching and wildcard/PathValue routing this module opens with.",
+      },
+    ],
     concepts: [
       {
         title: "Native pattern matching with http.ServeMux",
@@ -1536,6 +1657,29 @@ tool (
       blurb:
         "A side-by-side lookup trace: the legacy map probes buckets one slot at a time, while a Swiss Table hashes an 8-slot group and checks every control byte at once.",
     },
+    videos: [
+      {
+        title: "Faster Go Maps With Swiss Tables",
+        speaker: "Michael Pratt · GopherCon EU 2025",
+        url: "https://www.youtube.com/watch?v=aqtIM5AK9t4",
+        blurb:
+          "The Go team engineer behind the change explains why and how Go 1.24 reimplemented the built-in map using Swiss Tables - this module's core memory-geometry topic.",
+      },
+      {
+        title: "GopherCon 2023: The Future of JSON in Go",
+        speaker: "Joe Tsai · GopherCon 2023",
+        url: "https://www.youtube.com/watch?v=avilmOcHKHE",
+        blurb:
+          "The designer of encoding/json/v2 lays out what was broken in v1 and how the new API and jsontext streaming tokens fix it.",
+      },
+      {
+        title: "GopherCon 2025: Understanding Escape Analysis to Speed Up Your Code",
+        speaker: "Bill Kennedy (Ardan Labs) · GopherCon 2025",
+        url: "https://www.youtube.com/watch?v=FUm0pfgWehI",
+        blurb:
+          "Shows how to read escape-analysis compiler output to see when slices and structs stay on the stack versus escape to the heap - this module's stack-allocation section.",
+      },
+    ],
     concepts: [
       {
         title: "encoding/json/v2 and streaming tokens",
@@ -1659,6 +1803,15 @@ v := m["USD"] // ~1 cache line, no pointer chasing`,
       blurb:
         "An object becomes unreachable; the GC runs its AddCleanup handler deterministically - without delaying collection of the parent span.",
     },
+    videos: [
+      {
+        title: "GopherCon 2018: The Scheduler Saga",
+        speaker: "Kavya Joshi · GopherCon 2018",
+        url: "https://www.youtube.com/watch?v=YHRO5WQGh0k",
+        blurb:
+          "A definitive deep dive into the Go runtime scheduler's internals - the runtime-internals half of this module (no dedicated conference talk yet exists on the newer AddCleanup/unique/weak APIs specifically, since they only shipped in Go 1.23-1.24).",
+      },
+    ],
     concepts: [
       {
         title: "Deterministic cleanup with runtime.AddCleanup",
@@ -1771,6 +1924,22 @@ for {
       blurb:
         "Concurrent routines run inside an isolated bubble with a fake clock. When every routine blocks, time fast-forwards cleanly - no sleeps, no flakes.",
     },
+    videos: [
+      {
+        title: "Testing Time (and other asynchronous code)",
+        speaker: "Damien Neil (Go team) · GopherCon EU 2025",
+        url: "https://www.youtube.com/watch?v=oIC3zhTAOsY",
+        blurb:
+          "The Go team engineer behind testing/synctest explains the fake-clock bubble, synctest.Wait, and automatic deadlock detection - exactly this module's core topic.",
+      },
+      {
+        title: "GopherCon UK 2021: Deadlocks: The Dark Side of Concurrency",
+        speaker: "Nick Craig-Wood · GopherCon UK 2021",
+        url: "https://www.youtube.com/watch?v=9j0oQkqzhAE",
+        blurb:
+          "Explains why goroutine deadlocks are hard to catch in practice - the exact pain point synctest's automatic deadlock detection is designed to solve.",
+      },
+    ],
     concepts: [
       {
         title: "Isolated time with synctest.Run",
@@ -1879,6 +2048,29 @@ func TestTimeout(t *testing.T) {
       blurb:
         "Follow a ledger record from a Go function through a pgx batch, visualizing row-level locks as two transactions contend under load.",
     },
+    videos: [
+      {
+        title: "PGX Top to Bottom",
+        speaker: "Jack Christensen (author of pgx) · Golang Estonia",
+        url: "https://www.youtube.com/watch?v=sXMSWhcHCf8",
+        blurb:
+          "The creator of pgx walks through the driver's architecture, including pgxpool and transaction handling, straight from the source for this module's connection-pool and pgx.Tx content.",
+      },
+      {
+        title: "Go & PostgreSQL",
+        speaker: "Pavlo Golub · FOSDEM 2023",
+        url: "https://www.youtube.com/watch?v=eC_XRGBqQN0",
+        blurb:
+          "A FOSDEM PostgreSQL-devroom talk on building a robust, well-tested Go application against Postgres with pgx, reinforcing this module's persistence-layer content.",
+      },
+      {
+        title: "Generate CRUD Golang code from SQL | Compare db/sql, gorm, sqlc & sqlx",
+        speaker: "TECH SCHOOL",
+        url: "https://www.youtube.com/watch?v=prh0hTyI1sU",
+        blurb:
+          "Demonstrates generating type-safe Go code from raw SQL with sqlc and contrasts it against db/sql, gorm, and sqlx - exactly the tool this module opens with.",
+      },
+    ],
     concepts: [
       {
         title: "Compile-checked queries with sqlc",
@@ -2001,6 +2193,29 @@ row := pool.QueryRow(ctx, sql, id)`,
         title: "Locks, Online Migrations & Vacuum Bloat",
         blurb:
           "Visualize the production traps: heavy DDL locks, long transactions pinning dead tuples, and batch backfills that keep writes moving.",
+      },
+    ],
+    videos: [
+      {
+        title: "Explaining the Postgres Query Optimizer",
+        speaker: "Bruce Momjian (PostgreSQL core team) · Citus Con 2022",
+        url: "https://www.youtube.com/watch?v=wLpcVM9qxV0",
+        blurb:
+          "A PostgreSQL core developer explains how the planner turns SQL into an execution plan - the mental model behind reading EXPLAIN (ANALYZE, BUFFERS) output.",
+      },
+      {
+        title: "PGConf India 2024 - MVCC Unmasked",
+        speaker: "Bruce Momjian (PostgreSQL core team) · PGConf India 2024",
+        url: "https://www.youtube.com/watch?v=KSAy0QjHTN4",
+        blurb:
+          "Explains how Postgres's MVCC storage model creates dead tuples in the first place - the exact internals behind this module's vacuum/bloat section.",
+      },
+      {
+        title: "PostgreSQL performance tips you have never seen before",
+        speaker: "Hans-Jürgen Schönig (Cybertec) · Citus Con 2023",
+        url: "https://www.youtube.com/watch?v=m8ogrogKjXo",
+        blurb:
+          "A deep set of lesser-known indexing and query-tuning tricks, including partial and composite indexes, for squeezing real performance out of production Postgres.",
       },
     ],
     concepts: [
@@ -2153,6 +2368,22 @@ SELECT relname, n_dead_tup, vacuum_count, autovacuum_count
       blurb:
         "A classic TLS handshake next to a hybrid ML-KEM exchange - see why a future quantum attacker cracks one captured key but not the lattice-protected one.",
     },
+    videos: [
+      {
+        title: "GopherCon 2025: The Go Cryptography State of the Union",
+        speaker: "Filippo Valsorda (Go crypto maintainer) · GopherCon 2025",
+        url: "https://www.youtube.com/watch?v=YnyeAQblUyA",
+        blurb:
+          "Delivered by the engineer who implemented crypto/mlkem for the standard library, covering the post-quantum work directly underlying this module's ML-KEM/HPKE content.",
+      },
+      {
+        title: "Post Quantum Cryptography",
+        speaker: "Computerphile (Mike Pound)",
+        url: "https://www.youtube.com/watch?v=_MoRcYLN-7U",
+        blurb:
+          "A well-produced explainer of why quantum computers break current public-key crypto - the 'harvest now, decrypt later' threat model this module opens with.",
+      },
+    ],
     concepts: [
       {
         title: "gRPC + Protobuf with strict back-compat",
@@ -2259,6 +2490,22 @@ func (n *LedgerNode) Merge(o *LedgerNode) *LedgerNode { /* ... */ }`,
       blurb:
         "A blocked production goroutine; the leak analyzer walks the channel graph back to the root blocker - an un-triggered channel or a missing context deadline.",
     },
+    videos: [
+      {
+        title: "GopherCon 2017: An Introduction to \"go tool trace\"",
+        speaker: "Rhys Hiltner · GopherCon 2017",
+        url: "https://www.youtube.com/watch?v=V74JnrGTwKA",
+        blurb:
+          "The foundational talk on go tool trace itself, walking through how to read the execution-trace timeline that FlightRecorder snapshots are built on.",
+      },
+      {
+        title: "GopherCon 2021: Go Profiling and Observability from Scratch",
+        speaker: "Felix Geisendörfer · GopherCon 2021",
+        url: "https://www.youtube.com/watch?v=7hg4T2Qqowk",
+        blurb:
+          "Covers Go's full diagnostics toolbox - profilers plus the runtime tracer - the same production-forensics mindset this module builds threshold-triggered dumps around.",
+      },
+    ],
     concepts: [
       {
         title: "Always-on tracing with FlightRecorder",
@@ -2365,6 +2612,22 @@ func TestNoLeak(t *testing.T) {
       blurb:
         "A scalar loop chews one element per cycle while a SIMD lane processes 8–16 at once; alongside, the Green Tea GC sweeps contiguous 8 KiB spans in parallel.",
     },
+    videos: [
+      {
+        title: "GopherCon 2024: Parquet, Go, and Unreasonable Amounts of SIMD",
+        speaker: "Achille Roussel · GopherCon 2024",
+        url: "https://www.youtube.com/watch?v=nY6D_zEiHnU",
+        blurb:
+          "Shows how a production Go library leans on vectorized, SIMD-accelerated encoding for big wins - directly motivating why archsimd's vector types matter in real workloads.",
+      },
+      {
+        title: "GopherCon 2025: Advancing Go Garbage Collection with Green Tea",
+        speaker: "Michael Knyszek (Go team) · GopherCon 2025",
+        url: "https://www.youtube.com/watch?v=gPJkM95KpKo",
+        blurb:
+          "The Go team engineer behind the experimental Green Tea GC explains its page-level, cache-friendly mark algorithm - the exact collector this module covers.",
+      },
+    ],
     concepts: [
       {
         title: "Vector lanes with simd/archsimd",
@@ -2467,6 +2730,29 @@ func sign(msg []byte) []byte {
       blurb:
         "A runtime watches readiness probes during a rolling update, smoothly shifting traffic to new instances as they go healthy and draining the old ones.",
     },
+    videos: [
+      {
+        title: "GopherCon 2025: Analysis and Transformation Tools for Go Codebase Modernization",
+        speaker: "Alan Donovan (Go team) · GopherCon 2025",
+        url: "https://www.youtube.com/watch?v=_VePjjjV9JU",
+        blurb:
+          "Delivered by the Go tooling lead, the direct source on go fix and //go:fix-driven fleet-wide refactors this module teaches.",
+      },
+      {
+        title: "Containers From Scratch",
+        speaker: "Liz Rice · GOTO 2018",
+        url: "https://www.youtube.com/watch?v=8fi7uSYlOdc",
+        blurb:
+          "Live-builds a container from namespaces and cgroups up, giving the underlying mechanics that make this module's hardened distroless/scratch images work.",
+      },
+      {
+        title: "Facilitating Software Architecture",
+        speaker: "Andrew Harmel-Law & Sonya Natanzon · GOTO 2024",
+        url: "https://www.youtube.com/watch?v=YpFR8qzwYSA",
+        blurb:
+          "Covers how teams document and scale architectural decisions - this module's Architecture Decision Records topic.",
+      },
+    ],
     concepts: [
       {
         title: "Cgroup-aware GOMAXPROCS",
@@ -2579,6 +2865,22 @@ Consequences: +1 RTT handshake cost; quantum-resistant confidentiality;
       blurb:
         "Follow one memory read down the hierarchy - L1 miss, L2 miss, L3 miss, then a full 64-byte line pulled from RAM - and see why the next few reads are suddenly free.",
     },
+    videos: [
+      {
+        title: "How CPU Memory & Caches Work",
+        speaker: "Computerphile",
+        url: "https://www.youtube.com/watch?v=SAk-6gVkio0",
+        blurb:
+          "A clear explainer of the multi-level cache hierarchy and why each level exists - the latency-ladder intuition this module opens with.",
+      },
+      {
+        title: "dotGo 2016 - Slices: Performance through cache-friendliness",
+        speaker: "Damian Gryski · dotGo 2016",
+        url: "https://www.youtube.com/watch?v=jEG4Qyo_4Bc",
+        blurb:
+          "Go-specific treatment of spatial locality and cache-line-aware struct/slice layout - the practical 'so what' for Go engineers this module targets.",
+      },
+    ],
     concepts: [
       {
         title: "The hierarchy: small-and-fast down to big-and-slow",
@@ -2716,6 +3018,29 @@ fmt.Println(unsafe.Sizeof(Bad{}), unsafe.Sizeof(Good{})) // 24 16`,
       blurb:
         "Watch instructions flow through five overlapping stages, then hit a branch: the CPU speculates, guesses wrong, and flushes the pipeline - a visible bubble of wasted cycles.",
     },
+    videos: [
+      {
+        title: "How Branch Prediction Works in CPUs",
+        speaker: "Computerphile (Matt Godbolt)",
+        url: "https://www.youtube.com/watch?v=nczJ58WvtYo",
+        blurb:
+          "Explains branch prediction and the misprediction penalty from first principles - the exact mechanism behind this module's 'sorted data speeds up a branchy loop' demo.",
+      },
+      {
+        title: "How CPUs do Out Of Order Operations",
+        speaker: "Computerphile (Matt Godbolt)",
+        url: "https://www.youtube.com/watch?v=jNC9LPc3BI0",
+        blurb:
+          "Covers out-of-order execution and instruction-level parallelism - the hardware-side counterpart to this module's ILP/independent-accumulators discussion.",
+      },
+      {
+        title: "GopherCon 2020: Common Patterns for Bounds Check Elimination",
+        speaker: "Agniva De Sarker · GopherCon 2020",
+        url: "https://www.youtube.com/watch?v=5toTS6kSWHA",
+        blurb:
+          "A Go-specific look at how the compiler's inlining and bounds-check elimination interact with branch-heavy code, tying the CPU theory back to what Go engineers control.",
+      },
+    ],
     concepts: [
       {
         title: "The pipeline: instructions overlap like an assembly line",
@@ -2854,6 +3179,29 @@ func sum(b []byte) (s uint64) {
       blurb:
         "Goroutines (G) queued on logical processors (P), run by OS threads (M). Watch a P run dry and STEAL work from a busy neighbour, and a blocking syscall hand its P to a fresh thread.",
     },
+    videos: [
+      {
+        title: "GopherCon 2018: The Scheduler Saga",
+        speaker: "Kavya Joshi · GopherCon 2018",
+        url: "https://www.youtube.com/watch?v=YHRO5WQGh0k",
+        blurb:
+          "The canonical deep dive into the G-M-P model's design and history, including how syscalls hand off Ps - the backbone this module's architecture section is built on.",
+      },
+      {
+        title: "GopherCon 2021: Queues, Fairness, and The Go Scheduler",
+        speaker: "Madhav Jivrajani · GopherCon 2021",
+        url: "https://www.youtube.com/watch?v=wQpC99Xu1U4",
+        blurb:
+          "Focuses specifically on per-P run queues and work-stealing fairness - the scheduling-mechanics detail this module covers beyond the basic GMP picture.",
+      },
+      {
+        title: "GopherCon 2020: Pardon the Interruption: Loop Preemption in Go 1.14",
+        speaker: "Austin Clements (Go team) · GopherCon 2020",
+        url: "https://www.youtube.com/watch?v=1I1WmeSjRSw",
+        blurb:
+          "From the Go runtime engineer who built it, a direct explanation of asynchronous preemption introduced in Go 1.14 - precisely this module's preemption topic.",
+      },
+    ],
     concepts: [
       {
         title: "G, M and P: the three players",
@@ -2989,6 +3337,29 @@ go func() { for { /* pure CPU, no function calls */ } }()
       blurb:
         "Three lanes, the same job under contention: a lock-free atomic compare-and-swap, a mutex serializing a critical section, and a channel handing a value from producer to consumer.",
     },
+    videos: [
+      {
+        title: "\"go test -race\" Under the Hood",
+        speaker: "Kavya Joshi · Strange Loop",
+        url: "https://www.youtube.com/watch?v=5erqWdlhQLA",
+        blurb:
+          "A former Go runtime engineer explains how the race detector models the happens-before memory guarantee - the theoretical grounding this module's data-race section needs.",
+      },
+      {
+        title: "GopherCon 2017: Understanding Channels",
+        speaker: "Kavya Joshi · GopherCon 2017",
+        url: "https://www.youtube.com/watch?v=KBZlN0izeiY",
+        blurb:
+          "Goes under the hood of channel internals to show precisely how channels transfer ownership of data - the third leg of this module's decision framework.",
+      },
+      {
+        title: "GopherCon 2018: Rethinking Classical Concurrency Patterns",
+        speaker: "Bryan C. Mills (Go team) · GopherCon 2018",
+        url: "https://www.youtube.com/watch?v=5zXAHh5tJqQ",
+        blurb:
+          "A Go team engineer reframes classic mutex/semaphore patterns as goroutine-and-channel idioms, directly informing this module's 'which primitive when' guide.",
+      },
+    ],
     concepts: [
       {
         title: "The data race & the memory model (happens-before)",
@@ -3135,6 +3506,29 @@ close(done)`,
       blurb:
         "A single request flows through three services. Watch it emit a trace of nested spans, bump latency/error metrics, and drop structured log lines - and see how a trace ID ties them together.",
     },
+    videos: [
+      {
+        title: "GopherCon 2023: Structured Logging for the Standard Library",
+        speaker: "Jonathan Amsterdam (Go team) · GopherCon 2023",
+        url: "https://www.youtube.com/watch?v=rJfvv_c9mYU",
+        blurb:
+          "The designer of log/slog explains its API and performance design, matching this module's structured-logging pillar directly.",
+      },
+      {
+        title: "OpenTelemetry for Dummies: Instrumenting Go Apps",
+        speaker: "Ricardo Ferreira · GopherCon Europe 2021",
+        url: "https://www.youtube.com/watch?v=NLXABIZ1gUQ",
+        blurb:
+          "A hands-on walkthrough of instrumenting Go services with OpenTelemetry spans and context propagation, covering this module's distributed-tracing pillar.",
+      },
+      {
+        title: "The RED Method: How To Instrument Your Services",
+        speaker: "Tom Wilkie (Kausal) · CNCF",
+        url: "https://www.youtube.com/watch?v=TJLpYXbnfQ4",
+        blurb:
+          "From the engineer who coined the RED method, this talk covers the Rate/Errors/Duration framing this module uses for its metrics pillar.",
+      },
+    ],
     concepts: [
       {
         title: "The three pillars, and the question each answers",
@@ -3273,6 +3667,22 @@ func handle(w http.ResponseWriter, r *http.Request) {
       blurb:
         "Watch a breaker move Closed → Open → Half-Open as a downstream service fails and recovers: failures trip it open, a cooldown lets one probe through, and success closes it again.",
     },
+    videos: [
+      {
+        title: "GopherCon 2015: Go kit: A Standard Library for Distributed Programming",
+        speaker: "Peter Bourgon · GopherCon 2015",
+        url: "https://www.youtube.com/watch?v=1AjaZi4QuGo",
+        blurb:
+          "Introduces Go kit's built-in circuit-breaker and rate-limiter middleware, grounding this module's circuit-breaker and load-shedding patterns in idiomatic Go.",
+      },
+      {
+        title: "AWS re:Invent 2024 - Try again: The tools and techniques behind resilient systems",
+        speaker: "Marc Brooker (AWS) · AWS re:Invent 2024",
+        url: "https://www.youtube.com/watch?v=rvHd4Y76-fs",
+        blurb:
+          "A distinguished systems engineer's deep dive into retries, exponential backoff/jitter, and circuit breakers at hyperscale - this module's core resilience toolkit.",
+      },
+    ],
     concepts: [
       {
         title: "Deadlines everywhere: the foundation of resilience",
@@ -3420,6 +3830,29 @@ default:                                 // queue full → shed, don't grow
       blurb:
         "Watch a read fall through from a miss to the real database, get cached with a TTL, come back as a near-instant hit, expire, and miss again - then watch SETNX let exactly one of five racing clients win a lock.",
     },
+    videos: [
+      {
+        title: "Rate limiting with Redis: An essential guide",
+        speaker: "Redis (official)",
+        url: "https://www.youtube.com/watch?v=YV4ePyW3DO8",
+        blurb:
+          "Straight from Redis's own engineers, this walks through building an atomic rate limiter with INCR and TTL - the exact mechanism this module teaches.",
+      },
+      {
+        title: "System Design: Why is single-threaded Redis so fast?",
+        speaker: "ByteByteGo (Alex Xu)",
+        url: "https://www.youtube.com/watch?v=5TRFpFBccQM",
+        blurb:
+          "Explains the single-threaded, in-memory event-loop architecture that makes SETNX-based locks and INCR-based counters atomic with no extra coordination.",
+      },
+      {
+        title: "How Distributed Lock works ft Redis | System Design",
+        speaker: "ByteMonk",
+        url: "https://www.youtube.com/watch?v=qY4MfWv01pI",
+        blurb:
+          "Walks through using SET NX as an atomic distributed mutex, including the crash/expiry pitfalls this module's distributed-lock section covers.",
+      },
+    ],
     concepts: [
       {
         title: "What Redis actually is: an in-memory store with one clerk",
@@ -3542,6 +3975,29 @@ if count > 100 {
       blurb:
         "Watch three nodes heartbeat happily, one go silent past its randomized election timeout, a candidate collect votes from a majority, become leader, and replicate a log entry out until it's safely committed.",
     },
+    videos: [
+      {
+        title: "Lecture 4: Primary-Backup Replication",
+        speaker: "MIT 6.824: Distributed Systems",
+        url: "https://www.youtube.com/watch?v=M_teob23ZzY",
+        blurb:
+          "Uses VMware FT as a case study for why naive primary/backup replication breaks under network partitions - exactly the split-brain motivation this module opens with.",
+      },
+      {
+        title: "Lecture 7: Fault Tolerance: Raft (2)",
+        speaker: "MIT 6.824: Distributed Systems",
+        url: "https://www.youtube.com/watch?v=4r8Mz3MMivY",
+        blurb:
+          "The gold-standard treatment of Raft leader election via randomized timeouts/terms and how log entries become 'committed' via majority acknowledgment.",
+      },
+      {
+        title: "GopherCon 2023: Build Your Own Distributed System Using Go",
+        speaker: "Philip O'Toole · GopherCon 2023",
+        url: "https://www.youtube.com/watch?v=8XbxQ1Epi5w",
+        blurb:
+          "A Go-specific, practical build-out of a Raft-backed key-value store, grounding this module's consensus/replication theory in real Go code.",
+      },
+    ],
     concepts: [
       {
         title: "The problem: why two databases can't just 'agree'",
@@ -3686,6 +4142,29 @@ if count > 100 {
         title: "On-call, RCA and Toil Automation",
         blurb:
           "Move from alert to triage, mitigation, root cause analysis and automation backlog - the loop that turns incidents into reliability improvements.",
+      },
+    ],
+    videos: [
+      {
+        title: "SREcon21 - Food for Thought: What Restaurants Can Teach Us about Reliability",
+        speaker: "Alex Hidalgo (author, \"Implementing Service Level Objectives\") · USENIX SREcon21",
+        url: "https://www.youtube.com/watch?v=qDfPrl4l31w",
+        blurb:
+          "From the field's leading SLO author, an accessible framing of SLI/SLO/error-budget thinking that underpins this module's reliability math.",
+      },
+      {
+        title: "SREcon21 - Evolution of Incident Management at Slack",
+        speaker: "Brent Chapman (Slack) · USENIX SREcon21",
+        url: "https://www.youtube.com/watch?v=FYYTglQoS3w",
+        blurb:
+          "Details Slack's real incident-commander/comms-lead/ops-lead role structure and blameless postmortem culture - this module's incident-response section.",
+      },
+      {
+        title: "OpenTelemetry Is the Kubernetes of Observability",
+        speaker: "Chris Aniszczyk (CNCF CTO) · The Linux Foundation",
+        url: "https://www.youtube.com/watch?v=d7d6JN0J3SQ",
+        blurb:
+          "Explains why OpenTelemetry became the standard instrumentation layer feeding Prometheus/Thanos/Tempo/Loki-style stacks - this module's tooling backbone.",
       },
     ],
     concepts: [
@@ -3869,6 +4348,29 @@ kubectl describe pod <pod> | grep -A5 -E "Events|Limits|Requests"`,
         title: "Slice Growth & the Heap in a Slice",
         blurb:
           "See append run out of capacity and reallocate, then watch a binary heap live inside a plain slice - parent and child are just index arithmetic, sift-up and sift-down restore order.",
+      },
+    ],
+    videos: [
+      {
+        title: "GopherCon 2016: Inside the Map Implementation",
+        speaker: "Keith Randall · GopherCon 2016",
+        url: "https://www.youtube.com/watch?v=Tl7mi9QmLns",
+        blurb:
+          "A Go team engineer dissects the map's buckets and tophash byte straight from the runtime source - the classic internals this module asks you to reason about.",
+      },
+      {
+        title: "dotGo 2016 - Slices: Performance through cache-friendliness",
+        speaker: "Damian Gryski · dotGo 2016",
+        url: "https://www.youtube.com/watch?v=jEG4Qyo_4Bc",
+        blurb:
+          "Explains why a slice's header, backing array, and growth strategy matter, the mechanical picture this module's slice-growth-and-aliasing discussion depends on.",
+      },
+      {
+        title: "Faster Go Maps With Swiss Tables",
+        speaker: "Michael Pratt · GopherCon EU 2025",
+        url: "https://www.youtube.com/watch?v=aqtIM5AK9t4",
+        blurb:
+          "The modern successor to the bucket-and-tophash design this module explains, straight from the Go runtime engineer who built it.",
       },
     ],
     concepts: [

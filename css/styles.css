@@ -912,6 +912,72 @@ section, .module > * { animation: rise .55s var(--ease-pop) both; }
 :root[data-theme="dark"] .gt { color: var(--go-soft); }
 .gd { font-size: 12.8px; color: var(--text-2); line-height: 1.5; }
 
+/* ----------------------------------------------------- video lessons */
+.videos { display: flex; flex-direction: column; gap: 10px; }
+.video-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  overflow: hidden;
+}
+.video-card-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background .18s var(--ease);
+}
+.video-card-head:hover { background: color-mix(in srgb, var(--go) 8%, transparent); }
+.video-card-head[aria-expanded="true"] { background: color-mix(in srgb, var(--go) 10%, transparent); }
+.video-ic {
+  width: 38px; height: 38px; border-radius: 10px; flex: none;
+  display: flex; align-items: center; justify-content: center;
+  background: color-mix(in srgb, var(--go) 12%, transparent);
+  color: var(--go);
+}
+.video-card-main { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.video-card-main h4 { margin: 0; font: 700 14.5px var(--font-serif); color: var(--text); }
+.video-card-speaker { font-size: 11.5px; font-weight: 700; color: var(--go-deep); }
+:root[data-theme="dark"] .video-card-speaker { color: var(--go-soft); }
+.video-card-main p { margin: 3px 0 0; font-size: 12.8px; color: var(--text-2); line-height: 1.5; }
+.video-open {
+  flex: none; display: inline-flex; align-items: center; gap: 4px;
+  color: var(--go); font: 600 11px var(--mono); white-space: nowrap;
+}
+.video-player { display: none; }
+.video-player.on { display: block; }
+.video-embed {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-top: 1px solid var(--border);
+}
+.video-embed iframe {
+  position: absolute; inset: 0; width: 100%; height: 100%; border: 0;
+}
+.video-ext-link {
+  display: block;
+  padding: 8px 16px 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-3);
+  text-decoration: none;
+}
+.video-ext-link:hover { color: var(--go); }
+@media (max-width: 560px) {
+  .video-card-head { grid-template-columns: auto minmax(0, 1fr); }
+  .video-open { display: none; }
+}
+
 /* ------------------------------------------------------- responsive */
 @media (max-width: 1080px) {
   /* minmax(0,1fr): the canvas's intrinsic bitmap size (clientWidth x dpr)
