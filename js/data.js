@@ -2261,7 +2261,7 @@ SELECT posted_at, amount_cents, direction
         lang: "sql",
       },
       {
-        title: "Migrations must be expand/contract",
+        title: "Migrations must be expand-contract",
         body:
           "A safe production migration first expands the schema in a backward-compatible way, backfills in bounded batches, then contracts after every old binary is gone. Avoid single-shot rewrites and heavy locks on hot tables.",
         code: `-- 1. expand: nullable, no table rewrite
@@ -2902,7 +2902,7 @@ Consequences: +1 RTT handshake cost; quantum-resistant confidentiality;
       {
         title: "You never load one byte - you load a 64-byte line",
         body:
-          "Caches deal in fixed-size blocks called cache lines, almost always 64 bytes (Apple silicon uses 128). Touch a single int and the CPU pulls the entire 64-byte line containing it into L1. This is the single most important fact in this module: reads near each other in memory are nearly free once the line is warm, while reads scattered across memory each pay a fresh miss. A []int64 packs 8 values per line; a []*T forces a pointer-chase to a random address per element.",
+          "Caches deal in fixed-size blocks called cache lines, almost always 64 bytes (Apple Silicon uses 128). Touch a single int and the CPU pulls the entire 64-byte line containing it into L1. This is the single most important fact in this module: reads near each other in memory are nearly free once the line is warm, while reads scattered across memory each pay a fresh miss. A []int64 packs 8 values per line; a []*T forces a pointer-chase to a random address per element.",
         code: `// A 64-byte line holds eight int64 values.
 // Walking a slice sequentially gets ~7 free hits per miss:
 var sum int64
@@ -3973,7 +3973,7 @@ if count > 100 {
       id: "raft-consensus",
       title: "Leader Election & Log Replication",
       blurb:
-        "Watch three nodes heartbeat happily, one go silent past its randomized election timeout, a candidate collect votes from a majority, become leader, and replicate a log entry out until it's safely committed.",
+        "Watch three nodes heartbeat happily, one go silent past its randomized election timeout, a candidate collects votes from a majority, becomes leader, and replicates a log entry out until it's safely committed.",
     },
     videos: [
       {
@@ -4734,7 +4734,7 @@ const GLOSSARY = {
     ["Readiness probe", "A health check telling the load balancer a pod can take traffic."],
   ],
   m10: [
-    ["Cache line", "The 64-byte (128 on Apple silicon) block moved between RAM and cache as one unit."],
+    ["Cache line", "The 64-byte (128 on Apple Silicon) block moved between RAM and cache as one unit."],
     ["L1 / L2 / L3", "Progressively bigger, slower on-chip caches sitting between registers and RAM."],
     ["Temporal locality", "Data used recently is likely to be used again soon - so caches keep it."],
     ["Spatial locality", "Data near what you just used is likely needed soon - prefetchers exploit this."],
