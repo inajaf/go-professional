@@ -30,10 +30,10 @@
   }
 
   /* ---------------------------------------------------------- language
-     COURSE_RU is allowed to be PARTIAL: translation is filled in module by
-     module. mergeCourse overlays whatever RU has onto the EN base, so any
-     not-yet-translated field/module falls back to English instead of
-     crashing or rendering blank. */
+     COURSE_RU/COURSE_AZ are allowed to be PARTIAL: translation is filled in
+     module by module. mergeCourse overlays whatever the translation has onto
+     the EN base, so any not-yet-translated field/module falls back to
+     English instead of crashing or rendering blank. */
   function mergeModule(em, rm) {
     if (!rm) return em;
     const out = Object.assign({}, em, rm);
@@ -86,13 +86,20 @@
     });
     return out;
   }
-  const LANG = (state.lang === "ru" && window.COURSE_RU) ? "ru" : "en";
+  // The cycle a click on the language button advances through: en -> ru -> az -> en.
+  const LANG_CYCLE = { en: "ru", ru: "az", az: "en" };
+  const TRANSLATED_COURSE = { ru: window.COURSE_RU, az: window.COURSE_AZ };
+  const CANVAS_DICT = { ru: window.CANVAS_RU, az: window.CANVAS_AZ };
+  const LANG = (TRANSLATED_COURSE[state.lang]) ? state.lang : "en";
   window.__LANG__ = LANG; // read by animations.js to pick translated canvas text
-  const COURSE = LANG === "ru" ? mergeCourse(window.COURSE_EN, window.COURSE_RU) : window.COURSE_EN;
+  const COURSE = LANG === "en" ? window.COURSE_EN : mergeCourse(window.COURSE_EN, TRANSLATED_COURSE[LANG]);
   const UI = (window.UI_STRINGS && window.UI_STRINGS[LANG]) || window.UI_STRINGS.en;
   // animation step title/desc/why captions are translated via the same exact-string
-  // dictionary animations.js uses for canvas text (window.CANVAS_RU) - see AGENTS.md.
-  function trCap(s) { return (LANG === "ru" && window.CANVAS_RU && window.CANVAS_RU[s]) || s; }
+  // dictionary animations.js uses for canvas text (window.CANVAS_RU/CANVAS_AZ) - see AGENTS.md.
+  function trCap(s) {
+    const dict = CANVAS_DICT[LANG];
+    return (dict && dict[s]) || s;
+  }
 
   const { COURSE_META, PARTS, MODULES, VERIFICATION, ASSIGNMENTS, GLOSSARY } = COURSE;
   const LESSONS = COURSE.LESSONS || {};
@@ -1138,7 +1145,7 @@
         </a>
         <div class="topbar-right">
           <div class="top-progress" id="top-progress"></div>
-          <button class="icon-btn lang-btn" id="lang-btn" title="${esc(UI.toggleLang)}" aria-label="${esc(UI.toggleLangAria)}">${LANG === "ru" ? "EN" : "RU"}</button>
+          <button class="icon-btn lang-btn" id="lang-btn" title="${esc(UI.toggleLang)}" aria-label="${esc(UI.toggleLangAria)}">${LANG_CYCLE[LANG].toUpperCase()}</button>
           <button class="icon-btn" id="theme-btn" title="${esc(UI.toggleTheme)}" aria-label="${esc(UI.toggleTheme)}">${ico("moon", 17)}</button>
         </div>
       </header>
@@ -1162,7 +1169,7 @@
       activeAnims.forEach((a) => a.render());
     });
     $("#lang-btn").addEventListener("click", () => {
-      state.lang = LANG === "ru" ? "en" : "ru"; saveNow();
+      state.lang = LANG_CYCLE[LANG]; saveNow();
       location.reload();
     });
     $("#nav-toggle").addEventListener("click", () => document.body.classList.toggle("nav-open"));
