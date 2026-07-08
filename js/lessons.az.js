@@ -353,7 +353,7 @@ window.COURSE_AZ.LESSONS = {
   "m8": [
     {
       "h": "Hardware sympathy: maşına qarşı yox, onunla işləmək",
-      "p": "Performansın ən yüksək səviyyəsində, CPU-ya abstrakt bir təlimat-icraçısı kimi baxmağı dayandırıb, hardware-in həqiqətən necə işlədiyinə uyğun kod yazmağa başlayırsınız - 'mexaniki simpatiya'. Bu modul bunun üç üzüdür: təlimat başına daha çox iş görmək üçün CPU-nun vektor bölmələrindən istifadə etmək, sirləri yaddaş dump-larından kənar saxlamaq və cache lokallığı ətrafında yenidən dizayn edilmiş bir zibil yığan. Bunların heç biri gündəlik kod deyil, amma onların mövcud olduğunu - və nə vaxt dəyərə dəydiyini - bilmək senior-u principal-dan ayıran şeydir."
+      "p": "Performansın ən yüksək səviyyəsində, CPU-ya abstrakt bir təlimat-icraçısı kimi baxmağı dayandırıb, hardware-in həqiqətən necə işlədiyinə uyğun kod yazmağa başlayırsınız - 'mexaniki simpatiya'. Bu modul bunun üç üzüdür: təlimat başına daha çox iş görmək üçün CPU-nun vektor bölmələrindən istifadə etmək, sirləri yaddaş dump-larından kənar saxlamaq və cache lokallığı ətrafında yenidən dizayn edilmiş bir Garbage Collector. Bunların heç biri gündəlik kod deyil, amma onların mövcud olduğunu - və nə vaxt dəyərə dəydiyini - bilmək senior-u principal-dan ayıran şeydir."
     },
     {
       "h": "SIMD-ə əl atmazdan əvvəl skalyar dövrü optimallaşdırın",
@@ -365,11 +365,11 @@ window.COURSE_AZ.LESSONS = {
     },
     {
       "h": "Sirlər öz istifadəsindən uzun yaşamamalıdır",
-      "p": "Adi bir `[]byte`-də oturan deşifrə edilmiş bir açar bir öhdəlikdir: RAM-da qalır, hərəkət edən zibil yığan tərəfindən ətrafa köçürülür və - ehtiyac duyduğunuzdan çox sonra - bir core dump-da bitə bilər və ya diskə swap edilə bilər. `runtime/secret` həssas bayt-ları hərəkət edən heap-dən kənarda qalan və `Destroy`-da sıfırlanması təmin edilən bir buferdə saxlayır, bir açarın bərpa edilə biləcəyi pəncərəni minimuma endirərək. Bu maruz qalma pəncərəsini minimuma endirmək açar materialını idarə edən hər şey üçün əsas müdafiə vərdişidir."
+      "p": "Adi bir `[]byte`-də oturan deşifrə edilmiş bir açar bir öhdəlikdir: RAM-da qalır, hərəkət edən Garbage Collector tərəfindən ətrafa köçürülür və - ehtiyac duyduğunuzdan çox sonra - bir core dump-da bitə bilər və ya diskə swap edilə bilər. `runtime/secret` həssas bayt-ları hərəkət edən heap-dən kənarda qalan və `Destroy`-da sıfırlanması təmin edilən bir buferdə saxlayır, bir açarın bərpa edilə biləcəyi pəncərəni minimuma endirərək. Bu maruz qalma pəncərəsini minimuma endirmək açar materialını idarə edən hər şey üçün əsas müdafiə vərdişidir."
     },
     {
       "h": "Green Tea: cache lokallığı üçün qurulmuş bir GC",
-      "p": "Eksperimental Green Tea zibil yığan (`GOEXPERIMENT=greenteagc`) Swiss Table-larla eyni 'yaddaş darboğazdır' reallığını əks etdirir. Obyektləri bir-bir işarələyib heap boyu pointer-ləri qovmaq (səpələnmiş, cache-dostu olmayan) əvəzinə, yaddaşı bitişik 8 KiB *span*-larda skan edir - CPU-nun yaxşı prefetch etdiyi və nüvələr arasında təmiz paralelləşən ardıcıl giriş. Böyük heap-lərdə bu, GC CPU-sunu əhəmiyyətli dərəcədə kəsə bilər. Həmişəki kimi: bir eksperimenti qəbul etməzdən əvvəl default-a qarşı qiymətləndirin və benchmark edin."
+      "p": "Eksperimental Green Tea Garbage Collector (`GOEXPERIMENT=greenteagc`) Swiss Table-larla eyni 'yaddaş darboğazdır' reallığını əks etdirir. Obyektləri bir-bir işarələyib heap boyu pointer-ləri qovmaq (səpələnmiş, cache-dostu olmayan) əvəzinə, yaddaşı bitişik 8 KiB *span*-larda skan edir - CPU-nun yaxşı prefetch etdiyi və nüvələr arasında təmiz paralelləşən ardıcıl giriş. Böyük heap-lərdə bu, GC CPU-sunu əhəmiyyətli dərəcədə kəsə bilər. Həmişəki kimi: bir eksperimenti qəbul etməzdən əvvəl default-a qarşı qiymətləndirin və benchmark edin."
     }
   ],
   "m10": [
@@ -435,7 +435,7 @@ window.COURSE_AZ.LESSONS = {
     },
     {
       "h": "Syscall-lar və preemption: hər P-ni məhsuldar saxlamaq",
-      "p": "Bəzi bloklama netpoller tərəfindən idarə edilə bilməz - bir disk oxuması, bir DNS axtarışı, bir cgo çağırışı həqiqətən OS thread-ini bloklayır. Runtime-ın cavabı *handoff*-dur: bloklanmış M-in P-sini ayırır və onu başqa bir thread-ə verir ki, qalan goroutine-lər işləməyə davam etsin; buna görə `GOMAXPROCS`-dan daha çox OS thread-i görə bilərsiniz. Ədalətin digər yarısı *preemption*-dır. Əvvəlcə Go yalnız funksiya çağırışlarında goroutine-lər arasında keçid edə bilirdi, ona görə çağırışı olmayan sıx bir `for {}` dövrü bir P-ni inhisara ala, hətta zibil yığanı belə dayandıra bilirdi. Go 1.14-dən bəri, bir fon monitoru thread-i (*sysmon*) çox uzun (~10 ms) işləmiş bir goroutine-i aşkarlayır və onu təhlükəsiz şəkildə preempt etmək üçün thread-inə bir siqnal göndərir. Birlikdə, handoff və asinxron preemption heç bir tək goroutine-in - bloklanmış olsun, məşğul olsun - digərlərini ac saxlaya bilməməsini təmin edir."
+      "p": "Bəzi bloklama netpoller tərəfindən idarə edilə bilməz - bir disk oxuması, bir DNS axtarışı, bir cgo çağırışı həqiqətən OS thread-ini bloklayır. Runtime-ın cavabı *handoff*-dur: bloklanmış M-in P-sini ayırır və onu başqa bir thread-ə verir ki, qalan goroutine-lər işləməyə davam etsin; buna görə `GOMAXPROCS`-dan daha çox OS thread-i görə bilərsiniz. Ədalətin digər yarısı *preemption*-dır. Əvvəlcə Go yalnız funksiya çağırışlarında goroutine-lər arasında keçid edə bilirdi, ona görə çağırışı olmayan sıx bir `for {}` dövrü bir P-ni inhisara ala, hətta Garbage Collector-ı belə dayandıra bilirdi. Go 1.14-dən bəri, bir fon monitoru thread-i (*sysmon*) çox uzun (~10 ms) işləmiş bir goroutine-i aşkarlayır və onu təhlükəsiz şəkildə preempt etmək üçün thread-inə bir siqnal göndərir. Birlikdə, handoff və asinxron preemption heç bir tək goroutine-in - bloklanmış olsun, məşğul olsun - digərlərini ac saxlaya bilməməsini təmin edir."
     }
   ],
   "m6": [
@@ -910,7 +910,7 @@ window.COURSE_AZ.WORKED_EXAMPLES = {
   },
   "m3": {
     "title": "runtime.AddCleanup-un tam bir dəfə işə düşməsini izlə",
-    "intro": "Zibil yığanın (garbage collector) onun əlçatmaz olduğunu sübut etdiyi an cleanup-ı bir mesaj çap edən saxta bağlantı - nə finalizer, nə dirilmə.",
+    "intro": "Garbage Collector-un onun əlçatmaz olduğunu sübut etdiyi an cleanup-ı bir mesaj çap edən saxta bağlantı - nə finalizer, nə dirilmə.",
     "steps": [
       {
         "title": "Obyekt yaradılanda bir cleanup əlavə et",

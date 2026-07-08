@@ -175,7 +175,30 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   transition: transform .2s var(--ease-pop), border-color .2s, color .2s; }
 .icon-btn:hover { border-color: var(--go); color: var(--go); transform: scale(1.08) rotate(-6deg); }
 .icon-btn:active { transform: scale(.92); }
-.lang-btn { width: 40px; font: 700 11px var(--mono); letter-spacing: .3px; }
+.lang-switch { position: relative; }
+.lang-btn { width: auto; padding: 0 10px; gap: 5px; display: inline-flex; align-items: center; justify-content: center;
+  font: 700 11px var(--mono); letter-spacing: .3px; }
+.lang-btn:hover { transform: scale(1.04); }
+.lang-btn[aria-expanded="true"] { border-color: var(--go); color: var(--go); }
+.lang-btn svg { transition: transform .2s var(--ease-pop); }
+.lang-btn[aria-expanded="true"] svg { transform: rotate(180deg); }
+.lang-menu {
+  position: absolute; top: calc(100% + 8px); right: 0; z-index: 50;
+  min-width: 150px; margin: 0; padding: 6px; list-style: none;
+  background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px;
+  box-shadow: var(--shadow);
+  opacity: 0; visibility: hidden; transform: translateY(-6px) scale(.97); transform-origin: top right;
+  transition: opacity .18s var(--ease), transform .18s var(--ease-pop), visibility 0s linear .18s;
+}
+.lang-switch.open .lang-menu {
+  opacity: 1; visibility: visible; transform: translateY(0) scale(1);
+  transition: opacity .18s var(--ease), transform .18s var(--ease-pop);
+}
+.lang-menu li { padding: 9px 12px; border-radius: 7px; font: 500 13px var(--font); color: var(--text-2); cursor: pointer;
+  transition: background .14s var(--ease), color .14s var(--ease); }
+.lang-menu li:hover { background: var(--surface-3); color: var(--text); }
+.lang-menu li.active { color: var(--go); font-weight: 700; }
+.lang-menu li.active::after { content: "✓"; float: right; }
 .nav-toggle { display: none; background: none; border: none; color: var(--text); font-size: 22px; cursor: pointer; place-items: center; }
 
 .layout { flex: 1; display: grid; grid-template-columns: 290px minmax(0, 1fr); align-items: start; min-width: 0; }

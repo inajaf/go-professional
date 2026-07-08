@@ -86,8 +86,12 @@
     });
     return out;
   }
-  // The cycle a click on the language button advances through: en -> ru -> az -> en.
-  const LANG_CYCLE = { en: "ru", ru: "az", az: "en" };
+  // Every language the topbar dropdown offers, each shown in its own native name.
+  const LANGS = [
+    { code: "en", name: "English" },
+    { code: "ru", name: "Русский" },
+    { code: "az", name: "Azərbaycan" },
+  ];
   const TRANSLATED_COURSE = { ru: window.COURSE_RU, az: window.COURSE_AZ };
   const CANVAS_DICT = { ru: window.CANVAS_RU, az: window.CANVAS_AZ };
   const LANG = (TRANSLATED_COURSE[state.lang]) ? state.lang : "en";
@@ -238,6 +242,7 @@
     rotateCcw: "M3 12a9 9 0 109-9M3 4v8h8",
     chevronLeft: "M15 18l-6-6 6-6",
     chevronRight: "M9 18l6-6-6-6",
+    chevronDown: "M6 9l6 6 6-6",
     play: "M8 5v14l11-7-11-7z",
     pause: "M8 5v14M16 5v14",
     arrowUp: "M12 19V5M5 12l7-7 7 7",
@@ -1168,7 +1173,14 @@
         </a>
         <div class="topbar-right">
           <div class="top-progress" id="top-progress"></div>
-          <button class="icon-btn lang-btn" id="lang-btn" title="${esc(UI.toggleLang)}" aria-label="${esc(UI.toggleLangAria)}">${LANG_CYCLE[LANG].toUpperCase()}</button>
+          <div class="lang-switch" id="lang-switch">
+            <button class="icon-btn lang-btn" id="lang-btn" title="${esc(UI.chooseLanguage)}" aria-label="${esc(UI.chooseLanguage)}" aria-haspopup="listbox" aria-expanded="false">
+              ${LANG.toUpperCase()}${ico("chevronDown", 12)}
+            </button>
+            <ul class="lang-menu" id="lang-menu" role="listbox" aria-label="${esc(UI.chooseLanguage)}">
+              ${LANGS.map((l) => `<li role="option" tabindex="0" data-lang="${l.code}" aria-selected="${l.code === LANG}" class="${l.code === LANG ? "active" : ""}">${esc(l.name)}</li>`).join("")}
+            </ul>
+          </div>
           <button class="icon-btn" id="theme-btn" title="${esc(UI.toggleTheme)}" aria-label="${esc(UI.toggleTheme)}">${ico("moon", 17)}</button>
         </div>
       </header>
@@ -1192,9 +1204,43 @@
       state.theme = state.theme === "dark" ? "light" : "dark"; save(); applyTheme();
       activeAnims.forEach((a) => a.render());
     });
-    $("#lang-btn").addEventListener("click", () => {
-      state.lang = LANG_CYCLE[LANG]; saveNow();
+    const langSwitch = $("#lang-switch"), langBtn = $("#lang-btn"), langMenu = $("#lang-menu");
+    function closeLangMenu() {
+      langSwitch.classList.remove("open");
+      langBtn.setAttribute("aria-expanded", "false");
+    }
+    function selectLang(code) {
+      if (code === LANG) { closeLangMenu(); return; }
+      state.lang = code; saveNow();
       location.reload();
+    }
+    langBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const open = langSwitch.classList.toggle("open");
+      langBtn.setAttribute("aria-expanded", open ? "true" : "false");
+      if (open) $("[data-lang].active", langMenu)?.focus();
+    });
+    langMenu.addEventListener("click", (e) => {
+      const opt = e.target.closest("[data-lang]");
+      if (opt) selectLang(opt.dataset.lang);
+    });
+    langMenu.addEventListener("keydown", (e) => {
+      const opts = $$("[data-lang]", langMenu);
+      const i = opts.indexOf(document.activeElement);
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        if (i >= 0) selectLang(opts[i].dataset.lang);
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault(); opts[(i + 1) % opts.length]?.focus();
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault(); opts[(i - 1 + opts.length) % opts.length]?.focus();
+      }
+    });
+    document.addEventListener("click", (e) => {
+      if (langSwitch.classList.contains("open") && !langSwitch.contains(e.target)) closeLangMenu();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeLangMenu();
     });
     $("#nav-toggle").addEventListener("click", () => document.body.classList.toggle("nav-open"));
     $("#nav-scrim").addEventListener("click", () => document.body.classList.remove("nav-open"));

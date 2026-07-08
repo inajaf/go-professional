@@ -511,11 +511,11 @@ const MODULES_AZ = [
   },
   {
     "id": "f1",
-    "title": "Go-nun Zibil Yığanı Necə İşləyir",
-    "short": "Zibil Yığan (GC)",
+    "title": "Go-nun Garbage Collector-ı Necə İşləyir",
+    "short": "Garbage Collector",
     "level": "Başlanğıc",
     "summary": "Avtomatik yaddaş idarəetməsini sirdən çıxarın: konkurent üç-rəngli mark-and-sweep collector, GOGC və GOMEMLIMIT-in həqiqətən nə etdiyi və GC yükünü necə azaltmaq olar.",
-    "plain": "Zibil yığanı (garbage collector, GC) yaddaş üçün avtomatik bir dozorçu kimi düşünün. C kimi bir dildə ayırdığınız hər şeyi əl ilə free() etməlisiniz. Go-da isə sadəcə bir dəyəri istifadə etməyi dayandırırsınız, GC də proqramınız işləməyə davam edərkən onu sizin üçün geri alır. Bunu təkrar-təkrar bir sual verərək edir: 'indi mütləq canlı olan hər şeydən başlayaraq (qlobal dəyişənlər və goroutine stack-ləri), pointer-ləri izləyərək hələ hansı obyektlərə çata bilirəm?' Artıq çata bilmədiyi hər şey zibildir və onun yaddaşı geri qaytarılır.",
+    "plain": "Garbage Collector-u (GC) yaddaş üçün avtomatik bir dozorçu kimi düşünün. C kimi bir dildə ayırdığınız hər şeyi əl ilə free() etməlisiniz. Go-da isə sadəcə bir dəyəri istifadə etməyi dayandırırsınız, GC də proqramınız işləməyə davam edərkən onu sizin üçün geri alır. Bunu təkrar-təkrar bir sual verərək edir: 'indi mütləq canlı olan hər şeydən başlayaraq (qlobal dəyişənlər və goroutine stack-ləri), pointer-ləri izləyərək hələ hansı obyektlərə çata bilirəm?' Artıq çata bilmədiyi hər şey zibildir və onun yaddaşı geri qaytarılır.",
     "animation": {
       "title": "Üç-Rəngli Mark & Sweep",
       "blurb": "Collector-un root-lardan başladığını, əlçatan obyektləri əvvəl boz sonra qara boyadığını və qalan hər şeyi ağ olaraq süpürdüyünü izləyin - bütün bunlar proqram işləməyə davam edərkən baş verir."
@@ -1565,7 +1565,7 @@ const MODULES_AZ = [
     "short": "SIMD və Təhlükəsiz Yaddaş",
     "level": "Principal",
     "summary": "simd/archsimd ilə isti riyaziyyatı vektorlaşdır, runtime/secret ilə gizli açarları yaddaşdan təmizlə və Green Tea GC-nin spatial-lokallıq span skan etməsini başa düş.",
-    "plain": "Müasir CPU-lar eyni əməliyyatı bir çox rəqəm üzərində eyni anda yerinə yetirə bilər - bu SIMD-dir (Single Instruction, Multiple Data). Bir bloğun hər baytını checksum edən bir dövr üçün, təlimat başına bir bayt əvəzinə 16 bayt emal etmək böyük bir sürət qazancıdır. Ayrıca, yaddaşda qalan gizli açarlar crash dump-lara sıza bilər; runtime/secret onları təmizləyir. \"Green Tea\" isə daha yaxşı cache lokallığı üçün zibil yığanın (garbage collector) eksperimental yenidən dizaynıdır.",
+    "plain": "Müasir CPU-lar eyni əməliyyatı bir çox rəqəm üzərində eyni anda yerinə yetirə bilər - bu SIMD-dir (Single Instruction, Multiple Data). Bir bloğun hər baytını checksum edən bir dövr üçün, təlimat başına bir bayt əvəzinə 16 bayt emal etmək böyük bir sürət qazancıdır. Ayrıca, yaddaşda qalan gizli açarlar crash dump-lara sıza bilər; runtime/secret onları təmizləyir. \"Green Tea\" isə daha yaxşı cache lokallığı üçün Garbage Collector-un eksperimental yenidən dizaynıdır.",
     "animation": {
       "title": "SIMD Emalı və Green Tea GC",
       "blurb": "Skalyar bir dövr dövr başına bir element çeynəyir, SIMD zolağı isə eyni anda 8-16-nı emal edir; yanında, Green Tea GC bitişik 8 KiB span-ları paralel olaraq süpürür."
@@ -1594,7 +1594,7 @@ const MODULES_AZ = [
         "body": "Deşifrə edilmiş açarlar RAM-da qalır və core dump-lara və swap-a sızır. runtime/secret gizli baytları köçürülə bilməyən heap-dən kənarda saxlanılan bir buffer-də tutur və istifadədən sonra sıfırlanmasına zəmanət verir, bir açarın bərpa edilə bilən qalması pəncərəsini minimuma endirir."
       },
       {
-        "title": "Green Tea zibil yığan (garbage collector)",
+        "title": "Green Tea Garbage Collector",
         "body": "Green Tea (GOEXPERIMENT=greenteagc) GC-ni spatial lokallıq ətrafında yenidən qurur: obyektlərə tək-tək baxıb heapı gəzmək əvəzinə, yaddaşı bitişik 8 KiB span-larla skan edir, bu da böyük heap-lərdə cache davranışını və paralel skan throughput-unu dramatik dərəcədə yaxşılaşdırır."
       }
     ],
