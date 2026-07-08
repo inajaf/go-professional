@@ -727,10 +727,12 @@ section, .module > * { animation: rise .55s var(--ease-pop) both; }
 /* checklist + notes */
 .checklist { list-style: none; margin: 0 0 14px; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 .check { display: flex; align-items: flex-start; gap: 11px; padding: 9px 11px; border-radius: 8px; cursor: pointer;
-  background: var(--surface-2); border: 1px solid var(--border-soft); font-size: 13px; color: var(--text-2); transition: .16s; }
-.check:hover { border-color: var(--border); }
+  background: var(--surface-2); border: 1px solid var(--border-soft); font-size: 13px; color: var(--text-2);
+  transition: background .16s var(--ease), border-color .16s var(--ease), color .16s var(--ease), transform .16s var(--ease-pop); }
+.check:hover { border-color: var(--go); color: var(--text); background: color-mix(in srgb, var(--go) 6%, var(--surface-2)); transform: translateX(2px); }
 .check-box { flex: none; width: 20px; height: 20px; border-radius: 5px; border: 1.5px solid var(--border); display: grid; place-items: center;
   font-size: 12px; font-weight: 700; color: transparent; transition: transform .3s var(--ease-pop), background .18s, border-color .18s, color .18s; }
+.check:hover .check-box { border-color: var(--go); }
 .check.on { color: var(--text); }
 .check.on .check-box { background: var(--good); border-color: var(--good); color: #04121c; animation: check-pop .3s var(--ease-pop); }
 @keyframes check-pop { from { transform: scale(.5); } 60% { transform: scale(1.15); } }
@@ -931,7 +933,10 @@ section, .module > * { animation: rise .55s var(--ease-pop) both; }
 /* --------------------------------------------------------- glossary */
 .glossary { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .gterm { display: flex; flex-direction: column; gap: 3px; padding: 12px 14px; border-radius: var(--radius-sm);
-  background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--go); }
+  background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--go);
+  transition: transform .2s var(--ease-pop), box-shadow .2s var(--ease), border-color .2s var(--ease); }
+.gterm:hover { transform: translateY(-2px); border-color: var(--go);
+  box-shadow: 0 10px 20px -14px color-mix(in srgb, var(--go) 45%, transparent); }
 .gt { font: 700 13px var(--mono); color: var(--go-deep); }
 :root[data-theme="dark"] .gt { color: var(--go-soft); }
 .gd { font-size: 12.8px; color: var(--text-2); line-height: 1.5; }
@@ -943,6 +948,11 @@ section, .module > * { animation: rise .55s var(--ease-pop) both; }
   border-radius: var(--radius);
   background: var(--surface);
   overflow: hidden;
+  transition: border-color .2s var(--ease), box-shadow .2s var(--ease);
+}
+.video-card:hover {
+  border-color: var(--go);
+  box-shadow: 0 12px 24px -16px color-mix(in srgb, var(--go) 45%, transparent);
 }
 .video-card-head {
   display: grid;
