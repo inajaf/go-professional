@@ -104,6 +104,7 @@ window.UI_STRINGS = {
     moduleCompleteSub: "On to the next one.",
     yourNotes: "Your notes",
     brandSubtitle: "Distributed Systems Engineering",
+    backToTop: "Back to top",
   },
   ru: {
     docTitle: "Hardcore Go и инженерия распределённых систем - интерактивный курс",
@@ -205,6 +206,7 @@ window.UI_STRINGS = {
     moduleCompleteSub: "Вперёд к следующему.",
     yourNotes: "Ваши заметки",
     brandSubtitle: "Инженерия распределённых систем",
+    backToTop: "Наверх",
   },
   az: {
     docTitle: "Hardcore Go və Paylanmış Sistemlər Mühəndisliyi - İnteraktiv Kurs",
@@ -306,5 +308,6 @@ window.UI_STRINGS = {
     moduleCompleteSub: "Növbəti modula keçək.",
     yourNotes: "Qeydləriniz",
     brandSubtitle: "Paylanmış Sistemlər Mühəndisliyi",
+    backToTop: "Yuxarı qayıt",
   },
 };

@@ -240,6 +240,7 @@
     chevronRight: "M9 18l6-6-6-6",
     play: "M8 5v14l11-7-11-7z",
     pause: "M8 5v14M16 5v14",
+    arrowUp: "M12 19V5M5 12l7-7 7 7",
   };
   const ico = (name, size = 18) =>
     `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${(ICONS[name] || "")
@@ -1097,16 +1098,37 @@
     if (r === "home" || !moduleById[r]) {
       if (r !== "home" && !moduleById[r]) location.hash = "#/home";
       renderHome();
+      document.body.classList.remove("is-module");
     } else {
       renderModule(moduleById[r]);
+      document.body.classList.add("is-module");
     }
     renderSidebar();
     pageEnter();
     setupReveals();
+    updateReadProgress();
     // close mobile nav
     document.body.classList.remove("nav-open");
   }
   window.addEventListener("hashchange", route);
+
+  /* ------------------------------------------------- reading progress
+     A thin bar pinned to the very top of the viewport tracking scroll
+     depth through the current module's content, plus a fade-in
+     back-to-top button once you've scrolled past the fold. Both are
+     no-ops on the home page (toggled via the .is-module body class). */
+  function updateReadProgress() {
+    const bar = $("#read-progress-bar");
+    const btt = $("#back-to-top");
+    const isModule = document.body.classList.contains("is-module");
+    if (bar) {
+      const scrollable = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const pct = isModule && scrollable > 0 ? Math.min(100, Math.max(0, (window.scrollY / scrollable) * 100)) : 0;
+      bar.style.width = pct + "%";
+    }
+    if (btt) btt.classList.toggle("show", isModule && window.scrollY > 480);
+  }
+  window.addEventListener("scroll", updateReadProgress, { passive: true });
 
   /* --------------------------------------------------- theme + chrome */
   function applyTheme() {
@@ -1137,6 +1159,7 @@
   /* ------------------------------------------------------------ boot */
   function boot() {
     document.getElementById("app").innerHTML = `
+      <div class="read-progress"><span id="read-progress-bar"></span></div>
       <header class="topbar">
         <button class="nav-toggle" id="nav-toggle" aria-label="${esc(UI.openMenu)}">${ico("menu", 18)}</button>
         <a class="brand" href="#/home">
@@ -1160,7 +1183,8 @@
         </aside>
         <main id="main"></main>
       </div>
-      <div class="nav-scrim" id="nav-scrim"></div>`;
+      <div class="nav-scrim" id="nav-scrim"></div>
+      <button class="back-to-top" id="back-to-top" aria-label="${esc(UI.backToTop)}" title="${esc(UI.backToTop)}">${ico("arrowUp", 18)}</button>`;
 
     applyDocumentChrome();
     applyTheme();
@@ -1175,6 +1199,9 @@
     $("#nav-toggle").addEventListener("click", () => document.body.classList.toggle("nav-open"));
     $("#nav-scrim").addEventListener("click", () => document.body.classList.remove("nav-open"));
     $("#nav-filter").addEventListener("input", renderSidebar);
+    $("#back-to-top").addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: REDUCED ? "auto" : "smooth" });
+    });
     updateTopProgress();
     route();
     // keep top progress + sidebar foot fresh
