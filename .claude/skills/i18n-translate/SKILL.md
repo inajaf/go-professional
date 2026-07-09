@@ -1,11 +1,13 @@
 ---
 name: i18n-translate
-description: Translate new or changed go-professional content into Russian, or audit existing content for translation gaps. Use this whenever English content changes (a module, a lesson, a worked example, a UI string, or new animation canvas text) and the Russian mirror needs to be brought back in sync, or when the user asks "is the Russian version up to date", "translate this", or "why is this showing in English on the Russian page". This encodes the specific merge rules and past bugs for this repo's two-language system - do not improvise a different i18n approach.
+description: Translate new or changed go-professional content into Russian or Azerbaijani, or audit existing content for translation gaps. Use this whenever English content changes (a module, a lesson, a worked example, a UI string, or new animation canvas text) and a translated mirror needs to be brought back in sync, or when the user asks "is the Russian/Azerbaijani version up to date", "translate this", or "why is this showing in English on the translated page". This encodes the specific merge rules and past bugs for this repo's multi-language system - do not improvise a different i18n approach.
 ---
 
-# Keep go-professional's Russian translation in sync
+# Keep go-professional's translations in sync
 
-This course has a full English/Russian split across five files (`data.js`/`data.ru.js`, `lessons.js`/`lessons.ru.js`, and the `CANVAS_RU` dictionary inside `animations.js`), unified at runtime by `mergeCourse()`/`mergeModule()` in `app.js`. The system is designed so a missing Russian translation degrades gracefully to English rather than breaking - which is exactly why gaps can go unnoticed for a long time. This skill is about finding and closing those gaps deliberately, not about the merge mechanism itself (see `AGENTS.md` for that).
+This course has a full English base plus two translated mirrors - Russian and Azerbaijani - across five files each (`data.js`/`data.ru.js`/`data.az.js`, `lessons.js`/`lessons.ru.js`/`lessons.az.js`, and the `CANVAS_RU`/`CANVAS_AZ` dictionaries inside `animations.js`), unified at runtime by `mergeCourse()`/`mergeModule()` in `app.js`. The system is designed so a missing translation degrades gracefully to English rather than breaking - which is exactly why gaps can go unnoticed for a long time. This skill is about finding and closing those gaps deliberately, not about the merge mechanism itself (see `AGENTS.md` for that).
+
+Everything below is written for Russian (`_RU`/`.ru.js`) but applies identically to Azerbaijani - swap `RU`/`ru` for `AZ`/`az`. When translating into Azerbaijani specifically: prefer keeping well-established CS/Go loanwords in English (goroutine, channel, mutex, context, cache line, quorum, etc.) rather than forcing awkward native neologisms - check `data.az.js`/`lessons.az.js`/`CANVAS_AZ` for precedent the same way you'd check the Russian files, and translate from the English source directly rather than from the Russian mirror (translating a translation compounds drift).
 
 ## The rule that decides what to translate
 
@@ -19,14 +21,22 @@ When in doubt about a specific string, check how similar strings were already ha
 
 ## Where to add a translation, by content type
 
-| Content changed | Where the English lives | Where the Russian goes |
-|---|---|---|
-| Module summary/concepts/pitfalls/etc. | `js/data.js` → `MODULES` | `js/data.ru.js` → `MODULES_RU`, same shape |
-| Glossary/Assignments | `js/data.js` → `GLOSSARY`/`ASSIGNMENTS` | `js/data.ru.js` → `GLOSSARY_RU`/`ASSIGNMENTS_RU` |
-| Lesson sections | `js/lessons.js` → `LESSONS` | `js/lessons.ru.js` → `LESSONS` (same key) |
-| Worked example steps | `js/lessons.js` → `WORKED_EXAMPLES` | `js/lessons.ru.js` → `WORKED_EXAMPLES`, **omit `code`/`lang`** so English stays authoritative |
-| UI chrome (buttons, labels, headings) | `js/strings.js` → `UI_STRINGS.en` | `js/strings.js` → `UI_STRINGS.ru`, same key |
-| Canvas-drawn text in an animation | `js/animations.js`, inline in a `draw()` call | `js/animations.js` → `CANVAS_RU` dictionary, keyed by the **exact** English string |
+| Content changed | Where the English lives | Where the Russian goes | Where the Azerbaijani goes |
+|---|---|---|---|
+| Module summary/concepts/pitfalls/etc. | `js/data.js` → `MODULES` | `js/data.ru.js` → `MODULES_RU`, same shape | `js/data.az.js` → `MODULES_AZ`, same shape |
+| Glossary/Assignments | `js/data.js` → `GLOSSARY`/`ASSIGNMENTS` | `js/data.ru.js` → `GLOSSARY_RU`/`ASSIGNMENTS_RU` | `js/data.az.js` → `GLOSSARY_AZ`/`ASSIGNMENTS_AZ` |
+| Lesson sections | `js/lessons.js` → `LESSONS` | `js/lessons.ru.js` → `LESSONS` (same key) | `js/lessons.az.js` → `LESSONS` (same key) |
+| Worked example steps | `js/lessons.js` → `WORKED_EXAMPLES` | `js/lessons.ru.js` → `WORKED_EXAMPLES`, **omit `code`/`lang`** so English stays authoritative | `js/lessons.az.js` → `WORKED_EXAMPLES`, same omission |
+| UI chrome (buttons, labels, headings) | `js/strings.js` → `UI_STRINGS.en` | `js/strings.js` → `UI_STRINGS.ru`, same key | `js/strings.js` → `UI_STRINGS.az`, same key |
+| Canvas-drawn text in an animation | `js/animations.js`, inline in a `draw()` call | `js/animations.js` → `CANVAS_RU` dictionary, keyed by the **exact** English string | `js/animations.js` → `CANVAS_AZ` dictionary, same key |
+
+## Which array/object fields replace wholesale vs. merge per-item
+
+`mergeModule`/`mergeCourse` in `app.js` do NOT treat every field the same way - some fall back to English per-item when a translation is missing, others replace the whole English array/object the moment you provide *any* translated value for that key. Get this backwards and a partial translation silently **deletes** English content on the translated page instead of falling back to it:
+
+- **Per-item merge (safe to translate partially)**: `concepts[]` (merged by index), `animations[]` (merged by index, for modules that carry several visualizations), and the flat sub-objects `ai{title,body,prompt}` / `capstone{...}` (each field falls back independently since it's a plain `Object.assign`). `WORKED_EXAMPLES[id].steps[]` is also merged per-step.
+- **Wholesale replace (all-or-nothing per module)**: `videos[]`, `pitfalls[]`, `takeaways[]`, `checklist[]`, `practice.steps[]`. If you translate one of these for a module, translate every item in it - a 2-of-4 translated `pitfalls` array will show only those 2 pitfalls, not the 2 you skipped falling back to English.
+- **Wholesale replace by module id**: `GLOSSARY[id]`, `ASSIGNMENTS[id]`, `LESSONS[id]` - translate every term/question/section for a module or omit that module's key from the dict entirely.
 
 ## Canvas text specifically: static vs. dynamic
 
@@ -42,11 +52,11 @@ function tr(s) { if (lang() !== "ru") return s; return CANVAS_RU[s] || s; }
 
 ## Auditing for gaps
 
-To find what's untranslated, don't eyeball the Russian page - diff structure instead:
+To find what's untranslated, don't eyeball the translated page - diff structure instead:
 
-1. Run the `validate-js-headless` skill (if available) for both `en` and `ru`. It prints module counts and `UI_STRINGS` key counts for both languages - any mismatch is a real gap, not a maybe.
-2. For canvas text specifically: grep `js/animations.js` for `u\.text\(ctx, "` and `u\.badge\(ctx,` to list every literal string drawn, then check each one has a `CANVAS_RU` entry. A string with no entry renders in English on the Russian page with no error - this only shows up by literally comparing the list against the dictionary keys, never by running the code.
-3. For course content: compare `Object.keys()` on matching English/Russian objects (e.g. `MODULES` vs `MODULES_RU` by module id, or a single module's field set) rather than reading every paragraph.
+1. Run the `validate-js-headless` skill (if available) for `en`, `ru`, and `az`. It prints module counts and `UI_STRINGS` key counts for all three languages - any mismatch is a real gap, not a maybe.
+2. For canvas text specifically: grep `js/animations.js` for `u\.text\(ctx, "` and `u\.badge\(ctx,` to list every literal string drawn, then check each one has both a `CANVAS_RU` and a `CANVAS_AZ` entry. A string with no entry renders in English on the translated page with no error - this only shows up by literally comparing the list against the dictionary keys, never by running the code.
+3. For course content: compare `Object.keys()` on matching English/translated objects (e.g. `MODULES` vs `MODULES_RU`/`MODULES_AZ` by module id, or a single module's field set) rather than reading every paragraph.
 
 ## Bugs this exact project already hit - don't repeat them
 

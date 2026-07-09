@@ -3,7 +3,7 @@
 // runtime errors surface without a browser or Node. No dependencies.
 //
 // Usage:
-//   jsc validate.js -- <repo-root> <lang: en|ru>
+//   jsc validate.js -- <repo-root> <lang: en|ru|az>
 // jsc puts everything after "--" into `arguments`.
 var repoRoot = (typeof arguments !== "undefined" && arguments[0]) || ".";
 var lang = (typeof arguments !== "undefined" && arguments[1]) || "en";
@@ -71,8 +71,10 @@ const jsFiles = [
   "js/strings.js",
   "js/data.js",
   "js/data.ru.js",
+  "js/data.az.js",
   "js/lessons.js",
   "js/lessons.ru.js",
+  "js/lessons.az.js",
   "js/animations.js",
 ];
 
@@ -81,9 +83,10 @@ for (const f of jsFiles) {
 }
 
 print("=== Shape check ===");
-print("UI_STRINGS keys en/ru: " + Object.keys(window.UI_STRINGS.en).length + "/" + Object.keys(window.UI_STRINGS.ru).length);
+print("UI_STRINGS keys en/ru/az: " + Object.keys(window.UI_STRINGS.en).length + "/" + Object.keys(window.UI_STRINGS.ru).length + "/" + Object.keys(window.UI_STRINGS.az).length);
 print("COURSE_EN modules: " + window.COURSE_EN.MODULES.length);
 print("COURSE_RU modules: " + window.COURSE_RU.MODULES.length);
+print("COURSE_AZ modules: " + window.COURSE_AZ.MODULES.length);
 print("ANIMATIONS count: " + Object.keys(window.ANIMATIONS).length);
 
 print("=== Animation render check (lang=" + lang + ") ===");

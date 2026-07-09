@@ -30,10 +30,10 @@
   }
 
   /* ---------------------------------------------------------- language
-     COURSE_RU is allowed to be PARTIAL: translation is filled in module by
-     module. mergeCourse overlays whatever RU has onto the EN base, so any
-     not-yet-translated field/module falls back to English instead of
-     crashing or rendering blank. */
+     COURSE_RU/COURSE_AZ are allowed to be PARTIAL: translation is filled in
+     module by module. mergeCourse overlays whatever the translation has onto
+     the EN base, so any not-yet-translated field/module falls back to
+     English instead of crashing or rendering blank. */
   function mergeModule(em, rm) {
     if (!rm) return em;
     const out = Object.assign({}, em, rm);
@@ -86,13 +86,24 @@
     });
     return out;
   }
-  const LANG = (state.lang === "ru" && window.COURSE_RU) ? "ru" : "en";
+  // Every language the topbar dropdown offers, each shown in its own native name.
+  const LANGS = [
+    { code: "en", name: "English" },
+    { code: "ru", name: "Русский" },
+    { code: "az", name: "Azərbaycan" },
+  ];
+  const TRANSLATED_COURSE = { ru: window.COURSE_RU, az: window.COURSE_AZ };
+  const CANVAS_DICT = { ru: window.CANVAS_RU, az: window.CANVAS_AZ };
+  const LANG = (TRANSLATED_COURSE[state.lang]) ? state.lang : "en";
   window.__LANG__ = LANG; // read by animations.js to pick translated canvas text
-  const COURSE = LANG === "ru" ? mergeCourse(window.COURSE_EN, window.COURSE_RU) : window.COURSE_EN;
+  const COURSE = LANG === "en" ? window.COURSE_EN : mergeCourse(window.COURSE_EN, TRANSLATED_COURSE[LANG]);
   const UI = (window.UI_STRINGS && window.UI_STRINGS[LANG]) || window.UI_STRINGS.en;
   // animation step title/desc/why captions are translated via the same exact-string
-  // dictionary animations.js uses for canvas text (window.CANVAS_RU) - see AGENTS.md.
-  function trCap(s) { return (LANG === "ru" && window.CANVAS_RU && window.CANVAS_RU[s]) || s; }
+  // dictionary animations.js uses for canvas text (window.CANVAS_RU/CANVAS_AZ) - see AGENTS.md.
+  function trCap(s) {
+    const dict = CANVAS_DICT[LANG];
+    return (dict && dict[s]) || s;
+  }
 
   const { COURSE_META, PARTS, MODULES, VERIFICATION, ASSIGNMENTS, GLOSSARY } = COURSE;
   const LESSONS = COURSE.LESSONS || {};
@@ -231,8 +242,10 @@
     rotateCcw: "M3 12a9 9 0 109-9M3 4v8h8",
     chevronLeft: "M15 18l-6-6 6-6",
     chevronRight: "M9 18l6-6-6-6",
+    chevronDown: "M6 9l6 6 6-6",
     play: "M8 5v14l11-7-11-7z",
     pause: "M8 5v14M16 5v14",
+    arrowUp: "M12 19V5M5 12l7-7 7 7",
   };
   const ico = (name, size = 18) =>
     `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${(ICONS[name] || "")
@@ -1090,16 +1103,37 @@
     if (r === "home" || !moduleById[r]) {
       if (r !== "home" && !moduleById[r]) location.hash = "#/home";
       renderHome();
+      document.body.classList.remove("is-module");
     } else {
       renderModule(moduleById[r]);
+      document.body.classList.add("is-module");
     }
     renderSidebar();
     pageEnter();
     setupReveals();
+    updateReadProgress();
     // close mobile nav
     document.body.classList.remove("nav-open");
   }
   window.addEventListener("hashchange", route);
+
+  /* ------------------------------------------------- reading progress
+     A thin bar pinned to the very top of the viewport tracking scroll
+     depth through the current module's content, plus a fade-in
+     back-to-top button once you've scrolled past the fold. Both are
+     no-ops on the home page (toggled via the .is-module body class). */
+  function updateReadProgress() {
+    const bar = $("#read-progress-bar");
+    const btt = $("#back-to-top");
+    const isModule = document.body.classList.contains("is-module");
+    if (bar) {
+      const scrollable = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const pct = isModule && scrollable > 0 ? Math.min(100, Math.max(0, (window.scrollY / scrollable) * 100)) : 0;
+      bar.style.width = pct + "%";
+    }
+    if (btt) btt.classList.toggle("show", isModule && window.scrollY > 480);
+  }
+  window.addEventListener("scroll", updateReadProgress, { passive: true });
 
   /* --------------------------------------------------- theme + chrome */
   function applyTheme() {
@@ -1130,6 +1164,7 @@
   /* ------------------------------------------------------------ boot */
   function boot() {
     document.getElementById("app").innerHTML = `
+      <div class="read-progress"><span id="read-progress-bar"></span></div>
       <header class="topbar">
         <button class="nav-toggle" id="nav-toggle" aria-label="${esc(UI.openMenu)}">${ico("menu", 18)}</button>
         <a class="brand" href="#/home">
@@ -1138,7 +1173,14 @@
         </a>
         <div class="topbar-right">
           <div class="top-progress" id="top-progress"></div>
-          <button class="icon-btn lang-btn" id="lang-btn" title="${esc(UI.toggleLang)}" aria-label="${esc(UI.toggleLangAria)}">${LANG === "ru" ? "EN" : "RU"}</button>
+          <div class="lang-switch" id="lang-switch">
+            <button class="icon-btn lang-btn" id="lang-btn" title="${esc(UI.chooseLanguage)}" aria-label="${esc(UI.chooseLanguage)}" aria-haspopup="listbox" aria-expanded="false">
+              ${LANG.toUpperCase()}${ico("chevronDown", 12)}
+            </button>
+            <ul class="lang-menu" id="lang-menu" role="listbox" aria-label="${esc(UI.chooseLanguage)}">
+              ${LANGS.map((l) => `<li role="option" tabindex="0" data-lang="${l.code}" aria-selected="${l.code === LANG}" class="${l.code === LANG ? "active" : ""}">${esc(l.name)}</li>`).join("")}
+            </ul>
+          </div>
           <button class="icon-btn" id="theme-btn" title="${esc(UI.toggleTheme)}" aria-label="${esc(UI.toggleTheme)}">${ico("moon", 17)}</button>
         </div>
       </header>
@@ -1153,7 +1195,8 @@
         </aside>
         <main id="main"></main>
       </div>
-      <div class="nav-scrim" id="nav-scrim"></div>`;
+      <div class="nav-scrim" id="nav-scrim"></div>
+      <button class="back-to-top" id="back-to-top" aria-label="${esc(UI.backToTop)}" title="${esc(UI.backToTop)}">${ico("arrowUp", 18)}</button>`;
 
     applyDocumentChrome();
     applyTheme();
@@ -1161,13 +1204,50 @@
       state.theme = state.theme === "dark" ? "light" : "dark"; save(); applyTheme();
       activeAnims.forEach((a) => a.render());
     });
-    $("#lang-btn").addEventListener("click", () => {
-      state.lang = LANG === "ru" ? "en" : "ru"; saveNow();
+    const langSwitch = $("#lang-switch"), langBtn = $("#lang-btn"), langMenu = $("#lang-menu");
+    function closeLangMenu() {
+      langSwitch.classList.remove("open");
+      langBtn.setAttribute("aria-expanded", "false");
+    }
+    function selectLang(code) {
+      if (code === LANG) { closeLangMenu(); return; }
+      state.lang = code; saveNow();
       location.reload();
+    }
+    langBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const open = langSwitch.classList.toggle("open");
+      langBtn.setAttribute("aria-expanded", open ? "true" : "false");
+      if (open) $("[data-lang].active", langMenu)?.focus();
+    });
+    langMenu.addEventListener("click", (e) => {
+      const opt = e.target.closest("[data-lang]");
+      if (opt) selectLang(opt.dataset.lang);
+    });
+    langMenu.addEventListener("keydown", (e) => {
+      const opts = $$("[data-lang]", langMenu);
+      const i = opts.indexOf(document.activeElement);
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        if (i >= 0) selectLang(opts[i].dataset.lang);
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault(); opts[(i + 1) % opts.length]?.focus();
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault(); opts[(i - 1 + opts.length) % opts.length]?.focus();
+      }
+    });
+    document.addEventListener("click", (e) => {
+      if (langSwitch.classList.contains("open") && !langSwitch.contains(e.target)) closeLangMenu();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeLangMenu();
     });
     $("#nav-toggle").addEventListener("click", () => document.body.classList.toggle("nav-open"));
     $("#nav-scrim").addEventListener("click", () => document.body.classList.remove("nav-open"));
     $("#nav-filter").addEventListener("input", renderSidebar);
+    $("#back-to-top").addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: REDUCED ? "auto" : "smooth" });
+    });
     updateTopProgress();
     route();
     // keep top progress + sidebar foot fresh
